@@ -24,11 +24,11 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" crossorigin src="/assets/zenless-Ck8LdenE.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/cashback-DiFGDUic.js">
-  <link rel="modulepreload" crossorigin href="/assets/commonHelpers-UftpUM4s.js">
-  <link rel="modulepreload" crossorigin href="/assets/pullLogic-Bz6sPKyd.js">
-  <link rel="stylesheet" crossorigin href="/assets/styles-CokCalaJ.css">
+  <script type="module" crossorigin src="/assets/genshin-AtE0Ov86.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/cashback-D3emIPJs.js">
+  <link rel="modulepreload" crossorigin href="/assets/genshin_tutorial_config-CLPEu1zz.js">
+  <link rel="modulepreload" crossorigin href="/assets/commonHelpers-BPDag3E6.js">
+  <link rel="stylesheet" crossorigin href="/assets/styles-DcSPlNmW.css">
 </head>
 
 <body>
@@ -37,7 +37,7 @@
         <nav class="nav-container" aria-label="Game selection">
             <ul class="nav-list">
                 <li>
-                    <a href="/genshin/" class="nav-button" aria-label="Go to Genshin Impact Calculator">
+                    <a href="/pages/genshin/" class="nav-button" aria-label="Go to Genshin Impact Calculator">
                         <div class="icon-container">
                             <img src="/images/genshin_icon.jpeg" class="nav-icon">
                         </div>
@@ -45,7 +45,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/HSR/" class="nav-button" aria-label="Go to Honkai Star Rail Calculator">
+                    <a href="/pages/HSR/" class="nav-button" aria-label="Go to Honkai Star Rail Calculator">
                         <div class="icon-container">
                             <img src="/images/honkai_icon.png" class="nav-icon">
                         </div>
@@ -53,7 +53,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/zenless/" class="nav-button" aria-label="Go to Zenless Zone Zero Calculator">
+                    <a href="/pages/zenless/" class="nav-button" aria-label="Go to Zenless Zone Zero Calculator">
                         <div class="icon-container">
                             <img src="/images/zenless_icon.jpeg" class="nav-icon">
                         </div>
@@ -61,8 +61,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/GFL2/" class="nav-button"
-                        aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator">
+                    <a href="/pages/GFL2/" class="nav-button" aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator">
                         <div class="icon-container">
                             <img src="/images/gfl2_icon.jpg" class="nav-icon">
                         </div>
@@ -70,7 +69,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
+                    <a href="/pages/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
                         <div class="icon-container">
                             <img src="/images/reverse_icon.png" class="nav-icon">
                         </div>
@@ -92,13 +91,13 @@
     <!-- Background Image -->
     <div class="background-container">
         <div class="image-fade"></div>
-        <img src="/images/zenless_bg.jpg" alt="Background art">
+        <img src="/images/genshin_bg_cropped.jpg" alt="Background art">
     </div>
 
     <!-- Main Content -->
     <main class="main-content">
         <section class="content-box" aria-label="Calculator interface">
-            <h1 class="main-title">Zenless Zone Zero Gacha Calculator</h1>
+            <h1 class="main-title">Genshin Impact Gacha Calculator</h1>
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
@@ -123,6 +122,7 @@
                                             <th>Guarantee</th>
                                             <th>Pity</th>
                                             <th>Guarantee</th>
+                                            <th>CapRad/EpPath</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -138,13 +138,13 @@
                                         <tr>
                                             <th>Rarity</th>
                                             <th>None</th>
-                                            <th>m0</th>
-                                            <th>m1</th>
-                                            <th>m2</th>
-                                            <th>m3</th>
-                                            <th>m4</th>
-                                            <th>m5</th>
-                                            <th>m6</th>
+                                            <th>c0</th>
+                                            <th>c1</th>
+                                            <th>c2</th>
+                                            <th>c3</th>
+                                            <th>c4</th>
+                                            <th>c5</th>
+                                            <th>c6</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -184,6 +184,12 @@
                                             <select class="custom-select" data-control="rate-up-slot-2"></select>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>Character Slot 3</td>
+                                        <td>
+                                            <select class="custom-select" data-control="rate-up-slot-3"></select>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -193,12 +199,16 @@
                             accept=".json,application/json">
                         <label for="import-file-input" class="btn btn--import" id="import-btn">Import Data</label>
                         <button class="btn btn--export" id="export-btn">Export Data</button>
+                        <button class="help-btn" type="button" data-help-key="import-paimon-help"
+                            aria-label="Help for Importing Pity Data">
+                            ?
+                        </button>
                     </div>
                 </div>
                 <div class="pull-plan-section">
                     <div id="pull-plan">
                         <h2>Pull Plan</h2>
-                        <div class="row rarity-row">
+                        <div class="row">
                             <select class="rarity" onchange="updatePitySettings(this.value)">
                                 <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
                                 <option value="★★★★">★★★★</option>
@@ -267,6 +277,7 @@
             <!-- 5★ Section -->
             <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"></td>
             <td><input type="checkbox" class="guarantee-5"></td>
+            <td class="special-mechanic"></td>
         </tr>
     </template>
     <template id="row-template">
@@ -307,6 +318,9 @@
     <template id="const-column-template">
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
+
+
+    <button id="start-tour-btn">Start Guided Tour</button>
 </body>
 
 </html>
