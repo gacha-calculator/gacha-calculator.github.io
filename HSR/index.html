@@ -24,8 +24,9 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" crossorigin src="/assets/gfl2-cf4D6TRv.js"></script>
+  <script type="module" crossorigin src="/assets/hsr-If2APXR8.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/cashback-D3emIPJs.js">
+  <link rel="modulepreload" crossorigin href="/assets/chibi_tutorial-C_WtWaAP.js">
   <link rel="modulepreload" crossorigin href="/assets/commonHelpers-BPDag3E6.js">
   <link rel="modulepreload" crossorigin href="/assets/pullLogic-C2ZBZaH4.js">
   <link rel="stylesheet" crossorigin href="/assets/styles-xmW3mDt2.css">
@@ -37,7 +38,7 @@
         <nav class="nav-container" aria-label="Game selection">
             <ul class="nav-list">
                 <li>
-                    <a href="/src/js/games/genshin/" class="nav-button" aria-label="Go to Genshin Impact Calculator">
+                    <a href="/genshin/" class="nav-button" aria-label="Go to Genshin Impact Calculator">
                         <div class="icon-container">
                             <img src="/images/genshin_icon.jpeg" class="nav-icon">
                         </div>
@@ -45,7 +46,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/src/js/games/HSR/" class="nav-button" aria-label="Go to Honkai Star Rail Calculator">
+                    <a href="/HSR/" class="nav-button" aria-label="Go to Honkai Star Rail Calculator">
                         <div class="icon-container">
                             <img src="/images/honkai_icon.png" class="nav-icon">
                         </div>
@@ -53,7 +54,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/src/js/games/zenless/" class="nav-button" aria-label="Go to Zenless Zone Zero Calculator">
+                    <a href="/ZZZ/" class="nav-button" aria-label="Go to Zenless Zone Zero Calculator">
                         <div class="icon-container">
                             <img src="/images/zenless_icon.jpeg" class="nav-icon">
                         </div>
@@ -61,7 +62,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/src/js/games/GFL2/" class="nav-button"
+                    <a href="/GFL2/" class="nav-button"
                         aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator">
                         <div class="icon-container">
                             <img src="/images/gfl2_icon.jpg" class="nav-icon">
@@ -70,7 +71,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/src/js/games/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
+                    <a href="/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
                         <div class="icon-container">
                             <img src="/images/reverse_icon.png" class="nav-icon">
                         </div>
@@ -92,13 +93,13 @@
     <!-- Background Image -->
     <div class="background-container">
         <div class="image-fade"></div>
-        <img src="/images/GFL2_bg.jpg" alt="Background art">
+        <img src="/images/honkai_bg.jpeg" alt="Background art">
     </div>
 
     <!-- Main Content -->
     <main class="main-content">
         <section class="content-box" aria-label="Calculator interface">
-            <h1 class="main-title">Girl's Frontline 2: Exilium Gacha Calculator</h1>
+            <h1 class="main-title">Honkai Star Rail Gacha Calculator</h1>
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
@@ -138,13 +139,13 @@
                                         <tr>
                                             <th>Rarity</th>
                                             <th>None</th>
-                                            <th>v0</th>
-                                            <th>v1</th>
-                                            <th>v2</th>
-                                            <th>v3</th>
-                                            <th>v4</th>
-                                            <th>v5</th>
-                                            <th>v6</th>
+                                            <th>e0</th>
+                                            <th>e1</th>
+                                            <th>e2</th>
+                                            <th>e3</th>
+                                            <th>e4</th>
+                                            <th>e5</th>
+                                            <th>e6</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -182,6 +183,12 @@
                                         <td>Character Slot 2</td>
                                         <td>
                                             <select class="custom-select" data-control="rate-up-slot-2"></select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Character Slot 3</td>
+                                        <td>
+                                            <select class="custom-select" data-control="rate-up-slot-3"></select>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -265,7 +272,7 @@
             <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"></td>
             <td><input type="checkbox" class="guarantee-4"></td>
             <!-- 5★ Section -->
-            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max='76'></td>
+            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"></td>
             <td><input type="checkbox" class="guarantee-5"></td>
         </tr>
     </template>
@@ -307,6 +314,8 @@
     <template id="const-column-template">
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
+
+    <button id="start-tour-btn">Start Guided Tour</button>
 </body>
 
 </html>
