@@ -24,9 +24,10 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" crossorigin src="/assets/r1999-BJyKxRKt.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/cashback-dbOUira0.js">
-  <link rel="stylesheet" crossorigin href="/assets/styles-xmW3mDt2.css">
+  <script type="module" crossorigin src="/assets/r1999-DJDNC6JK.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/solvers-CbfgVQJ-.js">
+  <link rel="modulepreload" crossorigin href="/assets/common-helpers-BPUYLRbn.js">
+  <link rel="stylesheet" crossorigin href="/assets/styles-D9ZMFdjQ.css">
 </head>
 
 <body>
@@ -59,8 +60,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/GFL2/" class="nav-button"
-                        aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator">
+                    <a href="/GFL2/" class="nav-button" aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator">
                         <div class="icon-container">
                             <img src="/images/gfl2_icon.jpg" class="nav-icon">
                         </div>
@@ -112,13 +112,10 @@
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th colspan="2">★★★★</th>
                                             <th colspan="3">⭐⭐⭐⭐⭐</th>
                                         </tr>
                                         <tr>
                                             <th></th>
-                                            <th>Pity</th>
-                                            <th>Guarantee</th>
                                             <th>Pity</th>
                                             <th>Guarantee</th>
                                         </tr>
@@ -167,11 +164,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Each row represents a rate-up character slot -->
                                     <tr>
                                         <td>Character Slot 1</td>
                                         <td>
-                                            <!-- The select element is here, but it's empty. JS will populate it. -->
                                             <select class="custom-select" data-control="rate-up-slot-1"></select>
                                         </td>
                                     </tr>
@@ -227,7 +222,7 @@
                     <span class="control-text mode-label" data-target="probability">probability</span>
                     <span class="control-text">or</span>
                     <div class="input-lock-container">
-                        <input type="number" data-control="pulls" class="custom-input" min="0" max="9999">
+                        <input type="number" data-control="pulls" class="custom-input" min="1" max="9999">
                     </div>
                     <span class="control-text mode-label" data-target="pulls">pulls</span>
                 </div>
@@ -254,15 +249,11 @@
             </div>
         </section>
     </main>
-    <!-- Pity Row Template -->
+
     <template id="pity-row-template">
         <tr>
             <td class="banner-name"></td>
-            <!-- 4★ Section -->
-            <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="10"></td>
-            <td><input type="checkbox" class="guarantee-4"></td>
-            <!-- 5★ Section -->
-            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max='90'></td>
+            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="90"></td>
             <td><input type="checkbox" class="guarantee-5"></td>
         </tr>
     </template>
@@ -270,7 +261,6 @@
         <div class="row">
             <select class="type-selector" style="display: none;">
                 <option value="char" data-icon="images/Icon_Character.jpg">Character</option>
-                <option value="wep" data-icon="images/Icon_Claymore.jpg">Weapon</option>
             </select>
 
             <div class="dropdown">
@@ -283,13 +273,14 @@
                         <img src="/images/Icon_Character.jpg" class="type-icon">
                         <span>Character</span>
                     </div>
-                    <div class="dropdown__item" data-value="wep">
-                        <img src="/images/Icon_Claymore.jpg" class="type-icon">
-                        <span>Weapon</span>
-                    </div>
                 </div>
             </div>
-
+            <div>
+                <input type="number" data-control="pity-4" class="custom-input" min="0" max="10" value="0">
+            </div>
+            <div>
+                <input type="checkbox" class="guarantee-4">
+            </div>
             <div class="paths">
                 <select class="first-select"></select>
                 <span class="arrow">→</span>
@@ -300,7 +291,6 @@
             <button class="btn btn--delete">×</button>
         </div>
     </template>
-    <!-- Constellation Column Template -->
     <template id="const-column-template">
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
