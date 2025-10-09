@@ -24,10 +24,10 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" crossorigin src="/assets/genshin-f1MI4GOq.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/solvers-D-av1cDx.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-B5lDuaan.js">
-  <link rel="stylesheet" crossorigin href="/assets/styles-BKKQE9rh.css">
+  <script type="module" crossorigin src="/assets/genshin-D8XcZJQc.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/solvers-BhFii6kz.js">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-CdRji2W1.js">
+  <link rel="stylesheet" crossorigin href="/assets/styles-DfkYzdZT.css">
 </head>
 
 <body>
@@ -60,8 +60,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/GFL2/" class="nav-button"
-                        aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator">
+                    <a href="/GFL2/" class="nav-button" aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator">
                         <div class="icon-container">
                             <img src="/images/gfl2_icon.jpg" class="nav-icon">
                         </div>
@@ -113,7 +112,7 @@
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th colspan="2">★★★★</th>
+                                            <th colspan="2">⭐⭐⭐⭐</th>
                                             <th colspan="3">⭐⭐⭐⭐⭐</th>
                                         </tr>
                                         <tr>
@@ -195,14 +194,22 @@
                         </div>
                     </div>
                     <div class="data-buttons">
-                        <input type="file" id="import-file-input" style="display: none;"
-                            accept=".json,application/json">
-                        <label for="import-file-input" class="btn btn--import" id="import-btn">Import Data</label>
-                        <button class="btn btn--export" id="export-btn">Export Data</button>
-                        <button class="help-btn" type="button" data-help-key="import-paimon-help"
-                            aria-label="Help for Importing Pity Data">
-                            ?
-                        </button>
+                        <div class="button-container">
+                            <input type="file" id="import-file-input" style="display: none;"
+                                accept=".json,application/json">
+                            <label for="import-file-input" class="btn btn--import" id="import-btn">Import Data</label>
+                            <button class="help-btn" data-help-key="import-help"
+                                aria-label="Help for Importing Pity Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
+                            <button class="btn btn--export" id="export-btn">Export Data</button>
+                            <button class="help-btn" data-help-key="export-help"
+                                aria-label="Help for Exporting Pity Data">
+                                ?
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="pull-plan-section">
@@ -211,7 +218,7 @@
                         <div class="row">
                             <select class="rarity" onchange="updatePitySettings(this.value)">
                                 <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
-                                <option value="★★★★">★★★★</option>
+                                <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option>
                             </select>
                         </div>
                     </div>
@@ -248,7 +255,7 @@
 
             <div class="table-container">
                 <table id="probability-table" class="probability-table">
-                    <thead> 
+                    <thead>
                         <tr>
                             <th class="const-col">Target Item</th>
                             <th class="prob-col">Probability</th>
@@ -265,6 +272,8 @@
                     </tbody>
                 </table>
             </div>
+            <button id="start-tour-btn" class="btn btn--tour">Quick Tutorial</button>
+            <button class="btn btn--hide-buttons">Hide Help Buttons</button>
         </section>
     </main>
     <!-- Pity Row Template -->
@@ -318,9 +327,6 @@
     <template id="const-column-template">
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
-
-
-    <button id="start-tour-btn">Start Guided Tour</button>
 </body>
 
 </html>
