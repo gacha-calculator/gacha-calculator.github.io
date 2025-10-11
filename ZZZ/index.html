@@ -24,12 +24,12 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" crossorigin src="/assets/zenless-BEO_Zag3.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/solvers-BhFii6kz.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-CdRji2W1.js">
+  <script type="module" crossorigin src="/assets/zenless-D_nSx_8G.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/solvers-DBCZW7m7.js">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-Bc--O5Zt.js">
   <link rel="modulepreload" crossorigin href="/assets/common-helpers-BPUYLRbn.js">
   <link rel="modulepreload" crossorigin href="/assets/common-pull-logic-eoLatjHO.js">
-  <link rel="stylesheet" crossorigin href="/assets/styles-DfkYzdZT.css">
+  <link rel="stylesheet" crossorigin href="/assets/styles-C7K7QC-7.css">
 </head>
 
 <body>
@@ -102,9 +102,26 @@
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
-                        <button class="tab-link active" data-tab-target="#pity-panel">Pity</button>
-                        <button class="tab-link" data-tab-target="#constellation-panel">Owned Characters</button>
-                        <button class="tab-link" data-tab-target="#rateup-panel">Rate-Ups</button>
+                        <div class="button-container">
+                            <button class="tab-link active" data-tab-target="#pity-panel">Pity</button>
+                            <button class="help-btn" data-help-key="pity-help" aria-label="Help for Entering Pity Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
+                            <button class="tab-link" data-tab-target="#constellation-panel">Owned Characters</button>
+                            <button class="help-btn" data-help-key="constelation-help"
+                                aria-label="Help for Entering Constellation Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
+                            <button class="tab-link" data-tab-target="#rateup-panel">Rate-Ups</button>
+                            <button class="help-btn" data-help-key="rate-up-help"
+                                aria-label="Help for Entering Rate Up Data">
+                                ?
+                            </button>
+                        </div>
                     </div>
 
                     <div class="tab-content">
@@ -160,7 +177,6 @@
                         </div>
                     </div>
                     <div id="rateup-panel" class="tab-pane">
-
                         <div class="table-container">
                             <table id="rate-up-table">
                                 <thead>
@@ -189,16 +205,34 @@
                         </div>
                     </div>
                     <div class="data-buttons">
-                        <input type="file" id="import-file-input" style="display: none;"
-                            accept=".json,application/json">
-                        <label for="import-file-input" class="btn btn--import" id="import-btn">Import Data</label>
-                        <button class="btn btn--export" id="export-btn">Export Data</button>
+                        <div class="button-container">
+                            <input type="file" id="import-file-input" style="display: none;"
+                                accept=".json,application/json">
+                            <label for="import-file-input" class="btn btn--import" id="import-btn">Import Data</label>
+                            <button class="help-btn" data-help-key="import-help"
+                                aria-label="Help for Importing Pity Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
+                            <button class="btn btn--export" id="export-btn">Export Data</button>
+                            <button class="help-btn" data-help-key="export-help"
+                                aria-label="Help for Exporting Pity Data">
+                                ?
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="pull-plan-section">
                     <div id="pull-plan">
-                        <h2>Pull Plan</h2>
-                        <div class="row rarity-row">
+                        <div class="button-container">
+                            <h2>Pull Plan</h2>
+                            <button class="help-btn" data-help-key="pull-plan-help"
+                                aria-label="Help for Entering Pity Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="row">
                             <select class="rarity" onchange="updatePitySettings(this.value)">
                                 <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
                                 <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option>
@@ -221,39 +255,49 @@
 
             <div class="table-header-line">
                 <h2>Probability Distribution and Cashback</h2>
-                <div class="header-controls">
-                    <span class="control-text">for</span>
-                    <div class="input-lock-container">
-                        <input type="number" data-control="probability" class="custom-input" min="0" max="100">
+                <div class="button-container">
+                    <div class="header-controls">
+                        <span class="control-text">for</span>
+                        <div class="input-lock-container">
+                            <input type="number" data-control="probability" class="custom-input" min="0" max="100">
+                        </div>
+                        <span class="control-text">%</span>
+                        <span class="control-text mode-label" data-target="probability">probability</span>
+                        <span class="control-text">or</span>
+                        <div class="input-lock-container">
+                            <input type="number" data-control="pulls" class="custom-input" min="1" max="9999">
+                        </div>
+                        <span class="control-text mode-label" data-target="pulls">pulls</span>
                     </div>
-                    <span class="control-text">%</span>
-                    <span class="control-text mode-label" data-target="probability">probability</span>
-                    <span class="control-text">or</span>
-                    <div class="input-lock-container">
-                        <input type="number" data-control="pulls" class="custom-input" min="1" max="9999">
-                    </div>
-                    <span class="control-text mode-label" data-target="pulls">pulls</span>
+                    <button class="help-btn" data-help-key="target-help" aria-label="Help for Exporting Pity Data">
+                        ?
+                    </button>
                 </div>
             </div>
 
             <div class="table-container">
-                <table id="probability-table" class="probability-table">
-                    <thead>
-                        <tr>
-                            <th class="const-col">Target Item</th>
-                            <th class="prob-col">Probability</th>
-                            <th class="cashback-col"><span class="cashback-header">P10<br><span
-                                        class="cashback-sub">Cashback</span></span></th>
-                            <th class="cashback-col highlight"><span class="cashback-header">Mean<br><span
-                                        class="cashback-sub">Cashback</span></span></th>
-                            <th class="cashback-col"><span class="cashback-header">P90<br><span
-                                        class="cashback-sub">Cashback</span></span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Filled by JS -->
-                    </tbody>
-                </table>
+                <div class="button-container">
+                    <table id="probability-table" class="probability-table">
+                        <thead>
+                            <tr>
+                                <th class="const-col">Target Item</th>
+                                <th class="prob-col">Probability</th>
+                                <th class="cashback-col"><span class="cashback-header">P10<br><span
+                                            class="cashback-sub">Cashback</span></span></th>
+                                <th class="cashback-col highlight"><span class="cashback-header">Mean<br><span
+                                            class="cashback-sub">Cashback</span></span></th>
+                                <th class="cashback-col"><span class="cashback-header">P90<br><span
+                                            class="cashback-sub">Cashback</span></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filled by JS -->
+                        </tbody>
+                    </table>
+                    <button class="help-btn" data-help-key="cashback-help" aria-label="Help for Exporting Pity Data">
+                        ?
+                    </button>
+                </div>
             </div>
             <button id="start-tour-btn" class="btn btn--tour">Quick Tutorial</button>
         </section>
