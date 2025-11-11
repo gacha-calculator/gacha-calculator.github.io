@@ -16,7 +16,7 @@
     <meta name="msapplication-TileColor" content="#2b5797">
     <meta name="theme-color" content="#ffffff">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
@@ -24,8 +24,126 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/styles-3ozNIjuX.css">
+  <link rel="stylesheet" crossorigin href="/assets/styles-zmi8ekHc.css">
 </head>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        this.expandBtn = document.getElementById('expand-button');
+        this.expandedMenu = document.getElementById('expandedMenu');
+        let draggedItem = null;
+
+        if (this.expandBtn) {
+            this.expandBtn.addEventListener('click', () => {
+                this.expandBtn.classList.toggle('dropdown--open');
+                this.expandedMenu.classList.toggle('active');
+            });
+        }
+
+        const buttons = document.querySelectorAll('.nav-button');
+
+        // Drag and drop functionality
+        buttons.forEach(button => {
+            button.addEventListener('dragstart', function (e) {
+                draggedItem = this;
+                setTimeout(() => {
+                    this.classList.add('dragging');
+                }, 0);
+            });
+
+            button.addEventListener('dragend', function () {
+                this.classList.remove('dragging');
+                draggedItem = null;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('drop-zone');
+                });
+            });
+
+            button.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                if (draggedItem && draggedItem !== this) {
+                    this.classList.add('drop-zone');
+                }
+            });
+
+            button.addEventListener('dragleave', function () {
+                this.classList.remove('drop-zone');
+            });
+
+            button.addEventListener('drop', function (e) {
+                e.preventDefault();
+                this.classList.remove('drop-zone');
+
+                if (draggedItem && draggedItem !== this) {
+                    const draggedParent = draggedItem.parentNode;
+                    const targetParent = this.parentNode;
+
+                    const temp1 = document.createElement('div');
+                    const temp2 = document.createElement('div');
+
+                    draggedParent.insertBefore(temp1, draggedItem);
+                    targetParent.insertBefore(temp2, this);
+
+                    draggedParent.insertBefore(this, temp1);
+                    targetParent.insertBefore(draggedItem, temp2);
+
+                    draggedParent.removeChild(temp1);
+                    targetParent.removeChild(temp2);
+
+                    saveNavOrder();
+                }
+            });
+        });
+
+        function saveNavOrder() {
+            const mainNav = document.querySelector('.nav-list');
+            const expandedNav = document.querySelector('.nav-container--expanded .nav-list');
+
+            const order = {
+                main: Array.from(mainNav.children).slice(0, -1).map(li => li.querySelector('.nav-button').getAttribute('href')),
+                expanded: Array.from(expandedNav.children).map(li => li.querySelector('.nav-button').getAttribute('href'))
+            };
+
+            localStorage.setItem('navOrder', JSON.stringify(order));
+        }
+
+        function loadNavOrder() {
+            const saved = JSON.parse(localStorage.getItem('navOrder'));
+            if (!saved) return;
+
+            const mainNav = document.querySelector('.nav-list');
+            const expandedNav = document.querySelector('.nav-container--expanded .nav-list');
+            const homeButton = mainNav.lastElementChild;
+
+            const allItems = new Map();
+            document.querySelectorAll('li').forEach(li => {
+                const button = li.querySelector('.nav-button');
+                if (button) {
+                    allItems.set(button.getAttribute('href'), li);
+                }
+            });
+
+            const mainItems = Array.from(mainNav.children).slice(0, -1);
+            mainItems.forEach(li => li.remove());
+            expandedNav.innerHTML = '';
+
+            saved.main.forEach(href => {
+                const li = allItems.get(href);
+                if (li) mainNav.insertBefore(li, homeButton);
+            });
+
+            saved.expanded.forEach(href => {
+                const li = allItems.get(href);
+                if (li) expandedNav.appendChild(li);
+            });
+
+            const navContainer = document.querySelector('.nav-container');
+            navContainer.style.opacity = '1';
+        }
+        loadNavOrder();
+    });
+</script>
 
 <body>
     <!-- Header -->
@@ -80,15 +198,26 @@
                             </div>
                             <span>Home</span>
                         </a>
-                        <a href="/" class="expand-button" aria-label="Expand Game Selection">
+                        <div class="expand-button" id="expand-button" aria-label="Expand Game Selection">
                             <svg id="Flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
                                 <path style="fill:#232338; stroke:#cbc8db; stroke-width: 3px"
                                     d="M236.77344,211.97656a23.75471,23.75471,0,0,1-20.79688,12.01563H40.02344a23.9925,23.9925,0,0,1-20.76563-36.02344L107.23437,35.97656h-.00781a24.00413,24.00413,0,0,1,41.54688,0l87.96875,151.99219A23.744,23.744,0,0,1,236.77344,211.97656Z" />
                             </svg>
-                        </a>
+                        </div>
                     </div>
                 </li>
             </ul>
+            <div class="nav-container--expanded" id="expandedMenu">
+                <ul class="nav-list">
+                    <a href="/GFL2/" class="nav-button" aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator"
+                        draggable="true">
+                        <div class="icon-container">
+                            <img src="/images/gfl2_icon.jpg" class="nav-icon">
+                        </div>
+                        <span>Girls Frontline 2: Exilium</span>
+                    </a>
+                </ul>
+            </div>
         </nav>
     </header>
 
@@ -159,10 +288,9 @@
                     </a>
                 </li>
 
-                <h1>Upcoming updates(Only if I see enough interest from the people):</h1>
-                <p>Wuthering waves</p>
+                <h2>Upcoming updates(Only if I see enough interest from the people):</h2>
                 <p>4* risk calculator</p>
-                <h1>Suggestion box</h1>
+                <h2>Suggestion box</h2>
                 <p>Leave suggestions(games/features) or report a bug here:
                     <a href="url">https://forms.gle/WWf6rESYDqNEDmjU8</a>
                 </p>
