@@ -175,6 +175,9 @@ export class zenlessPageController {
             });
         }
         loadNavOrder();
+        const navContainer = document.querySelector('.nav-container');
+        navContainer.style.opacity = '1';
+        
         if (this.calculateBtn) {
             this.calculateBtn.addEventListener('click', async () => {
                 if (this.#runValidation()) {
@@ -217,9 +220,6 @@ export class zenlessPageController {
                 this.persistence.saveButtons();
             });
         }
-
-        const navContainer = document.querySelector('.nav-container');
-        navContainer.style.opacity = '1';
     }
 
     #runValidation() {

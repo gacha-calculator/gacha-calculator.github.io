@@ -178,10 +178,10 @@ export class GenshinPageController {
                 if (li) expandedNav.appendChild(li);
             });
 
-            const navContainer = document.querySelector('.nav-container');
-            navContainer.style.opacity = '1';
         }
         loadNavOrder();
+        const navContainer = document.querySelector('.nav-container');
+        navContainer.style.opacity = '1';
 
         if (this.calculateBtn) {
             this.calculateBtn.addEventListener('click', async () => {
