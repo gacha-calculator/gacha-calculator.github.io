@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gacha Calculator</title>
+
+    <!-- Favicon Links -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/home_icon.jpeg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link href="/src/css/styles.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="/stylesheet" />
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container" aria-label="Game selection">
+            <ul class="nav-list">
+                <li>
+                    <a href="/genshin/" class="nav-button" aria-label="Go to Genshin Impact Calculator">
+                        <div class="icon-container">
+                            <img src="/images/genshin_icon.jpeg" class="nav-icon">
+                        </div>
+                        <span>Genshin Impact</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/HSR/" class="nav-button" aria-label="Go to Honkai Star Rail Calculator">
+                        <div class="icon-container">
+                            <img src="/images/honkai_icon.png" class="nav-icon">
+                        </div>
+                        <span>Honkai Star Rail</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/ZZZ/" class="nav-button" aria-label="Go to Zenless Zone Zero Calculator">
+                        <div class="icon-container">
+                            <img src="/images/zenless_icon.jpeg" class="nav-icon">
+                        </div>
+                        <span>Zenless Zone Zero</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/wuwa/" class="nav-button" aria-label="Go to Wuthering Waves Calculator">
+                        <div class="icon-container">
+                            <img src="/images/wuwa_icon.jpg" class="nav-icon">
+                        </div>
+                        <span>Wuthering Waves</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
+                        <div class="icon-container">
+                            <img src="/images/reverse_icon.png" class="nav-icon">
+                        </div>
+                        <span>Reverse 1999</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="home-button-group">
+                        <a href="/" class="nav-button--home" aria-label="Go to Home Page">
+                            <div class="icon-container">
+                                <img src="/images/home_icon.jpeg" class="nav-icon">
+                            </div>
+                            <span>Home</span>
+                        </a>
+                        <div class="expand-button" id="expand-button" aria-label="Expand Game Selection">
+                            <svg id="Flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                <path style="fill:#232338; stroke:#cbc8db; stroke-width: 3px"
+                                    d="M236.77344,211.97656a23.75471,23.75471,0,0,1-20.79688,12.01563H40.02344a23.9925,23.9925,0,0,1-20.76563-36.02344L107.23437,35.97656h-.00781a24.00413,24.00413,0,0,1,41.54688,0l87.96875,151.99219A23.744,23.744,0,0,1,236.77344,211.97656Z" />
+                            </svg>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="nav-container--expanded" id="expandedMenu">
+                <ul class="nav-list">
+                    <li>
+                        <a href="/GFL2/" class="nav-button"
+                            aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator" draggable="true">
+                            <div class="icon-container">
+                                <img src="/images/gfl2_icon.jpg" class="nav-icon">
+                            </div>
+                            <span>Girls Frontline 2: Exilium</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Background Image -->
+    <div class="background-container">
+        <div class="image-fade"></div>
+        <img src="/images/wuwa_bg.jpg" alt="Background art">
+    </div>
+
+    <div class="small-background-container">
+        <img src="/images/zenless_bg_small.jpg" alt="Background art">
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="content-box" aria-label="Calculator interface">
+            <h1 class="main-title">Wuthering Waves Gacha Calculator</h1>
+            <div class="calculator-container">
+                <div class="tab-panel-card">
+                    <div class="tab-nav">
+                        <div class="button-container">
+                            <button class="tab-link active" data-tab-target="#pity-panel">Pity</button>
+                            <button class="help-btn" data-help-key="pity-help" aria-label="Help for Entering Pity Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
+                            <button class="tab-link" data-tab-target="#constellation-panel">Owned Characters</button>
+                            <button class="help-btn" data-help-key="constelation-help"
+                                aria-label="Help for Entering Constellation Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
+                            <button class="tab-link" data-tab-target="#rateup-panel">Rate-Ups</button>
+                            <button class="help-btn" data-help-key="rate-up-help"
+                                aria-label="Help for Entering Rate Up Data">
+                                ?
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content">
+                        <div id="pity-panel" class="tab-pane active">
+                            <div class="table-container">
+                                <table id="pity-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th colspan="2">⭐⭐⭐⭐</th>
+                                            <th colspan="2">⭐⭐⭐⭐⭐</th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th>Pity</th>
+                                            <th>Guarantee</th>
+                                            <th>Pity</th>
+                                            <th>Guarantee</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="constellation-panel" class="tab-pane">
+                            <div class="table-container">
+                                <table id="constellation-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rarity</th>
+                                            <th>None</th>
+                                            <th>m0</th>
+                                            <th>m1</th>
+                                            <th>m2</th>
+                                            <th>m3</th>
+                                            <th>m4</th>
+                                            <th>m5</th>
+                                            <th>m6</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-rarity="5">
+                                            <td>5★</td>
+                                        </tr>
+                                        <tr data-rarity="4">
+                                            <td>4★</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="rateup-panel" class="tab-pane">
+                        <div class="table-container">
+                            <table id="rate-up-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rate-Up Slot</th>
+                                        <th>Current Constellation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Each row represents a rate-up character slot -->
+                                    <tr>
+                                        <td>Character Slot 1</td>
+                                        <td>
+                                            <!-- The select element is here, but it's empty. JS will populate it. -->
+                                            <select class="custom-select" data-control="rate-up-slot-1"></select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Character Slot 2</td>
+                                        <td>
+                                            <select class="custom-select" data-control="rate-up-slot-2"></select>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="data-buttons">
+                        <div class="button-container">
+                            <input type="file" id="import-file-input" style="display: none;"
+                                accept=".json,application/json">
+                            <label for="import-file-input" class="btn btn--import" id="import-btn">Import Data</label>
+                            <button class="help-btn" data-help-key="import-help"
+                                aria-label="Help for Importing Pity Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
+                            <button class="btn btn--export" id="export-btn">Export Data</button>
+                            <button class="help-btn" data-help-key="export-help"
+                                aria-label="Help for Exporting Pity Data">
+                                ?
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pull-plan-section">
+                    <div id="pull-plan">
+                        <div class="button-container">
+                            <h2>Pull Plan</h2>
+                            <button class="help-btn" data-help-key="pull-plan-help"
+                                aria-label="Help for Entering Pity Data">
+                                ?
+                            </button>
+                        </div>
+                        <div class="row">
+                            <select class="rarity" onchange="updatePitySettings(this.value)">
+                                <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="rows-container"></div>
+                    <button id="add-btn" class="btn btn--add">+</button>
+                    <div class="calculate-section">
+                        <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-header-line">
+                <h2>Probability Distribution and Cashback</h2>
+                <div class="button-container">
+                    <div class="header-controls">
+                        <span class="control-text">for</span>
+                        <div class="input-lock-container">
+                            <input type="number" data-control="probability" class="custom-input" min="0" max="100">
+                        </div>
+                        <span class="control-text">%</span>
+                        <span class="control-text mode-label" data-target="probability">probability</span>
+                        <span class="control-text">or</span>
+                        <div class="input-lock-container">
+                            <input type="number" data-control="pulls" class="custom-input" min="1" max="9999">
+                        </div>
+                        <span class="control-text mode-label" data-target="pulls">pulls</span>
+                    </div>
+                    <button class="help-btn" data-help-key="target-help" aria-label="Help for Exporting Pity Data">
+                        ?
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="button-container">
+                    <table id="probability-table" class="probability-table">
+                        <thead>
+                            <tr>
+                                <th class="const-col">Target Item</th>
+                                <th class="prob-col">Probability</th>
+                                <th class="cashback-col"><span class="cashback-header">P10<br><span
+                                            class="cashback-sub">Cashback</span></span></th>
+                                <th class="cashback-col highlight"><span class="cashback-header">Mean<br><span
+                                            class="cashback-sub">Cashback</span></span></th>
+                                <th class="cashback-col"><span class="cashback-header">P90<br><span
+                                            class="cashback-sub">Cashback</span></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filled by JS -->
+                        </tbody>
+                    </table>
+                    <button class="help-btn" data-help-key="cashback-help" aria-label="Help for Exporting Pity Data">
+                        ?
+                    </button>
+                </div>
+            </div>
+            <button id="start-tour-btn" class="btn btn--tour">Quick Tutorial</button>
+            <button id="toggle-buttons-btn" class="btn btn--hide-buttons">Hide Help Buttons</button>
+        </section>
+    </main>
+    <script type="module" src="/src/js/games/wuwa/main.js"></script>
+    <!-- Pity Row Template -->
+    <template id="pity-row-template">
+        <tr>
+            <td class="banner-name"></td>
+            <!-- 4★ Section -->
+            <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"></td>
+            <td><input type="checkbox" class="guarantee-4"></td>
+            <!-- 5★ Section -->
+            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"></td>
+            <td><input type="checkbox" class="guarantee-5"></td>
+        </tr>
+    </template>
+    <template id="row-template">
+        <div class="row">
+            <select class="type-selector" style="display: none;">
+                <option value="char" data-icon="/images/Icon_Character.png">Character</option>
+                <option value="wep" data-icon="/images/Icon_Claymore.jpg">Weapon</option>
+            </select>
+
+            <div class="dropdown">
+                <div class="dropdown__header">
+                    <img src="/images/Icon_Character.png" class="type-icon">
+                    <span class="type-text">Character</span>
+                </div>
+                <div class="dropdown__options">
+                    <div class="dropdown__item" data-value="char">
+                        <img src="/images/Icon_Character.png" class="type-icon">
+                        <span>Character</span>
+                    </div>
+                    <div class="dropdown__item" data-value="wep">
+                        <img src="/images/Icon_Claymore.jpg" class="type-icon">
+                        <span>Weapon</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paths">
+                <select class="first-select"></select>
+                <span class="arrow">→</span>
+                <select class="second-select"></select>
+            </div>
+
+            <button class="btn btn--chainAdd">⛓</button>
+            <button class="btn btn--delete">×</button>
+        </div>
+    </template>
+    <!-- Constellation Column Template -->
+    <template id="const-column-template">
+        <td><input type="number" class="custom-input" value="0"></td>
+    </template>
+</body>
+
+</html>
