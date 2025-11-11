@@ -7,6 +7,7 @@ import { createPersistence } from "../../core/save-input.js";
 import { DataValidator } from '../../ui/data-validator.js';
 import { createCashbackHook } from './R1999-hooks.js';
 import { initializeTabs } from "../../ui/tabs.js";
+import { manageHeader } from "../../ui/header.js";
 import { updateChart, convertToChartData } from "../../ui/chart-configs.js";
 import { exportDataAsJson, initializeImporter } from "../../ui/data-action.js";
 import { getLabels, getTarget } from "../../core/get-input.js";
@@ -52,8 +53,6 @@ export class R1999PageController {
         this.validator = new DataValidator(this.parts.CONSTELLATION_MAP);
         this.calculationHandler = new CalculationHandler(config);
 
-        this.expandBtn = document.getElementById('expand-button');
-        this.expandedMenu = document.getElementById('expandedMenu');
         this.calculateBtn = document.getElementById('calculate-btn');
         this.exportBtn = document.getElementById('export-btn');
         this.startTourBtn = document.getElementById('start-tour-btn');
@@ -69,116 +68,7 @@ export class R1999PageController {
     }
 
     #setupEventListeners() {
-        let draggedItem = null;
-
-        if (this.expandBtn) {
-            this.expandBtn.addEventListener('click', () => {
-                this.expandBtn.classList.toggle('dropdown--open');
-                this.expandedMenu.classList.toggle('active');
-            });
-        }
-
-        const buttons = document.querySelectorAll('.nav-button');
-
-        // Drag and drop functionality
-        buttons.forEach(button => {
-            button.addEventListener('dragstart', function (e) {
-                draggedItem = this;
-                setTimeout(() => {
-                    this.classList.add('dragging');
-                }, 0);
-            });
-
-            button.addEventListener('dragend', function () {
-                this.classList.remove('dragging');
-                draggedItem = null;
-
-                buttons.forEach(btn => {
-                    btn.classList.remove('drop-zone');
-                });
-            });
-
-            button.addEventListener('dragover', function (e) {
-                e.preventDefault();
-                if (draggedItem && draggedItem !== this) {
-                    this.classList.add('drop-zone');
-                }
-            });
-
-            button.addEventListener('dragleave', function () {
-                this.classList.remove('drop-zone');
-            });
-
-            button.addEventListener('drop', function (e) {
-                e.preventDefault();
-                this.classList.remove('drop-zone');
-
-                if (draggedItem && draggedItem !== this) {
-                    const draggedParent = draggedItem.parentNode;
-                    const targetParent = this.parentNode;
-
-                    const temp1 = document.createElement('div');
-                    const temp2 = document.createElement('div');
-
-                    draggedParent.insertBefore(temp1, draggedItem);
-                    targetParent.insertBefore(temp2, this);
-
-                    draggedParent.insertBefore(this, temp1);
-                    targetParent.insertBefore(draggedItem, temp2);
-
-                    draggedParent.removeChild(temp1);
-                    targetParent.removeChild(temp2);
-
-                    saveNavOrder();
-                }
-            });
-        });
-
-        function saveNavOrder() {
-            const mainNav = document.querySelector('.nav-list');
-            const expandedNav = document.querySelector('.nav-container--expanded .nav-list');
-
-            const order = {
-                main: Array.from(mainNav.children).slice(0, -1).map(li => li.querySelector('.nav-button').getAttribute('href')),
-                expanded: Array.from(expandedNav.children).map(li => li.querySelector('.nav-button').getAttribute('href'))
-            };
-
-            localStorage.setItem('navOrder', JSON.stringify(order));
-        }
-
-        function loadNavOrder() {
-            const saved = JSON.parse(localStorage.getItem('navOrder'));
-            if (!saved) return;
-
-            const mainNav = document.querySelector('.nav-list');
-            const expandedNav = document.querySelector('.nav-container--expanded .nav-list');
-            const homeButton = mainNav.lastElementChild;
-
-            const allItems = new Map();
-            document.querySelectorAll('li').forEach(li => {
-                const button = li.querySelector('.nav-button');
-                if (button) {
-                    allItems.set(button.getAttribute('href'), li);
-                }
-            });
-
-            const mainItems = Array.from(mainNav.children).slice(0, -1);
-            mainItems.forEach(li => li.remove());
-            expandedNav.innerHTML = '';
-
-            saved.main.forEach(href => {
-                const li = allItems.get(href);
-                if (li) mainNav.insertBefore(li, homeButton);
-            });
-
-            saved.expanded.forEach(href => {
-                const li = allItems.get(href);
-                if (li) expandedNav.appendChild(li);
-            });
-        }
-        loadNavOrder();
-        const navContainer = document.querySelector('.nav-container');
-        navContainer.style.opacity = '1';
+        manageHeader();
 
         if (this.calculateBtn) {
             this.calculateBtn.addEventListener('click', async () => {

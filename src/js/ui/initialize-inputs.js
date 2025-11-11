@@ -18,9 +18,10 @@ export function initializeTables(persistence, gachaConfig, validator, INITIAL_CO
 
 export function initializeButtons(persistence) {
     const savedData = persistence.loadButtons();
-
-    if (savedData.isHidden) {
-        restoreButtonsState(savedData)
+    if (savedData) {
+        if (savedData.isHidden) {
+            restoreButtonsState(savedData)
+        }
     }
 }
 
