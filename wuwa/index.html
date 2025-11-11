@@ -24,13 +24,14 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" crossorigin src="/assets/r1999-DInT0h53.js"></script>
+  <script type="module" crossorigin src="/assets/wuwa-thnBMS2M.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/solvers-gGrm_kck.js">
-  <link rel="modulepreload" crossorigin href="/assets/common-helpers-CPLJV1Gy.js">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-BxOf6jdA.js">
+  <link rel="modulepreload" crossorigin href="/assets/make-distribution-arrays-bNgGQG8Z.js">
   <link rel="stylesheet" crossorigin href="/assets/styles-zmi8ekHc.css">
 </head>
 
-<body data-page="reverse">
+<body>
     <!-- Header -->
     <header class="header">
         <nav class="nav-container" aria-label="Game selection">
@@ -111,17 +112,17 @@
     <!-- Background Image -->
     <div class="background-container">
         <div class="image-fade"></div>
-        <img src="/images/reverse_bg.jpg" alt="Background art">
+        <img src="/images/wuwa_bg.jpg" alt="Background art">
     </div>
 
     <div class="small-background-container">
-        <img src="/images/reverse_bg_small.jpg" alt="Background art">
+        <img src="/images/zenless_bg_small.jpg" alt="Background art">
     </div>
 
     <!-- Main Content -->
     <main class="main-content">
         <section class="content-box" aria-label="Calculator interface">
-            <h1 class="main-title">Reverse 1999 Gacha Calculator</h1>
+            <h1 class="main-title">Wuthering Waves Gacha Calculator</h1>
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
@@ -154,10 +155,13 @@
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th colspan="2">⭐⭐⭐⭐⭐⭐</th>
+                                            <th colspan="2">⭐⭐⭐⭐</th>
+                                            <th colspan="2">⭐⭐⭐⭐⭐</th>
                                         </tr>
                                         <tr>
                                             <th></th>
+                                            <th>Pity</th>
+                                            <th>Guarantee</th>
                                             <th>Pity</th>
                                             <th>Guarantee</th>
                                         </tr>
@@ -175,12 +179,13 @@
                                         <tr>
                                             <th>Rarity</th>
                                             <th>None</th>
-                                            <th>p0</th>
-                                            <th>p1</th>
-                                            <th>p2</th>
-                                            <th>p3</th>
-                                            <th>p4</th>
-                                            <th>p5</th>
+                                            <th>m0</th>
+                                            <th>m1</th>
+                                            <th>m2</th>
+                                            <th>m3</th>
+                                            <th>m4</th>
+                                            <th>m5</th>
+                                            <th>m6</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -205,9 +210,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <!-- Each row represents a rate-up character slot -->
                                     <tr>
                                         <td>Character Slot 1</td>
                                         <td>
+                                            <!-- The select element is here, but it's empty. JS will populate it. -->
                                             <select class="custom-select" data-control="rate-up-slot-1"></select>
                                         </td>
                                     </tr>
@@ -251,7 +258,7 @@
                         </div>
                         <div class="row">
                             <select class="rarity" onchange="updatePitySettings(this.value)">
-                                <option value="⭐⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐⭐</option>
+                                <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
                             </select>
                         </div>
                     </div>
@@ -319,11 +326,15 @@
             <button id="toggle-buttons-btn" class="btn btn--hide-buttons">Hide Help Buttons</button>
         </section>
     </main>
-
+    <!-- Pity Row Template -->
     <template id="pity-row-template">
         <tr>
             <td class="banner-name"></td>
-            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="90"></td>
+            <!-- 4★ Section -->
+            <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"></td>
+            <td><input type="checkbox" class="guarantee-4"></td>
+            <!-- 5★ Section -->
+            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"></td>
             <td><input type="checkbox" class="guarantee-5"></td>
         </tr>
     </template>
@@ -331,6 +342,7 @@
         <div class="row">
             <select class="type-selector" style="display: none;">
                 <option value="char" data-icon="/images/Icon_Character.png">Character</option>
+                <option value="wep" data-icon="/images/Icon_Claymore.jpg">Weapon</option>
             </select>
 
             <div class="dropdown">
@@ -343,14 +355,13 @@
                         <img src="/images/Icon_Character.png" class="type-icon">
                         <span>Character</span>
                     </div>
+                    <div class="dropdown__item" data-value="wep">
+                        <img src="/images/Icon_Claymore.jpg" class="type-icon">
+                        <span>Weapon</span>
+                    </div>
                 </div>
             </div>
-            <div>
-                <input type="number" data-control="pity-4" class="custom-input" min="0" max="10" value="0">
-            </div>
-            <div>
-                <input type="checkbox" class="guarantee-4">
-            </div>
+
             <div class="paths">
                 <select class="first-select"></select>
                 <span class="arrow">→</span>
@@ -361,6 +372,7 @@
             <button class="btn btn--delete">×</button>
         </div>
     </template>
+    <!-- Constellation Column Template -->
     <template id="const-column-template">
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
