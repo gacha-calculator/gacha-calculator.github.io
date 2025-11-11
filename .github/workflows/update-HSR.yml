@@ -1,0 +1,43 @@
+name: Update HSR (Delayed)
+on:
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: 'When to update HSR'
+        required: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Wait until target time
+        run: |
+          TARGET="${{ github.event.inputs.target_date }}"
+          TARGET_EPOCH=$(date -d "$TARGET" +%s)
+          NOW=$(date +%s)
+          WAIT_SECONDS=$((TARGET_EPOCH - NOW))
+          if [ $WAIT_SECONDS -gt 0 ]; then
+            sleep $WAIT_SECONDS
+          fi
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js and build
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
