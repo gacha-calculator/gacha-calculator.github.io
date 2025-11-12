@@ -65,6 +65,7 @@ export class R1999PageController {
         initializeTabs();
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
+        this.tutorial.showTutorialIfNeeded(R1999TourSteps);
     }
 
     #setupEventListeners() {

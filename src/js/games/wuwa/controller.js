@@ -62,6 +62,7 @@ export class WuwaPageController {
         initializeTabs();
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
+        this.tutorial.showTutorialIfNeeded(wuwaTourSteps);
     }
 
     #setupEventListeners() {

@@ -1,5 +1,5 @@
 import { CalculationHandler } from '../../core/calculation-constructor.js';
-import { exportDataAsJson, initializeImporter } from "../../ui/data-action.js";
+import { exportDataAsJson } from "../../ui/data-action.js";
 import { initializePullPlanManager } from "../../ui/pull-plan.js";
 import { initializeTables, initializeTarget } from "../../ui/initialize-inputs.js";
 import { setUpInputPersist } from "../../ui/input-persist.js";
@@ -59,13 +59,11 @@ export class GFL2PageController {
 
     initialize() {
         this.validator.initialize();
-
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
         initializeTabs();
-        initializeImporter();
-
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
+        this.tutorial.showTutorialIfNeeded(GFL2TourSteps);
     }
 
     #setupEventListeners() {

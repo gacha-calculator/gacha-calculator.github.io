@@ -41,6 +41,7 @@ export class ChibiTutorial {
     }
 
     startTour(steps) {
+        localStorage.setItem('tutorialSeen', 'true');
         if (!steps || steps.length === 0) {
             console.error("ChibiTutorial: No steps provided for the tour.");
             return;
@@ -69,6 +70,14 @@ export class ChibiTutorial {
         }
         const step = this.tourSteps[index];
         this.showDisplay(step);
+    }
+
+    showTutorialIfNeeded(steps) {
+        const hasSeenTutorial = localStorage.getItem('tutorialSeen');
+
+        if (!hasSeenTutorial) {
+            this.startTour(steps);
+        }
     }
 
     showDisplay(displayConfig) {

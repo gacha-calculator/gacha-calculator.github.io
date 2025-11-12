@@ -63,11 +63,12 @@ export class zenlessPageController {
         initializeTabs();
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
+        this.tutorial.showTutorialIfNeeded(zenlessTourSteps);
     }
 
     #setupEventListeners() {
         manageHeader();
-        
+
         if (this.calculateBtn) {
             this.calculateBtn.addEventListener('click', async () => {
                 if (this.#runValidation()) {

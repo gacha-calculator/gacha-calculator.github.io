@@ -67,6 +67,7 @@ export class GenshinPageController {
 
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
+        this.tutorial.showTutorialIfNeeded(genshinTourSteps);
     }
 
     #setupEventListeners() {
