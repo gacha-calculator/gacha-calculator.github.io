@@ -57,6 +57,14 @@ export class WuwaPageController {
     }
 
     initialize() {
+        this.validator.initialize();
+        initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
+        initializeTabs();
+        this.#setupEventListeners();
+        this.#loadStateAndRunInitialCalculation();
+    }
+
+    #setupEventListeners() {
         manageHeader();
 
         if (this.calculateBtn) {

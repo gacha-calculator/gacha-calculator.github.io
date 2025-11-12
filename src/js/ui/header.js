@@ -14,8 +14,15 @@ export function manageHeader() {
 
     // Drag and drop functionality
     buttons.forEach(button => {
-        button.addEventListener('dragstart', function () {
+        button.addEventListener('dragstart', function (e) {
             draggedItem = this;
+
+            const rect = this.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const offsetY = e.clientY - rect.top;
+
+            e.dataTransfer.setDragImage(this, offsetX, offsetY);
+
             setTimeout(() => {
                 this.classList.add('dragging');
             }, 0);
