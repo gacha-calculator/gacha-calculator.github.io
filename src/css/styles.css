@@ -1050,9 +1050,12 @@ table td:first-child {
     display: none !important;
 }
 
+.soft-link {
+    color: #2c48e7;
+}
+
 /* Animations */
 @keyframes wiggle-error {
-
     0%,
     100% {
         transform: translateX(0);

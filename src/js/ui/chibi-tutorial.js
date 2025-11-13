@@ -329,11 +329,24 @@ export class ChibiTutorial {
 
     #positionAll(target) {
         if (target === null) {
-            this.chibiGroup.style.top = `50%`;
-            this.chibiGroup.style.left = `50%`;
-            this.chibiGroup.style.transform = 'translate(-50%, -50%)';
-            this.#positionOverlays(target);
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
 
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            const elementRect = this.chibiGroup.getBoundingClientRect();
+            const elementWidth = elementRect.width;
+            const elementHeight = elementRect.height;
+
+            const left = scrollX + (viewportWidth - elementWidth) / 2;
+            const top = scrollY + (viewportHeight - elementHeight) / 2;
+
+            this.chibiGroup.style.left = `${left}px`;
+            this.chibiGroup.style.top = `${top}px`;
+            this.chibiGroup.style.transform = '';
+
+            this.#positionOverlays(target);
         } else {
             this.container.style.height = `${document.documentElement.scrollHeight}px`;
             const viewRect = target.getBoundingClientRect();

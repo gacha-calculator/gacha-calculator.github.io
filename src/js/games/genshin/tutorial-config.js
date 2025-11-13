@@ -28,14 +28,14 @@ export const genshinTourSteps = [
     {
         id: 'pull-plan-step',
         element: '.pull-plan-section',
-        text: '<p>Next, build your pull plan here. Add all the characters and weapons in the order you want to get them.</p>',
+        text: '<p>Next, build your pull plan here. Add all the characters and weapons in the order you plan to obtain them.</p>',
         position: 'left',
         chibiSide: 'left'
     },
     {
         id: 'target-step',
         element: '.header-controls',
-        text: '<p>Now, set your target. This can be your desired confidence level (e.g., a 70% chance of getting all planned items) or your total pull budget.</p>',
+        text: '<p>Now, set your target. This can be your desired confidence level(e.g., a 70% chance of getting all planned items) or your total pull budget.</p>',
         position: 'top',
         chibiSide: 'left',
         size: 'big'
@@ -43,7 +43,7 @@ export const genshinTourSteps = [
     {
         id: 'calculate-button-step',
         element: '#calculate-btn',
-        text: '<p>Once your plan and target are set, press <strong>Calculate</strong>.</p>',
+        text: '<p>Once your plan and target are set, click <strong>Calculate</strong> to see your results..</p>',
         position: 'right',
         size: 'small'
     },
@@ -56,7 +56,7 @@ export const genshinTourSteps = [
         id: 'constellation-input-step',
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#constellation-panel"]',
-        text: "<p>Input your owned character constellations for accurate cashback calculations. If you are only interested in character/weapon pull chances, you can skip this for now.</p>",
+        text: '<p>Input how many Standard 5* and non-standard 4* characters you have at each constellation level. This information is necessary for accurate cashback predictions, you can skip it if you don\'t need it.</p>',
         position: 'right',
         size: 'big'
     },
@@ -70,7 +70,7 @@ export const genshinTourSteps = [
     },
     {
         element: '#probability-table',
-        text: '<p>And down here, you can see a detailed table with cashback estimates, for the given amount of pulls, it\'s only accurate if you inputed your data correctly. Good luck with your pulls.</p>',
+        text: '<p>And down here, you can see a detailed table with cashback estimates, for the given amount of pulls, it\'s only accurate if you inputed your data correctly.</p>',
         position: 'top'
     }
 ];
@@ -83,58 +83,57 @@ export const helpContentMap = {
 
     'import-help': {
         element: '.tab-panel-card',
-        text: '<p>You can import your pity data directly from <a href="https://paimon.moe/" target="_blank">paimon.moe</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
-        position: 'right',
-        size: 'big'
+        text: '<p>You can import your pity data directly from <a href="https://paimon.moe/" target="_blank" rel="noopener noreferrer" class="soft-link">paimon.moe</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
+        position: 'right'
     },
     'export-help': {
         element: '.tab-panel-card',
-        text: '<p>You can export your pity data as a JSON file to make a reserve copy or to carry over data when you are switching to a different browser/new device.</p>',
+        text: '<p>You can export your data as a JSON file to make backup or to carry over data when you are switching to a different browser/new device.</p>',
         position: 'right',
         size: 'big'
     },
     'pity-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#pity-panel"]',
-        text: '<p>Input your current pity and guarantees here, as well as Capturing Radiance and Epitomized Path points. You can import data from paimon.moe directly(press ? near respective elements to learn more)</p>',
+        text: '<p>Input your current pity, guarantees, Capturing Radiance and Epitomized Path points. You can import data from paimon.moe directly(press ? near respective elements to learn more)</p>',
         position: 'right',
         size: 'big'
     },
     'constelation-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#constellation-panel"]',
-        text: '<p>You can insert how many characters of every constellation level you have, it\'s necessary to provide accurate cashback prediction.</p>',
+        text: '<p>Input how many Standard 5* and non-standard 4* characters you have at each constellation level. This information is necessary for accurate cashback predictions.</p>',
         position: 'right',
         size: 'big'
     },
     'rate-up-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
-        text: '<p>If you know the 4*, you can then check what constellation it has on your account, entering these will help cashback accuracy and reduce unneeded computation.</p>',
+        text: '<p>If you know the featured 4*, you can then check what constellation it has on your account. This improves cashback accuracy and reduces unnecessary computation.</p>',
         position: 'right',
         size: 'big'
     },
     'caprad-help': {
         element: '.tab-panel-card',
-        text: '<p>Capturing Radiance starts at 1 on your account, 50/50 loses raise it by 1, wins reduce it by 1 till 0, unless it was 3, then it goes back to 1. At 2 it increases rate up character odds, at 3 it\'s guaranteed. To count it pull history since 5.0 is required.</p>',
+        text: '<p>Capturing Radiance starts at 1 on your account. 50/50 losses adds 1, wins reduce it by 1 till 0, except at 3, it resets to 1. At 2 rate up character odds are increased, at 3 it\'s guaranteed. To count it pull history since 5.0 is required.</p>',
         position: 'right',
         size: 'big'
     },
     'eppath-help': {
         element: '.tab-panel-card',
-        text: '<p>Not getting selected weapon gives you 1 point, which guarantees it on the next 5* pull. Be careful, it does not carry over, you should only pull if you want both weapons or have good chances of getting 5* twice.</p>',
+        text: '<p>Not getting selected weapon gives you 1 point, which guarantees it on the next 5* pull. Note: it does not carry over, you should only pull if you want both weapons or have good chances of getting 5* twice.</p>',
         position: 'right',
         size: 'big'
     },
     'pull-plan-help': {
         element: '.pull-plan-section',
-        text: '<p>Build your pull plan here. Add all the characters and weapons in order you want to get them.</p>',
+        text: '<p>Build your pull plan here. Add all the characters and weapons in the order you plan to obtain them.</p>',
         position: 'left',
         chibiSide: 'left'
     },
     'target-help': {
         element: '.header-controls',
-        text: '<p>Here you need to set your target, either the confidence level you want, for example 70% chance of getting all planned items, or your pull budget.</p>',
+        text: '<p>Set your target here: either your desired confidence level(e.g., 70% chance of getting all planned items) or your total pull budget.</p>',
         position: 'top',
         chibiSide: 'left',
         size: 'big'
