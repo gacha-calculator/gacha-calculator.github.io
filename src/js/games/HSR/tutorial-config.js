@@ -82,7 +82,7 @@ export const helpContentMap = {
 
     'import-help': {
         element: '.tab-panel-card',
-        text: '<p>You can import your pity data directly from <a href="https://starrailstation.com/" target="_blank" rel="noopener noreferrer" class="soft-link">starrailstation.com</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
+        text: '<p>You can import your data directly from <a href="https://starrailstation.com/" target="_blank" rel="noopener noreferrer" class="soft-link">starrailstation.com</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
         position: 'right'
     },
     'export-help': {

@@ -7,7 +7,7 @@ export function initializeImporter(persistence, adapterFn, validator, SELECTORS)
         return;
     }
     const handleFile = (event) => handleFileSelect(event, persistence, adapterFn, validator, SELECTORS);
-    
+
     fileInput.removeEventListener('change', fileInput.__handleFile);
     fileInput.addEventListener('change', handleFile);
     fileInput.__handleFile = handleFile;
@@ -20,14 +20,20 @@ async function handleFileSelect(event, persistence, adapterFN, validator, SELECT
     }
 
     try {
-        const fileContent = await file.text();
-        const parsedData = JSON.parse(fileContent);
+        let parsedData;
         let standardData = null;
-
-        if (parsedData.exportFormat === 'GachaCalculatorData') {
-            standardData = parsedData;
-        } else if (adapterFN) {
-            standardData = adapterFN(parsedData);
+        const fileContent = await file.text();
+        if (file.type === 'application/json') {
+            parsedData = JSON.parse(fileContent);
+            if (parsedData.exportFormat === 'GachaCalculatorData') {
+                standardData = parsedData;
+            } else if (adapterFN) {
+                standardData = adapterFN(parsedData);
+            }
+        } else if (file.type === 'text/csv') { // only hsr so far
+            standardData = adapterFN(fileContent)
+        } else {
+            alert('Error: Invalid or unsupported file format.');
         }
 
         if (standardData) {
@@ -35,13 +41,11 @@ async function handleFileSelect(event, persistence, adapterFN, validator, SELECT
             validator.validateAll();
 
             persistence.saveTables();
-        } else {
-            alert('Error: Invalid or unsupported file format.');
         }
     } catch (error) {
         console.error('File import error:', error);
     } finally {
-        event.target.value = '';
+        event. target.value = '';
     }
 }
 

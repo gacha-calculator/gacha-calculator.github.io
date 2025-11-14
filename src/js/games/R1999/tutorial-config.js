@@ -27,9 +27,9 @@ export const R1999TourSteps = [
     {
         id: 'pull-plan-step',
         element: '.pull-plan-section',
-        text: '<p>Next, build your pull plan here. Add all the characters and weapons in the order you plan to obtain them.</p>',
-        position: 'left',
-        chibiSide: 'left'
+        text: '<p>Here add all the characters in the order you plan to obtain them and set pity for the 5* guarantee in the first 10 pulls on the banner, if not aplicable, set it to 10.</p>',
+        position: 'bottom',
+        size: 'big'
     },
     {
         id: 'target-step',
@@ -82,7 +82,7 @@ export const helpContentMap = {
 
     'import-help': {
         element: '.tab-panel-card',
-       text: '<p>You can import your pity data directly from <a href="https://windbow27.github.io/kornblume/" target="_blank" rel="noopener noreferrer" class="soft-link">kornblume</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
+       text: '<p>You can import your data directly from <a href="https://windbow27.github.io/kornblume/" target="_blank" rel="noopener noreferrer" class="soft-link">kornblume</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
         position: 'right'
     },
     'export-help': {
@@ -110,13 +110,13 @@ export const helpContentMap = {
         clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
         text: '<p>If you know the featured 4*, you can then check what constellation it has on your account. This improves cashback accuracy and reduces unnecessary computation.</p>',
         position: 'right',
-        size: 'huge'
+        size: 'big'
     },
     'pull-plan-help': {
         element: '.pull-plan-section',
-        text: '<p>Build your pull plan here. Add all the characters and weapons in order you want to get them.</p>',
-        position: 'left',
-        chibiSide: 'left'
+        text: '<p>Here add all the characters in the order you plan to obtain them and set pity for the 5* guarantee in the first 10 pulls on the banner, if not aplicable, set it to 10.</p>',
+        position: 'bottom',
+        size: 'big'
     },
     'target-help': {
         element: '.header-controls',

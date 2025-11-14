@@ -58,3 +58,5 @@ export const CONSTELLATION_MAP = {
     'e5': 6,
     'e6': 7
 };
+
+export const CHARS_5_STAR_STANDARD = new Set(['1003', '1004', '1101', '1104', '1107', '1209', '1211']);

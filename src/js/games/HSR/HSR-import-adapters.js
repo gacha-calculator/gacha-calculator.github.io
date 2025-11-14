@@ -1,30 +1,39 @@
-import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, CHARS_4_STAR, WEAPONS_5_STAR_STANDARD, WEAPONS_4_STAR, WEAPONS_3_STAR } from "/src/js/games/genshin/config.js";
+import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD } from "./config.js";
 
-export function adaptFromPaimonMoe(importedData) {
-    // --- Format Validation ---
-    // Check for the presence of keys that are unique to this format.
-    if (!importedData || !importedData.characters || !importedData['wish-counter-character-event']) {
-        console.error("Imported data is missing key Paimon.moe properties.");
-        return null; // Not the right format
-    }
-    console.log("Paimon.moe data format detected. Running adapter...");
+export function adaptFromStarRailStation(importedData) {
+    // Split into lines
+    const lines = importedData.trim().split('\n');
+    const charPulls = [];
+    const wepPulls = [];
+    const consCount5star = new Map();
+    const consCount4star = new Map();
 
-    // --- 1. Process Pity Data ---
-    const charPulls = importedData['wish-counter-character-event']?.pulls || [];
-    const wepPulls = importedData['wish-counter-weapon-event']?.pulls || [];
+    const result = lines.slice(1).map(line => { // 1 id, 2 rarity, 5 bannner type(11 char, 12 wep)
+        const parts = line.split(',');
+        if (parts[5] === '11') {
+            charPulls.push({ id: parts[1], rarity: parts[2] });
+            if (parts[2] === '4') {
+                consCount4star.set(parts[1], (consCount4star.get(parts[1]) || 0) + 1);
+            } else if (CHARS_5_STAR_STANDARD.has(parts[1])) {
+                consCount5star.set(parts[1], (consCount5star.get(parts[1]) || 0) + 1);
+            }
+        } else if (parts[5] === '12') {
+            wepPulls.push([parts[1], parts[2]]);
+        } else {
+            console.error("Nani the fuck(HSR tracker banner type).");
+        }
+    });
 
     const charPity = calculatePityFromPulls(charPulls, 'character');
     const wepPity = calculatePityFromPulls(wepPulls, 'weapon');
 
     const finalPityData = [
-        { banner: 'character', ...charPity, caprad: '0', epPath: '0' },
-        { banner: 'weapon', ...wepPity, caprad: '0', epPath: '0' }
+        { banner: 'character', ...charPity },
+        { banner: 'weapon', ...wepPity }
     ];
 
-    // --- 2. Process Constellation Data ---
-    const finalConstellationData = aggregateConstellationCounts(importedData.characters);
+    const finalConstellationData = aggregateConstellationCounts(consCount5star, consCount4star);
 
-    // --- 3. Assemble and Return Final Object ---
     return {
         pity: finalPityData,
         constellation: finalConstellationData
@@ -35,15 +44,7 @@ function calculatePityFromPulls(pulls, bannerType) {
     let pity5 = 0, pity4 = 0;
     let guarantee5 = false, guarantee4 = false;
     let found5Star = false, found4Star = false;
-
-    const getPullInfo = (id) => {
-        if (CHARS_4_STAR.has(id)) return { type: 'character', rarity: 4 };
-        if (WEAPONS_4_STAR.has(id)) return { type: 'weapon', rarity: 4 };
-        if (WEAPONS_3_STAR.has(id)) return { type: 'weapon', rarity: 3 };
-        if (CHARS_5_STAR_STANDARD.has(id)) return { type: 'character', rarity: 5, standard: true };
-        if (WEAPONS_5_STAR_STANDARD.has(id)) return { type: 'weapon', rarity: 5, standard: true };
-        return { type: 'unknown', rarity: 5, standard: false }; // Assumed limited 5-star
-    };
+    let rateUpHistory = [];
 
     for (let i = pulls.length - 1; i >= 0; i--) {
         const pull = pulls[i];
@@ -56,13 +57,11 @@ function calculatePityFromPulls(pulls, bannerType) {
                 found5Star = true;
             }
         } else {
-            // If it's NOT a 5-star, and we haven't found one yet, increment the counter.
             if (!found5Star) {
                 pity5++;
             }
         }
 
-        // Now, do the same for the 4-star.
         if (pullInfo.rarity === 4) {
             if (!found4Star) {
                 if (bannerType === 'character') {
@@ -75,12 +74,16 @@ function calculatePityFromPulls(pulls, bannerType) {
                 pity4++;
             }
         }
+        if (found5Star && found4Star) {
+            break;
+        }
     }
     return {
         pity4: String(pity4),
         pity5: String(pity5),
         guarantee4: guarantee4,
-        guarantee5: guarantee5
+        guarantee5: guarantee5,
+        rateUpHistory: rateUpHistory
     };
 }
 

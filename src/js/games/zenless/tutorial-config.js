@@ -28,8 +28,7 @@ export const zenlessTourSteps = [
         id: 'pull-plan-step',
         element: '.pull-plan-section',
         text: '<p>Next, build your pull plan here. Add all the characters and weapons in the order you plan to obtain them.</p>',
-        position: 'left',
-        chibiSide: 'left'
+        position: 'bottom'
     },
     {
         id: 'target-step',
@@ -82,7 +81,7 @@ export const helpContentMap = {
 
     'import-help': {
         element: '.tab-panel-card',
-        text: '<p>You can import your pity data directly from <a href="https://zzz.rng.moe" target="_blank" rel="noopener noreferrer" class="soft-link">zzz.rng.moe</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
+        text: '<p>You can import your data directly from <a href="https://zzz.rng.moe" target="_blank" rel="noopener noreferrer" class="soft-link">zzz.rng.moe</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
         position: 'right'
     },
     'export-help': {
@@ -115,8 +114,7 @@ export const helpContentMap = {
     'pull-plan-help': {
         element: '.pull-plan-section',
         text: '<p>Build your pull plan here. Add all the characters and weapons in order you want to get them.</p>',
-        position: 'left',
-        chibiSide: 'left'
+        position: 'bottom'
     },
     'target-help': {
         element: '.header-controls',

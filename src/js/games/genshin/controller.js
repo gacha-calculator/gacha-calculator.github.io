@@ -6,7 +6,7 @@ import { setUpInputPersist } from "../../ui/input-persist.js";
 import { manageHeader } from "../../ui/header.js";
 import { createPersistence } from "../../core/save-input.js";
 import { DataValidator } from '../../ui/data-validator.js';
-import { adaptFromPaimonMoe } from '../../core/import-adapters.js';
+import { adaptFromPaimonMoe } from './genshin-import-adapters.js';
 import { createCashbackHook } from '../../core/hooks.js';
 import { initializeTabs } from "../../ui/tabs.js";
 import { ChibiTutorial } from '../../ui/chibi-tutorial.js';

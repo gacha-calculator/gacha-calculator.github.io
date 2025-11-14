@@ -1,10 +1,11 @@
 import { CalculationHandler } from '../../core/calculation-constructor.js';
-import { exportDataAsJson } from "../../ui/data-action.js";
+import { exportDataAsJson, initializeImporter } from "../../ui/data-action.js";
 import { initializePullPlanManager } from "../../ui/pull-plan.js";
-import { initializeTables, initializeTarget } from "../../ui/initialize-inputs.js";
+import { initializeTables, initializeTarget, initializeButtons } from "../../ui/initialize-inputs.js";
 import { setUpInputPersist } from "../../ui/input-persist.js";
 import { createPersistence } from "../../core/save-input.js";
 import { DataValidator } from '../../ui/data-validator.js';
+import { adaptFromStarRailStation } from './HSR-import-adapters.js';
 import { createCashbackHook } from '../../core/hooks.js';
 import { initializeTabs } from "../../ui/tabs.js";
 import { manageHeader } from "../../ui/header.js";
@@ -61,6 +62,8 @@ export class HSRPageController {
         this.validator.initialize();
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
         initializeTabs();
+        initializeImporter();
+        initializeButtons(this.persistence);
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(HSRTourSteps);
@@ -68,7 +71,7 @@ export class HSRPageController {
 
     #setupEventListeners() {
         manageHeader();
-        
+
         if (this.calculateBtn) {
             this.calculateBtn.addEventListener('click', async () => {
                 if (this.#runValidation()) {
@@ -84,6 +87,7 @@ export class HSRPageController {
                 this.tutorial.startTour(HSRTourSteps);
             });
         }
+        initializeImporter(this.persistence, adaptFromStarRailStation, this.validator, SELECTORS);
         const helpButtons = document.querySelectorAll('.help-btn');
 
         helpButtons.forEach(button => {
