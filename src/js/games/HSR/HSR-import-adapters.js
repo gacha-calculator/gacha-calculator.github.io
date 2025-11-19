@@ -1,38 +1,18 @@
-import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD } from "./config.js";
+import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, WEP_5_STAR_STANDARD, charRateUpsPerBanner, wepRateUpsPerBanner } from "./config.js";
 
 export function adaptFromStarRailStation(importedData) {
     // Split into lines
     const lines = importedData.trim().split('\n');
-    const charPulls = [];
-    const wepPulls = [];
-    const consCount5star = new Map();
-    const consCount4star = new Map();
 
-    const result = lines.slice(1).map(line => { // 1 id, 2 rarity, 5 bannner type(11 char, 12 wep)
-        const parts = line.split(',');
-        if (parts[5] === '11') {
-            charPulls.push({ id: parts[1], rarity: parts[2] });
-            if (parts[2] === '4') {
-                consCount4star.set(parts[1], (consCount4star.get(parts[1]) || 0) + 1);
-            } else if (CHARS_5_STAR_STANDARD.has(parts[1])) {
-                consCount5star.set(parts[1], (consCount5star.get(parts[1]) || 0) + 1);
-            }
-        } else if (parts[5] === '12') {
-            wepPulls.push([parts[1], parts[2]]);
-        } else {
-            console.error("Nani the fuck(HSR tracker banner type).");
-        }
-    });
-
-    const charPity = calculatePityFromPulls(charPulls, 'character');
-    const wepPity = calculatePityFromPulls(wepPulls, 'weapon');
+    const charPity = calculatePityFromPulls(lines, 'character');
+    const wepPity = calculatePityFromPulls(lines, 'weapon');
 
     const finalPityData = [
         { banner: 'character', ...charPity },
         { banner: 'weapon', ...wepPity }
     ];
 
-    const finalConstellationData = aggregateConstellationCounts(consCount5star, consCount4star);
+    const finalConstellationData = aggregateConstellationCounts(lines);
 
     return {
         pity: finalPityData,
@@ -40,91 +20,135 @@ export function adaptFromStarRailStation(importedData) {
     };
 }
 
-function calculatePityFromPulls(pulls, bannerType) {
+function calculatePityFromPulls(lines, bannerType) {
     let pity5 = 0, pity4 = 0;
     let guarantee5 = false, guarantee4 = false;
     let found5Star = false, found4Star = false;
-    let rateUpHistory = [];
 
-    for (let i = pulls.length - 1; i >= 0; i--) {
-        const pull = pulls[i];
-        const pullInfo = getPullInfo(pull.id);
+    const dataLines = lines.slice(1);
+    for (let i = dataLines.length - 1; i >= 0; i--) { // 1 id, 2 rarity, 4 bannerId, 5 bannner type(11 char, 12 wep)
+        const line = dataLines[i];
+        const parts = line.split(',');
 
-        if (pullInfo.rarity === 5) {
-            if (!found5Star) {
-                // This is the most recent 5-star. Set the guarantee and stop counting.
-                guarantee5 = (pull.rate === 0);
-                found5Star = true;
-            }
+        const itemId = parts[1];
+        const rarity = parts[2];
+        const bannerId = parts[4];
+        const bannerTypeId = parts[5];
+        let targetBanner;
+
+        if (bannerType === 'character') {
+            targetBanner = '11';
         } else {
-            if (!found5Star) {
-                pity5++;
-            }
+            targetBanner = '12';
         }
 
-        if (pullInfo.rarity === 4) {
-            if (!found4Star) {
-                if (bannerType === 'character') {
-                    guarantee4 = (pullInfo.type === 'weapon');
+        if (bannerTypeId === targetBanner) {
+            if (rarity === '5') {
+                if (!found5Star) {
+                    guarantee5 = isGuarantee(itemId, rarity, bannerType);
+                }
+                if (!found4Star) {
+                    pity4++;
+                }
+                found5Star = true;
+            } else if (rarity === '4') {
+                if (!found5Star) {
+                    pity5++;
+                }
+                if (!found4Star) {
+                    guarantee4 = isGuarantee(itemId, rarity, bannerType, bannerId);
                 }
                 found4Star = true;
+            } else if (rarity === '3') {
+                if (!found5Star) {
+                    pity5++;
+                }
+                if (!found4Star) {
+                    pity4++;
+                }
+            } else {
+                console.error("Unknown rarity");
             }
-        } else {
-            if (!found4Star) {
-                pity4++;
+
+            if (found5Star && found4Star) {
+                break;
             }
         }
-        if (found5Star && found4Star) {
-            break;
-        }
+
     }
+
     return {
         pity4: String(pity4),
         pity5: String(pity5),
         guarantee4: guarantee4,
-        guarantee5: guarantee5,
-        rateUpHistory: rateUpHistory
+        guarantee5: guarantee5
     };
 }
 
-function aggregateConstellationCounts(characters) {
-    const fourStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
-    const fiveStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
-
-    let totalOwnedFourStars = 0;
-    let totalOwnedFiveStars = 0;
-
-    for (const charId in characters) {
-        let rarity = 0;
-        if (CHARS_4_STAR.has(charId)) rarity = 4;
-        else if (CHARS_5_STAR_STANDARD.has(charId)) rarity = 5;
-
-        if (rarity === 0) continue;
-
-        const charData = characters[charId];
-        const totalCopies = (charData.default || 0) + (charData.wish || 0) + (charData.manual || 0);
-
-        // We only count them as "owned" if they have at least one copy.
-        if (totalCopies > 0) {
-            if (rarity === 4) totalOwnedFourStars++;
-            else if (rarity === 5) totalOwnedFiveStars++;
-
-            const constellationLevel = Math.min(totalCopies - 1, 6);
-            const targetIndex = CONSTELLATION_MAP[`c${constellationLevel}`];
-
-            if (targetIndex !== undefined) {
-                if (rarity === 4) fourStarCounts[targetIndex]++;
-                else if (rarity === 5) fiveStarCounts[targetIndex]++;
-            }
+function isGuarantee(itemId, rarity, bannerType, bannerId) {
+    let isGuarantee = false;
+    if (rarity === '5') {
+        if (bannerType === 'character') {
+            isGuarantee = CHARS_5_STAR_STANDARD.has(itemId); // if last 5* is standard then it's guaranteed
+        } else {
+            isGuarantee = WEP_5_STAR_STANDARD.has(itemId);
+        }
+    } else {
+        if (bannerType === 'character') {
+            isGuarantee = !charRateUpsPerBanner[bannerId].has(itemId);
+        } else {
+            isGuarantee = !wepRateUpsPerBanner[bannerId].has(itemId);
         }
     }
 
+    return isGuarantee;
+}
+
+function aggregateConstellationCounts(lines) {
+    const fourStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
+    const fiveStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
+
+    const fourStarMap = new Map();
+    const fiveStarMap = new Map();
+
+    lines.slice(1).map(line => {
+        const parts = line.split(',');
+        const isCharacter = parts[1].length === 4;
+        const rarity = parts[2];
+        const id = parts[1];
+
+        if (isCharacter) {
+            if (rarity === '5' && CHARS_5_STAR_STANDARD.has(id)) {
+                fiveStarMap.set(id, (fiveStarMap.get(id) || 0) + 1);
+            } else if (rarity === '4') {
+                fourStarMap.set(id, (fourStarMap.get(id) || 0) + 1);
+            }
+        }
+    });
+    
+    for (const value of fourStarMap.values()) {
+        const maxCons = fourStarCounts.length - 1;
+        if (value >= maxCons) {
+            fourStarCounts[maxCons]++;
+        } else {
+            fourStarCounts[value]++;
+        }
+    }
+
+    for (const value of fiveStarMap.values()) {
+        const maxCons = fiveStarCounts.length - 1;
+        if (value >= maxCons) {
+            fiveStarCounts[maxCons]++;
+        } else {
+            fiveStarCounts[value]++;
+        }
+    }
     const totalPossibleFourStars = gachaConfig.poolCharSR;
     const totalPossibleFiveStars = gachaConfig.poolStandardCharSSR;
 
     // Calculate the difference and place it at index 0 ('none').
-    const notOwnedFourStars = totalPossibleFourStars - totalOwnedFourStars;
-    const notOwnedFiveStars = totalPossibleFiveStars - totalOwnedFiveStars;
+    const notOwnedFourStars = totalPossibleFourStars - fourStarMap.size;
+    const notOwnedFiveStars = totalPossibleFiveStars - fiveStarMap.size;
 
     // Ensure the count is not negative, just in case the config is out of sync.
     fourStarCounts[0] = Math.max(0, notOwnedFourStars);

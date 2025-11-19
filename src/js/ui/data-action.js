@@ -1,4 +1,5 @@
 import { restorePityTable, restoreConstellationTable } from './initialize-inputs.js';
+import { restorePityTable as R1999restorePityTable, restoreConstellationTable as R1999restoreConstellationTable } from '../games/R1999/R1999-initialize-inputs.js'
 
 export function initializeImporter(persistence, adapterFn, validator, SELECTORS) {
     const fileInput = document.getElementById('import-file-input');
@@ -45,16 +46,25 @@ async function handleFileSelect(event, persistence, adapterFN, validator, SELECT
     } catch (error) {
         console.error('File import error:', error);
     } finally {
-        event. target.value = '';
+        event.target.value = '';
     }
 }
 
 function applyImportedData(data, SELECTORS) {
-    if (data.pity) {
-        restorePityTable(data.pity, SELECTORS);
-    }
-    if (data.constellation) {
-        restoreConstellationTable(data.constellation, SELECTORS);
+    if (data.game === 'reverse') {
+        if (data.pity) {
+            R1999restorePityTable(data.pity, SELECTORS);
+        }
+        if (data.constellation) {
+            R1999restoreConstellationTable(data.constellation, SELECTORS);
+        }
+    } else {
+        if (data.pity) {
+            restorePityTable(data.pity, SELECTORS);
+        }
+        if (data.constellation) {
+            restoreConstellationTable(data.constellation, SELECTORS);
+        }
     }
 }
 

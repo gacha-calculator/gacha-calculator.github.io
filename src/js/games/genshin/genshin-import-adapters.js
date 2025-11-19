@@ -92,9 +92,7 @@ function calculatePityFromPulls(pulls, bannerType) {
 
         if (pullInfo.rarity === 4) {
             if (!found4Star) {
-                if (bannerType === 'character') {
-                    guarantee4 = (pullInfo.type === 'weapon');
-                }
+                guarantee4 = (pull.rate === 0);
                 found4Star = true;
             }
         } else {
@@ -132,7 +130,6 @@ function aggregateConstellationCounts(characters) {
         const charData = characters[charId];
         const totalCopies = (charData.default || 0) + (charData.wish || 0) + (charData.manual || 0);
 
-        // We only count them as "owned" if they have at least one copy.
         if (totalCopies > 0) {
             if (rarity === 4) totalOwnedFourStars++;
             else if (rarity === 5) totalOwnedFiveStars++;
@@ -150,15 +147,12 @@ function aggregateConstellationCounts(characters) {
     const totalPossibleFourStars = gachaConfig.poolCharSR;
     const totalPossibleFiveStars = gachaConfig.poolStandardCharSSR;
 
-    // Calculate the difference and place it at index 0 ('none').
     const notOwnedFourStars = totalPossibleFourStars - totalOwnedFourStars;
     const notOwnedFiveStars = totalPossibleFiveStars - totalOwnedFiveStars;
 
-    // Ensure the count is not negative, just in case the config is out of sync.
     fourStarCounts[0] = Math.max(0, notOwnedFourStars);
     fiveStarCounts[0] = Math.max(0, notOwnedFiveStars);
 
-    // Convert the final count arrays to arrays of strings for consistency.
     return {
         0: fiveStarCounts.map(String),
         1: fourStarCounts.map(String)

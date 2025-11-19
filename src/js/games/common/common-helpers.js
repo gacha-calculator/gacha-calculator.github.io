@@ -162,7 +162,7 @@ export function checkIsTarget(distribution, target, allPulls) {
 
 export function consolidateDistributionForCashback(distribution) {
     const result = [];
-
+    
     for (let i = 0; i < distribution.length; i++) {
         const maps = distribution[i].states;
         let type = 'None';
@@ -180,6 +180,7 @@ export function consolidateDistributionForCashback(distribution) {
 
         result.push(consolidatedDistibution);
     }
+
     return result;
 
     function addMap(targetMap, currentMap) {

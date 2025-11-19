@@ -77,7 +77,7 @@ export class gachaCalculator {
                 distributionSSR = ssrData.distributionSSR;
             }
         }
-
+        normalizePullsPerBanner(pastLossPerBannerType);
         let srData = await runFinalSRIteration(srWorker, pastLossPerBannerType);
         this.adapters.workerManager.terminateWorkers();
 

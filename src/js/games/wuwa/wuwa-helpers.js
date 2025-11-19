@@ -46,20 +46,20 @@ export function pruneAndNormalize(array) {
             if (Array.isArray(states[j])) {
                 for (let map of states[j]) {
                     for (const [key, value] of map) {
-                        totalSum += value.prob;
                         if (value.prob <= PRUNE_LEVEL) {
-                            totalSum += value.prob;
                             map.delete(key);
+                        } else {
+                            totalSum += value.prob;
                         }
                     }
                 }
             } else {
                 const map = states[j];
                 for (const [key, value] of map) {
-                    totalSum += value.prob;
                     if (value.prob <= PRUNE_LEVEL) {
-                        totalSum += value.prob;
                         map.delete(key);
+                    } else {
+                        totalSum += value.prob;
                     }
                 }
             }
@@ -162,6 +162,7 @@ export function checkIsTarget(distribution, target, allPulls) {
 
 export function consolidateDistributionForCashback(distribution) {
     const result = [];
+
 
     for (let i = 0; i < distribution.length; i++) {
         const maps = distribution[i].states;

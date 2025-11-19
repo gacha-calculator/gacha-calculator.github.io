@@ -63,8 +63,8 @@ self.onmessage = function (e) {
             break;
         case 'Initiate':
             Promise.all([
-                import(`../../../games/${e.data.context.moduleType}/${e.data.context.moduleType}-pull-logic.js`),
-                import(`../../../games/${e.data.context.moduleType}/${e.data.context.moduleType}-helpers.js`)
+                import(`../../../games/${e.data.context.moduleType.pullLogic}/${e.data.context.moduleType.pullLogic}-pull-logic.js`),
+                import(`../../../games/${e.data.context.moduleType.helpers}/${e.data.context.moduleType.helpers}-helpers.js`)
             ]).then(([pullLogic, commonHelpers]) => {
                 pullLogicModule = pullLogic;
                 helpersModule = commonHelpers;

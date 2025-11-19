@@ -2,9 +2,9 @@ import { consolidateProbabilities, checkIsEmpty, consolidateDistributionForCashb
 import { makeDistributionArraysSSR, makeDistributionArraysSR, sortPitySSR } from '../common/make-distribution-arrays.js';
 import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig } from './config.js';
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
-import { rankUpSSRCheap } from '../common/common-pull-logic.js';
+import { rankUpSSRCheap } from './zenless-pull-logic.js';
 
-const moduleType = 'common';
+const moduleType = {pullLogic: 'zenless', helpers: 'common'};
 
 const SSR_CHAR_PITY = gachaConfig.pity.pitySSRChar;
 const SSR_WEP_PITY = gachaConfig.pity.pitySSRWep;

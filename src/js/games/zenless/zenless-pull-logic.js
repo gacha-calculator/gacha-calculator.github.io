@@ -85,22 +85,21 @@ export function rankUpSSRCheap(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_
 
 function handleSSR(odds, inputIndex, array, pity, rankUps, type, winIndex) {
     const size = array[inputIndex].states.length;
+    const rateUpOddsChar = 0.5;
+    const rateUpOddsWep = 0.75;
     let rateUpOdds = 0.5;
 
+    if (type === 'Character') {
+        rateUpOdds = rateUpOddsChar;
+    } else if (type === 'Weapon') {
+        rateUpOdds = rateUpOddsWep;
+    }
     const currentStates = array[inputIndex].states;
     const nextStates = array[inputIndex + 1].states;
     for (let i = size - 2; i >= 0; i--) {
         const currentState = currentStates[i];
-        let isGuaranteed;
-        let currentOdds;
-
-        if (type === 'Weapon') {
-            isGuaranteed = true;
-            currentOdds = odds[i];
-        } else {
-            isGuaranteed = i >= pity;
-            currentOdds = odds[i - pity * isGuaranteed];
-        }
+        const isGuaranteed = i >= pity;
+        const currentOdds = odds[i - pity * isGuaranteed];
 
         for (const [currentKey, currentMap] of currentState) {
             const winProb = currentMap.prob * currentOdds;
@@ -246,23 +245,21 @@ function handleSR(odds, inputIndex, array, pity, pullsCoef) {
 
 function handleSSRCheap(odds, inputIndex, array, pity, type, winIndex) {
     const size = array[inputIndex].states.length;
+    const rateUpOddsChar = 0.5;
+    const rateUpOddsWep = 0.75;
     let rateUpOdds = 0.5;
 
+    if (type === 'Character') {
+        rateUpOdds = rateUpOddsChar;
+    } else if (type === 'Weapon') {
+        rateUpOdds = rateUpOddsWep;
+    }
     const currentStates = array[inputIndex].states;
     const nextStates = array[inputIndex + 1].states;
     for (let i = size - 2; i >= 0; i--) {
         const currentState = currentStates[i];
-
-        let isGuaranteed;
-        let currentOdds;
-
-        if (type === 'Weapon') {
-            isGuaranteed = true;
-            currentOdds = odds[i];
-        } else {
-            isGuaranteed = i >= pity;
-            currentOdds = odds[i - pity * isGuaranteed];
-        }
+        const isGuaranteed = i >= pity;
+        const currentOdds = odds[i - pity * isGuaranteed];
 
         const winProb = currentState * currentOdds;
         const lossProb = currentState - winProb;

@@ -4,7 +4,7 @@ import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig } from './con
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
 import { rankUpSSRCheap } from '../common/common-pull-logic.js';
 
-const moduleType = 'common';
+const moduleType = {pullLogic: 'common', helpers: 'common'};
 
 const SSR_CHAR_PITY = gachaConfig.pity.pitySSRChar;
 const SSR_WEP_PITY = gachaConfig.pity.pitySSRWep;

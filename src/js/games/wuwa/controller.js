@@ -5,6 +5,7 @@ import { initializeTables, initializeTarget, initializeButtons } from "../../ui/
 import { setUpInputPersist } from "../../ui/input-persist.js";
 import { createPersistence } from "../../core/save-input.js";
 import { DataValidator } from '../../ui/data-validator.js';
+import { adaptFromWuwaTracker } from './wuwa-import-adapters.js';
 import { createCashbackHook } from '../../core/hooks.js';
 import { initializeTabs } from "../../ui/tabs.js";
 import { manageHeader } from "../../ui/header.js";
@@ -58,8 +59,12 @@ export class WuwaPageController {
 
     initialize() {
         this.validator.initialize();
+        
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
         initializeTabs();
+        initializeImporter();
+        initializeButtons(this.persistence);
+
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(wuwaTourSteps);
@@ -83,6 +88,7 @@ export class WuwaPageController {
                 this.tutorial.startTour(wuwaTourSteps);
             });
         }
+        initializeImporter(this.persistence, adaptFromWuwaTracker, this.validator, SELECTORS);
         const helpButtons = document.querySelectorAll('.help-btn');
 
         helpButtons.forEach(button => {
