@@ -1,6 +1,6 @@
 import { consolidateProbabilities, checkIsEmpty, consolidateDistributionForCashback, simplifyDistribution, normalizeCheap, consolidateProbabilitiesCheap } from '../common/common-helpers.js';
 import { makeDistributionArraysSSR, makeDistributionArraysSR, sortPitySSR } from '../common/make-distribution-arrays.js';
-import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig } from './config.js';
+import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig, RATE_UP_ODDS } from './config.js';
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
 import { rankUpSSRCheap } from '../common/common-pull-logic.js';
 
@@ -36,13 +36,14 @@ export const HSR_ADAPTERS = {
                 ODDS_WEAPON_SSR,
                 SSR_CHAR_PITY,
                 SSR_WEP_PITY,
+                RATE_UP_ODDS,
                 pities
             );
         }
     },
     workerManager: new WorkerManager(),
     contexts: {
-        contextSSR: { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, SSR_CHAR_PITY, SSR_WEP_PITY },
+        contextSSR: { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, SSR_CHAR_PITY, SSR_WEP_PITY, RATE_UP_ODDS },
         contextSR: { ODDS_SR, SR_PITY },
         moduleType: moduleType
     },

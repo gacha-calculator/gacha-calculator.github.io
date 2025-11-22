@@ -8,7 +8,7 @@
 
 const PRUNE_LEVEL = 1e-10;
 
-export function rankUpSSR(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, pityChar, pityWep, pities) {
+export function rankUpSSR(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, pityChar, pityWep, pities, RATE_UP_ODDS) {
     const { charPullsSum, wepPullsSum } = pullsPerBannerType(distributionSSR);
     const rankUps = { characters: 0, weapons: 0 };
     const pullsPerBanner = {};
@@ -19,9 +19,9 @@ export function rankUpSSR(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, 
         const winIndex = pities[wins + 1];
         if (!currentArray.isEmpty) {
             if (currentArray.type === 'Character') {
-                handleSSR(ODDS_CHARACTER_SSR, wins, distributionSSR, pityChar, rankUps, currentArray.type, winIndex);
+                handleSSR(ODDS_CHARACTER_SSR, wins, distributionSSR, pityChar, rankUps, currentArray.type, winIndex, RATE_UP_ODDS);
             } else if (currentArray.type === 'Weapon') {
-                handleSSR(ODDS_WEAPON_SSR, wins, distributionSSR, pityWep, rankUps, currentArray.type, winIndex);
+                handleSSR(ODDS_WEAPON_SSR, wins, distributionSSR, pityWep, rankUps, currentArray.type, winIndex, RATE_UP_ODDS);
             } else {
                 throw new Error(`Unknown SSR array type: ${currentArray.type}`);
             }
@@ -74,16 +74,16 @@ export function rankUpSR(distributionSR, pullsCoef, ODDS_SR, gachaPities) {
     }
 }
 
-export function rankUpSSRCheap(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, pityChar, pityWep, pities) {
+export function rankUpSSRCheap(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, pityChar, pityWep, RATE_UP_ODDS, pities) {
     const lastActive = distributionSSR.length - 2;
     for (let wins = lastActive; wins >= 0; wins--) {
         const currentArray = distributionSSR[wins];
         const winIndex = pities[wins + 1];
         if (!currentArray.isEmpty) {
             if (currentArray.type === 'Character') {
-                handleSSRCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, pityChar, currentArray.type, winIndex);
+                handleSSRCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, pityChar, currentArray.type, winIndex, RATE_UP_ODDS);
             } else if (currentArray.type === 'Weapon') {
-                handleSSRCheap(ODDS_WEAPON_SSR, wins, distributionSSR, pityWep, currentArray.type, winIndex);
+                handleSSRCheap(ODDS_WEAPON_SSR, wins, distributionSSR, pityWep, currentArray.type, winIndex, RATE_UP_ODDS);
             } else {
                 throw new Error(`Unknown SSR array type: ${currentArray.type}`);
             }
@@ -91,10 +91,10 @@ export function rankUpSSRCheap(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_
     }
 }
 
-function handleSSR(odds, inputIndex, array, pity, rankUps, type, winIndex) {
+function handleSSR(odds, inputIndex, array, pity, rankUps, type, winIndex, RATE_UP_ODDS) {
     const size = array[inputIndex].states.length;
-    const rateUpOddsChar = 0.5;
-    const rateUpOddsWep = 0.75;
+    const rateUpOddsChar = RATE_UP_ODDS.rateUpOddsChar;
+    const rateUpOddsWep = RATE_UP_ODDS.rateUpOddsWep;
     let rateUpOdds = 0.5;
 
     if (type === 'Character') {
@@ -243,10 +243,10 @@ function handleSR(odds, inputIndex, array, pity, pullsCoef) {
     }
 }
 
-function handleSSRCheap(odds, inputIndex, array, pity, type, winIndex) {
+function handleSSRCheap(odds, inputIndex, array, pity, type, winIndex, RATE_UP_ODDS) {
     const size = array[inputIndex].states.length;
-    const rateUpOddsChar = 0.5;
-    const rateUpOddsWep = 0.75;
+    const rateUpOddsChar = RATE_UP_ODDS.rateUpOddsChar;
+    const rateUpOddsWep = RATE_UP_ODDS.rateUpOddsWep;
     let rateUpOdds = 0.5;
 
     if (type === 'Character') {

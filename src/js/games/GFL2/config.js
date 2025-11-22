@@ -35,6 +35,11 @@ export const gachaConfig = {
     default: 0
 };
 
+export const RATE_UP_ODDS = {
+    rateUpOddsChar: 0.5,
+    rateUpOddsWep: 0.75
+};
+
 export const CONSTELLATION_OPTIONS = [
     { value: 'unknown', text: 'Unknown' },
     { value: 'none', text: 'Not Owned' },

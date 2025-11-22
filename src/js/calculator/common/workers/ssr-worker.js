@@ -12,7 +12,7 @@ self.onmessage = function (e) {
     switch (e.data?.type) {
         case 'Iterate':
             iterationCount++;
-            const currentLossData = pullLogicModule.rankUpSSR(distribution, context.ODDS_CHARACTER_SSR, context.ODDS_WEAPON_SSR, context.SSR_CHAR_PITY, context.SSR_WEP_PITY, context.pities);
+            const currentLossData = pullLogicModule.rankUpSSR(distribution, context.ODDS_CHARACTER_SSR, context.ODDS_WEAPON_SSR, context.SSR_CHAR_PITY, context.SSR_WEP_PITY, context.pities, context.RATE_UP_ODDS);
             if (iterationCount === PRUNE_EVERY_N) {
                 helpersModule.pruneAndNormalize(distribution);
                 iterationCount = 0;
