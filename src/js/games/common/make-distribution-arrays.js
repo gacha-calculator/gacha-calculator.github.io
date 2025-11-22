@@ -32,6 +32,7 @@ export function makeDistributionArraysSSR(inputConfig, pity, STATES_LIMITS) {
 
 export function sortPitySSR(inputConfig, gachaPities) {
     const CHAR_PITY = gachaPities.pitySSRChar;
+    const WEP_PITY = gachaPities.pitySSRWep;
     let foundFirstChar = false;
     let foundFirstWep = false;
     let charPity = 0;
@@ -43,6 +44,7 @@ export function sortPitySSR(inputConfig, gachaPities) {
     charPity += inputConfig.SSR.guarantee.char * CHAR_PITY;
 
     wepPity += inputConfig.SSR.pity.wep;
+    wepPity += inputConfig.SSR.guarantee.wep * WEP_PITY;
 
     // Assign them to their first occurance
     for (const element of inputConfig.SSR.pullPlan) {
@@ -63,7 +65,7 @@ export function sortPitySSR(inputConfig, gachaPities) {
 
 export function makeDistributionArraysSR(inputConfig, STATES_LIMITS) {
     const STATES = STATES_LIMITS.SR;
-    const PITY = (STATES - 1) / 2;
+    const PITY = STATES / 2;
     const distributionCharSR = [{ states: Array.from({ length: STATES_LIMITS.SR }, () => new Map()) }];
     const distributionWepSR = [{ states: Array.from({ length: STATES_LIMITS.SR }, () => new Map()) }];
     const pityCharSR = inputConfig.SR.guarantee.char * PITY + inputConfig.SR.pity.char;

@@ -33,14 +33,17 @@ export function makeDistributionArraysSSR(inputConfig, pity, STATES_LIMITS) {
             states: Array.from({ length: 1 }, () => new Map())
         }))
     );
-    initializeStartingState(pity);
+    initializeStartingState(pity, STATES_LIMITS);
 
     return { distributionSSR };
 
-    function initializeStartingState(pityData) {
+    function initializeStartingState(pityData, STATES_LIMITS) {
         let special = 0;
         if (pityData[0].type === 'firstChar') {
             special = pityData[0].special;
+        }
+        if (special > 0 && pityData[0].pity >= STATES_LIMITS.CHARACTER_SSR_GUARANTEED) {
+            special--;
         }
         distributionSSR[0][special].states[pityData[0].pity].set(0, {
             prob: 1.0
@@ -80,7 +83,7 @@ export function sortPitySSR(inputConfig, gachaPities) {
 
 export function makeDistributionArraysSR(inputConfig, STATES_LIMITS) {
     const STATES = STATES_LIMITS.SR;
-    const PITY = (STATES - 1) / 2;
+    const PITY = STATES / 2;
     const distributionCharSR = [{ states: Array.from({ length: STATES_LIMITS.SR }, () => new Map()) }];
     const distributionWepSR = [{ states: Array.from({ length: STATES_LIMITS.SR }, () => new Map()) }];
     const pityCharSR = inputConfig.SR.guarantee.char * PITY + inputConfig.SR.pity.char;

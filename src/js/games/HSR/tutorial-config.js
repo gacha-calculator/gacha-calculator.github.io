@@ -90,8 +90,9 @@ export const helpContentMap = {
 
     'import-help': {
         element: '.tab-panel-card',
-        text: '<p>You can import your data directly from <a href="https://starrailstation.com/" target="_blank" rel="noopener noreferrer" class="soft-link">starrailstation.com</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
-        position: 'right'
+        text: '<p>You can import your data directly from <a href="https://starrailstation.com/" target="_blank" rel="noopener noreferrer" class="soft-link">starrailstation.com</a>. Click the "Import Data" button and paste your exported JSON data or csv from tracker.</p>',
+        position: 'right',
+        size: 'big'
     },
     'export-help': {
         element: '.tab-panel-card',

@@ -88,7 +88,7 @@ export class zenlessPageController {
                 this.tutorial.startTour(zenlessTourSteps);
             });
         }
-        initializeImporter(this.persistence, adaptFromRngMoe, this.validator, SELECTORS);
+        initializeImporter(this.persistence, adaptFromRngMoe, this.validator, SELECTORS, this.tutorial);
         const helpButtons = document.querySelectorAll('.help-btn');
 
         helpButtons.forEach(button => {

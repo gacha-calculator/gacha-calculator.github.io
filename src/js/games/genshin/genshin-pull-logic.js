@@ -1,3 +1,12 @@
+//Copyright (C) 2025 bubartem
+//
+//This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
+// 
+
 const PRUNE_LEVEL = 1e-10;
 
 export function rankUpSSR(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, pityChar, pityWep, pities) {
@@ -116,7 +125,7 @@ function handleSSRChar(odds, inputIndex, array, pity, rankUps, winIndex, capRad)
         }
         const nextStatesWon = array[inputIndex + 1][capRadReduction].states;
         const nextStatesLost = array[inputIndex + 1][capRad + 1].states;
-        for (let j = size - 2; j >= 0; j--) {
+        for (let j = size - 1; j >= 0; j--) {
             const currentState = currentStates[j];
             const isGuaranteed = j >= pity;
             const currentOdds = odds[j - pity * isGuaranteed];
@@ -178,7 +187,7 @@ function handleSSRChar(odds, inputIndex, array, pity, rankUps, winIndex, capRad)
         const nextStates = array[inputIndex + 1][capRadReduction].states;
         const size = array[inputIndex][capRad].states.length;
 
-        for (let j = size - 2; j >= 0; j--) {
+        for (let j = size - 1; j >= 0; j--) {
             const currentState = currentStates[j];
             const currentOdds = odds[j];
 
@@ -224,10 +233,10 @@ function handleSSRWep(odds, inputIndex, array, pity, rankUps, winIndex, capRad, 
     }
     const size = array[inputIndex][capRad].states.length;
     const rateUpOdds = 0.375;
-    const rateUpGuaranteeOdds = 0.625;
+    const rateUpGuaranteeOdds = 0.5;
     const currentStates = array[inputIndex][capRad].states;
     const nextStates = array[inputIndex + 1][nextCapRad].states;
-    for (let i = size - 2; i >= 0; i--) {
+    for (let i = size - 1; i >= 0; i--) {
         const currentState = currentStates[i];
         const isEpPath = i >= 2 * pity;
         let isGuaranteed = false;
@@ -377,7 +386,7 @@ function handleSSRCharCheap(odds, inputIndex, array, pity, winIndex, capRad) {
         }
         const nextStatesWon = array[inputIndex + 1][capRadReduction].states;
         const nextStatesLost = array[inputIndex + 1][capRad + 1].states;
-        for (let i = size - 2; i >= 0; i--) {
+        for (let i = size - 1; i >= 0; i--) {
             const currentState = currentStates[i];
             const isGuaranteed = i >= pity;
             const currentOdds = odds[i - pity * isGuaranteed];
@@ -410,7 +419,7 @@ function handleSSRCharCheap(odds, inputIndex, array, pity, winIndex, capRad) {
         const nextStates = array[inputIndex + 1][capRadReduction].states;
         const size = array[inputIndex][capRad].states.length;
 
-        for (let i = size - 2; i >= 0; i--) {
+        for (let i = size - 1; i >= 0; i--) {
             const currentState = currentStates[i];
             const currentOdds = odds[i];
 
@@ -437,10 +446,10 @@ function handleSSRWepCheap(odds, inputIndex, array, pity, winIndex, capRad, spec
     }
     const size = array[inputIndex][capRad].states.length;
     const rateUpOdds = 0.375;
-    const rateUpGuaranteeOdds = 0.625;
+    const rateUpGuaranteeOdds = 0.5;
     const currentStates = array[inputIndex][capRad].states;
     const nextStates = array[inputIndex + 1][nextCapRad].states;
-    for (let i = size - 2; i >= 0; i--) {
+    for (let i = size - 1; i >= 0; i--) {
         const currentState = currentStates[i];
         const isEpPath = i >= 2 * pity;
         let isGuaranteed = false;

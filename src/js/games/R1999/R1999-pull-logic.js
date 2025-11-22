@@ -61,7 +61,7 @@ function handleSSR(odds, inputIndex, array, pity, winIndex, rankUps) {
     const currentStates = array[inputIndex].states;
     const currentBanner = array[inputIndex].bannerCount;
     const nextStates = array[inputIndex + 1].states;
-    for (let i = size - 2; i >= 0; i--) {
+    for (let i = size - 1; i >= 0; i--) {
         const currentState = currentStates[i];
         const isGuaranteed = i >= pity;
         const currentOdds = odds[i - pity * isGuaranteed];
@@ -267,7 +267,7 @@ export function handleSSRCheap(odds, inputIndex, array, pity, winIndex) {
 
     const currentStates = array[inputIndex].states;
     const nextStates = array[inputIndex + 1].states;
-    for (let i = size - 2; i >= 0; i--) {
+    for (let i = size - 1; i >= 0; i--) {
         const currentState = currentStates[i];
         const isGuaranteed = i >= pity;
         const currentOdds = odds[i - pity * isGuaranteed];

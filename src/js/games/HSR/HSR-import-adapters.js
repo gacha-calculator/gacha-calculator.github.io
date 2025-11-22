@@ -5,8 +5,7 @@ export function adaptFromStarRailStation(importedData, persistence) {
     const lines = importedData.trim().split('\n');
 
     if (lines[0] != 'uid,id,rarity,time,banner,type,manual') {
-        console.error("Imported data is missing key starrailstation.com properties.");
-        return null;
+        throw new Error("Imported data is missing key starrailstation.com properties.");
     }
 
     const standardData = persistence._load('hsr-constellations');

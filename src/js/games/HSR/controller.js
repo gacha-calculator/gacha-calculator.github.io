@@ -90,7 +90,7 @@ export class HSRPageController {
                 this.tutorial.startTour(HSRTourSteps);
             });
         }
-        initializeImporter(this.persistence, adaptFromStarRailStation, this.validator, SELECTORS);
+        initializeImporter(this.persistence, adaptFromStarRailStation, this.validator, SELECTORS, this.tutorial);
         const helpButtons = document.querySelectorAll('.help-btn');
 
         helpButtons.forEach(button => {

@@ -1,3 +1,11 @@
+//Copyright (C) 2025 bubartem
+//
+//This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
+
 const PRUNE_LEVEL = 1e-10;
 
 export function rankUpSSR(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, pityChar, pityWep, pities) {
@@ -96,7 +104,7 @@ function handleSSR(odds, inputIndex, array, pity, rankUps, type, winIndex) {
     }
     const currentStates = array[inputIndex].states;
     const nextStates = array[inputIndex + 1].states;
-    for (let i = size - 2; i >= 0; i--) {
+    for (let i = size - 1; i >= 0; i--) {
         const currentState = currentStates[i];
         const isGuaranteed = i >= pity;
         const currentOdds = odds[i - pity * isGuaranteed];
@@ -248,7 +256,7 @@ function handleSSRCheap(odds, inputIndex, array, pity, type, winIndex) {
     }
     const currentStates = array[inputIndex].states;
     const nextStates = array[inputIndex + 1].states;
-    for (let i = size - 2; i >= 0; i--) {
+    for (let i = size - 1; i >= 0; i--) {
         const currentState = currentStates[i];
         const isGuaranteed = i >= pity;
         const currentOdds = odds[i - pity * isGuaranteed];

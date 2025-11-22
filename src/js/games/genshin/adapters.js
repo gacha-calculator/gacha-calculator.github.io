@@ -11,10 +11,10 @@ const SSR_WEP_PITY = gachaConfig.pity.pitySSRWep;
 const SR_PITY = gachaConfig.pity.pitySRChar;
 
 const STATES_LIMITS = {
-    CHARACTER_SSR_5050: gachaConfig.pity.pitySSRChar * 2 + 1,
-    CHARACTER_SSR_GUARANTEED: gachaConfig.pity.pitySSRChar + 1,
-    WEAPON_SSR: gachaConfig.pity.pitySSRWep * 3 + 1,
-    SR: gachaConfig.pity.pitySRChar * 2 + 1
+    CHARACTER_SSR_5050: gachaConfig.pity.pitySSRChar * 2,
+    CHARACTER_SSR_GUARANTEED: gachaConfig.pity.pitySSRChar,
+    WEAPON_SSR: gachaConfig.pity.pitySSRWep * 3,
+    SR: gachaConfig.pity.pitySRChar * 2
 };
 
 export const GENSHIN_ADAPTERS = {

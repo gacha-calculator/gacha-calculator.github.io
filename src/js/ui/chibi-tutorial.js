@@ -47,12 +47,10 @@ export class ChibiTutorial {
             return;
         }
         this.tourSteps = steps;
-        // If resuming from a paused state, don't reset the index
-        if (this.pausedTourStepIndex === -1) {
+        if (this.pausedTourStepIndex === -1) { // If resuming from a paused state, don't reset the index
             this.currentTourStepIndex = 0;
         } else {
-            // Resuming, so use the paused index and reset the pause state
-            this.currentTourStepIndex = this.pausedTourStepIndex;
+            this.currentTourStepIndex = this.pausedTourStepIndex; // Resuming, so use the paused index and reset the pause state
             this.pausedTourStepIndex = -1; // Reset pause state after using it
         }
         this.isTourActive = true;
@@ -282,7 +280,6 @@ export class ChibiTutorial {
             };
         }
 
-        // If no element in config but we have a trigger element, use it
         if (!displayConfig.element && triggerElement) {
             displayConfig.element = triggerElement;
         }
@@ -462,12 +459,12 @@ export class ChibiTutorial {
         this.observers = null;
     }
 
-    showError(errorMessage, targetSelector = '.pull-plan-section') {
+    showError(errorMessage, targetSelector = '.tab-panel-card') {
         const errorConfig = {
             text: `<p style="color: #ff6b6b;">${errorMessage}</p>`,
             element: targetSelector,
-            position: 'left',
-            chibiSide: 'left',
+            position: 'right',
+            chibiSide: 'right',
             size: 'small'
         };
 

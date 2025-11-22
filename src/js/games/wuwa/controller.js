@@ -87,7 +87,7 @@ export class WuwaPageController {
                 this.tutorial.startTour(wuwaTourSteps);
             });
         }
-        initializeImporter(this.persistence, adaptFromWuwaTracker, this.validator, SELECTORS);
+        initializeImporter(this.persistence, adaptFromWuwaTracker, this.validator, SELECTORS, this.tutorial);
         const helpButtons = document.querySelectorAll('.help-btn');
 
         helpButtons.forEach(button => {

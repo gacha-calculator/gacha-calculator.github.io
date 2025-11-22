@@ -2,8 +2,7 @@ import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, CHARS_4_STAR, WE
 
 export function adaptFromPaimonMoe(importedData) {
     if (!importedData || !importedData.characters || !importedData['wish-counter-character-event']) {
-        console.error("Imported data is missing key Paimon.moe properties.");
-        return null;
+        throw new Error("Imported data is missing key Paimon.moe properties.");
     }
 
     const charPulls = importedData['wish-counter-character-event']?.pulls || [];

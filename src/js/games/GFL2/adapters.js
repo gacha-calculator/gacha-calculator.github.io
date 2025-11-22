@@ -11,9 +11,9 @@ const SSR_WEP_PITY = gachaConfig.pity.pitySSRWep;
 const SR_PITY = gachaConfig.pity.pitySRChar;
 
 const STATES_LIMITS = {
-    CHARACTER: SSR_CHAR_PITY * 2 + 1,
-    WEAPON: SSR_WEP_PITY * 2 + 1,
-    SR: SR_PITY * 2 + 1
+    CHARACTER: SSR_CHAR_PITY * 2,
+    WEAPON: SSR_WEP_PITY * 2,
+    SR: SR_PITY * 2
 };
 
 export const GFL2_ADAPTERS = {

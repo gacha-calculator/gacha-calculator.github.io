@@ -10,8 +10,7 @@ export function adaptFromWuwaTracker(importedData) {
     };
 
     if (!importedData.playerId || !importedData.pulls) {
-        console.error("Imported data is missing key wuwatracker.com properties.");
-        return null;
+        throw new Error("Imported data is missing key wuwatracker.com properties.");
     }
     
     const playerId = importedData.playerId;

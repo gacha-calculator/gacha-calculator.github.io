@@ -90,7 +90,7 @@ export class R1999PageController {
                 this.tutorial.startTour(R1999TourSteps);
             });
         }
-        initializeImporter(this.persistence, adaptFromKornblume, this.validator, SELECTORS);
+        initializeImporter(this.persistence, adaptFromKornblume, this.validator, SELECTORS, this.tutorial);
         const helpButtons = document.querySelectorAll('.help-btn');
 
         helpButtons.forEach(button => {

@@ -94,7 +94,7 @@ function initializePityTable(pityConfig, INITIAL_CONFIG, SELECTORS) {
                 if (numValue > input.max) {
                     this.value = input.max;
                     errorAnimation(this);
-                } else if (numValue <= input.min) {
+                } else if (numValue < input.min) {
                     this.value = input.min;
                     errorAnimation(this);
                 }

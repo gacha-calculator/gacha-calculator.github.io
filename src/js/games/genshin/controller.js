@@ -88,7 +88,7 @@ export class GenshinPageController {
                 this.tutorial.startTour(genshinTourSteps);
             });
         }
-        initializeImporter(this.persistence, adaptFromPaimonMoe, this.validator, SELECTORS);
+        initializeImporter(this.persistence, adaptFromPaimonMoe, this.validator, SELECTORS, this.tutorial);
         const helpButtons = document.querySelectorAll('.help-btn');
 
         helpButtons.forEach(button => {

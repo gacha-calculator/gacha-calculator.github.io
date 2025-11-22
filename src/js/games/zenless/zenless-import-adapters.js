@@ -2,8 +2,7 @@ import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD } from "./config.
 
 export function adaptFromRngMoe(importedData) {
     if (!importedData.data || !importedData.data.profiles) {
-        console.error("Imported data is missing key wuwatracker.com properties.");
-        return null;
+        throw new Error("Imported data is missing key wuwatracker.com properties.");
     }
     const data = importedData.data.profiles[1].stores[0];
     const pities = data.gachaTypes;

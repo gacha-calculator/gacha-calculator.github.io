@@ -1,3 +1,11 @@
+//Copyright (C) 2025 bubartem
+//
+//This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
+
 import { checkIsTarget, checkIsEmpty, pruneAndNormalize, consolidateProbabilities, consolidateDistributionForCashback, consolidateProbabilitiesCheap, simplifyDistribution, normalizeCheap } from '../common/common-helpers.js';
 import { rankUpSR, rankUpSSR, rankUpSSRCheap } from './R1999-pull-logic.js';
 import { makeDistributionArraysSSR, sortPity, makeDistributionArraysSR } from './R1999-distribution-arrays.js'
@@ -9,7 +17,7 @@ export function runR1999GachaCalc(inputConfig, target) {
     let pullsPerBanner = {};
     let isTarget = false;
     let isEmpty = false;
-    let SSRStateLimit = gachaConfig.pity.pitySSR * 2 + 1;
+    let SSRStateLimit = gachaConfig.pity.pitySSR * 2;
 
     const pity = sortPity(inputConfig, gachaConfig.pity);
     let distributionSSR = makeDistributionArraysSSR(inputConfig, pity.SSR, SSRStateLimit);

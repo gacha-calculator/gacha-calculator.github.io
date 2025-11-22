@@ -1,20 +1,20 @@
 import { restorePityTable, restoreConstellationTable } from './initialize-inputs.js';
-import { restorePityTable as R1999restorePityTable, restoreConstellationTable as R1999restoreConstellationTable } from '../games/R1999/R1999-initialize-inputs.js'
+import { restorePityTable as R1999restorePityTable, restoreConstellationTable as R1999restoreConstellationTable } from '../games/R1999/R1999-initialize-inputs.js';
 
-export function initializeImporter(persistence, adapterFn, validator, SELECTORS) {
+export function initializeImporter(persistence, adapterFn, validator, SELECTORS, chibi) {
     const fileInput = document.getElementById('import-file-input');
     if (!fileInput) {
         console.error("Import file input not found!");
         return;
     }
-    const handleFile = (event) => handleFileSelect(event, persistence, adapterFn, validator, SELECTORS);
+    const handleFile = (event) => handleFileSelect(event, persistence, adapterFn, validator, SELECTORS, chibi);
 
     fileInput.removeEventListener('change', fileInput.__handleFile);
     fileInput.addEventListener('change', handleFile);
     fileInput.__handleFile = handleFile;
 }
 
-async function handleFileSelect(event, persistence, adapterFN, validator, SELECTORS) {
+async function handleFileSelect(event, persistence, adapterFN, validator, SELECTORS, chibi) {
     const file = event.target.files[0];
     if (!file) {
         return;
@@ -44,9 +44,10 @@ async function handleFileSelect(event, persistence, adapterFN, validator, SELECT
             persistence.saveTables();
         }
     } catch (error) {
+        chibi.showError('Something\'s wrong with the file you tried to use');
         console.error('File import error:', error);
     } finally {
-        event.target.value = '';
+        event.  target.value = '';
     }
 }
 

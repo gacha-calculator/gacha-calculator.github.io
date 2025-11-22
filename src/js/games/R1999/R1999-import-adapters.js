@@ -2,8 +2,7 @@ import { gachaConfig, CONSTELLATION_MAP, BANNER_HISTORY, UPDATE_HISTORY } from "
 
 export function adaptFromKornblume(importedData) {
     if (!importedData.pulls) {
-        console.error("Imported data is missing key Kornblume properties.");
-        return null;
+        throw new Error("Imported data is missing key Kornblume properties.");
     }
 
     const pulls = JSON.parse(importedData.pulls);
