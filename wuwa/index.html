@@ -24,15 +24,14 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" crossorigin src="/assets/wuwa-YQ_tSuFf.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/solvers-voB4j3Kv.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-xI316UIT.js">
+  <script type="module" crossorigin src="/assets/wuwa-B6xSXR0Z.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/solvers-3q-h4Lr5.js">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-CihShbmN.js">
   <link rel="modulepreload" crossorigin href="/assets/make-distribution-arrays-B0_53ui9.js">
   <link rel="stylesheet" crossorigin href="/assets/styles-BK3tnjMs.css">
 </head>
 
 <body>
-    <!-- Header -->
     <header class="header">
         <nav class="nav-container" aria-label="Game selection">
             <ul class="nav-list">
@@ -109,17 +108,15 @@
         </nav>
     </header>
 
-    <!-- Background Image -->
     <div class="background-container">
         <div class="image-fade"></div>
         <img src="/images/wuwa_bg.jpg" alt="Background art">
     </div>
 
     <div class="small-background-container">
-        <img src="/images/zenless_bg_small.jpg" alt="Background art">
+        <img src="/images/wuwa_bg_small.jpg" alt="Background art">
     </div>
 
-    <!-- Main Content -->
     <main class="main-content">
         <section class="content-box" aria-label="Calculator interface">
             <h1 class="main-title">Wuthering Waves Gacha Calculator</h1>
@@ -210,11 +207,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Each row represents a rate-up character slot -->
                                     <tr>
                                         <td>Character Slot 1</td>
                                         <td>
-                                            <!-- The select element is here, but it's empty. JS will populate it. -->
                                             <select class="custom-select" data-control="rate-up-slot-1"></select>
                                         </td>
                                     </tr>
@@ -332,14 +327,11 @@
             <button id="toggle-buttons-btn" class="btn btn--hide-buttons">Hide Help Buttons</button>
         </section>
     </main>
-    <!-- Pity Row Template -->
     <template id="pity-row-template">
         <tr>
             <td class="banner-name"></td>
-            <!-- 4★ Section -->
             <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"></td>
             <td><input type="checkbox" class="guarantee-4"></td>
-            <!-- 5★ Section -->
             <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"></td>
             <td><input type="checkbox" class="guarantee-5"></td>
         </tr>
@@ -378,7 +370,6 @@
             <button class="btn btn--delete">×</button>
         </div>
     </template>
-    <!-- Constellation Column Template -->
     <template id="const-column-template">
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
