@@ -65,7 +65,6 @@ export class R1999PageController {
 
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
         initializeTabs();
-        initializeImporter();
         initializeButtons(this.persistence);
 
         this.#setupEventListeners();

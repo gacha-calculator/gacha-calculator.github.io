@@ -59,8 +59,20 @@ export const CONSTELLATION_MAP = {
     'e6': 7
 };
 
+export const CUSTOM_CHARS_5_STAR_STANDARD = [
+    { value: '1211', text: 'Bailu'},
+    { value: '1101', text: 'Bronya'},
+    { value: '1107', text: 'Clara'},
+    { value: '1104', text: 'Gepard'},
+    { value: '1003', text: 'Himeko'},
+    { value: '1004', text: 'Welt'},
+    { value: '1209', text: 'Yanqing'},
+    { value: '1102', text: 'Seele'},
+    { value: '1205', text: 'Blade'},
+    { value: '1208', text: 'Fu Xuan'}
+];
+
 export const CHARS_5_STAR_STANDARD = new Set(['1003', '1004', '1101', '1104', '1107', '1209', '1211']);
-export const CUSTOM_CHARS_5_STAR_STANDARD = new Set(['1102', '1205', '1208']);
 export const WEP_5_STAR_STANDARD = new Set(['23013', '23012', '23005', '23004', '23003', '23002', '23000']);
 
 export const charRateUpsPerBanner = {

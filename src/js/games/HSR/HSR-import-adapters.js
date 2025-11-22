@@ -1,10 +1,17 @@
-import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, WEP_5_STAR_STANDARD, charRateUpsPerBanner, wepRateUpsPerBanner } from "./config.js";
+import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, CUSTOM_CHARS_5_STAR_STANDARD, WEP_5_STAR_STANDARD, charRateUpsPerBanner, wepRateUpsPerBanner } from "./config.js";
 
-export function adaptFromStarRailStation(importedData) {
+export function adaptFromStarRailStation(importedData, persistence) {
     // Split into lines
     const lines = importedData.trim().split('\n');
 
-    const charPity = calculatePityFromPulls(lines, 'character');
+    if (lines[0] != 'uid,id,rarity,time,banner,type,manual') {
+        console.error("Imported data is missing key starrailstation.com properties.");
+        return null;
+    }
+
+    const standardData = persistence._load('hsr-constellations');
+
+    const charPity = calculatePityFromPulls(lines, 'character', standardData);
     const wepPity = calculatePityFromPulls(lines, 'weapon');
 
     const finalPityData = [
@@ -12,7 +19,7 @@ export function adaptFromStarRailStation(importedData) {
         { banner: 'weapon', ...wepPity }
     ];
 
-    const finalConstellationData = aggregateConstellationCounts(lines);
+    const finalConstellationData = aggregateConstellationCounts(lines, standardData);
 
     return {
         pity: finalPityData,
@@ -20,7 +27,7 @@ export function adaptFromStarRailStation(importedData) {
     };
 }
 
-function calculatePityFromPulls(lines, bannerType) {
+function calculatePityFromPulls(lines, bannerType, standardData) {
     let pity5 = 0, pity4 = 0;
     let guarantee5 = false, guarantee4 = false;
     let found5Star = false, found4Star = false;
@@ -45,7 +52,7 @@ function calculatePityFromPulls(lines, bannerType) {
         if (bannerTypeId === targetBanner) {
             if (rarity === '5') {
                 if (!found5Star) {
-                    guarantee5 = isGuarantee(itemId, rarity, bannerType);
+                    guarantee5 = isGuarantee(itemId, rarity, bannerType, bannerId, standardData);
                 }
                 if (!found4Star) {
                     pity4++;
@@ -74,7 +81,6 @@ function calculatePityFromPulls(lines, bannerType) {
                 break;
             }
         }
-
     }
 
     return {
@@ -85,11 +91,15 @@ function calculatePityFromPulls(lines, bannerType) {
     };
 }
 
-function isGuarantee(itemId, rarity, bannerType, bannerId) {
+function isGuarantee(itemId, rarity, bannerType, bannerId, standardData) {
     let isGuarantee = false;
     if (rarity === '5') {
         if (bannerType === 'character') {
-            isGuarantee = CHARS_5_STAR_STANDARD.has(itemId); // if last 5* is standard then it's guaranteed
+            let activeStandard = CHARS_5_STAR_STANDARD;
+            if (standardData != null && standardData != undefined) {
+                activeStandard = new Set(standardData.selectedChars); // all CUSTOM_CHARS_5_STAR_STANDARD
+            }
+            isGuarantee = activeStandard.has(itemId); // if last 5* is standard then it's guaranteed
         } else {
             isGuarantee = WEP_5_STAR_STANDARD.has(itemId);
         }
@@ -104,12 +114,17 @@ function isGuarantee(itemId, rarity, bannerType, bannerId) {
     return isGuarantee;
 }
 
-function aggregateConstellationCounts(lines) {
+function aggregateConstellationCounts(lines, standardData) {
     const fourStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
     const fiveStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
 
     const fourStarMap = new Map();
     const fiveStarMap = new Map();
+
+    let activeStandard = CHARS_5_STAR_STANDARD;
+    if (standardData != null && standardData != undefined) {
+        activeStandard = new Set(standardData.selectedChars); // all CUSTOM_CHARS_5_STAR_STANDARD
+    }
 
     lines.slice(1).map(line => {
         const parts = line.split(',');
@@ -118,14 +133,15 @@ function aggregateConstellationCounts(lines) {
         const id = parts[1];
 
         if (isCharacter) {
-            if (rarity === '5' && CHARS_5_STAR_STANDARD.has(id)) {
+            const isStandard = CUSTOM_CHARS_5_STAR_STANDARD.some(char => char.value === id);
+            if (rarity === '5' && isStandard) {
                 fiveStarMap.set(id, (fiveStarMap.get(id) || 0) + 1);
             } else if (rarity === '4') {
                 fourStarMap.set(id, (fourStarMap.get(id) || 0) + 1);
             }
         }
     });
-    
+
     for (const value of fourStarMap.values()) {
         const maxCons = fourStarCounts.length - 1;
         if (value >= maxCons) {
@@ -135,17 +151,21 @@ function aggregateConstellationCounts(lines) {
         }
     }
 
-    for (const value of fiveStarMap.values()) {
-        const maxCons = fiveStarCounts.length - 1;
-        if (value >= maxCons) {
-            fiveStarCounts[maxCons]++;
-        } else {
-            fiveStarCounts[value]++;
+    for (const [key, value] of fiveStarMap) {
+        if (activeStandard.has(key)) {
+            const maxCons = fiveStarCounts.length - 1;
+            if (value >= maxCons) {
+                fiveStarCounts[maxCons]++;
+                activeStandard[key] = maxCons;
+            } else {
+                fiveStarCounts[value]++;
+                activeStandard[key] = value;
+            }
         }
     }
     const totalPossibleFourStars = gachaConfig.poolCharSR;
     const totalPossibleFiveStars = gachaConfig.poolStandardCharSSR;
-
+    
     // Calculate the difference and place it at index 0 ('none').
     const notOwnedFourStars = totalPossibleFourStars - fourStarMap.size;
     const notOwnedFiveStars = totalPossibleFiveStars - fiveStarMap.size;

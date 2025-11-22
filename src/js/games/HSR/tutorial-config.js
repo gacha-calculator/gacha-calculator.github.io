@@ -60,6 +60,14 @@ export const HSRTourSteps = [
         size: 'big'
     },
     {
+        id: 'standard-help',
+        element: '.tab-panel-card',
+        clickTab: '.tab-link[data-tab-target="#custom-standards-panel"]',
+        text: '<p>Input which extra characters you swapped with Standard chars and their constellation level. This information is necessary for accurate cashback predictions.</p>',
+        position: 'right',
+        size: 'big'
+    },
+    {
         id: 'rate-ups-step',
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
@@ -102,6 +110,13 @@ export const helpContentMap = {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#constellation-panel"]',
         text: '<p>Input how many Standard 5* and non-standard 4* characters you have at each constellation level. This information is necessary for accurate cashback predictions.</p>',
+        position: 'right',
+        size: 'big'
+    },
+    'standard-help': {
+        element: '.tab-panel-card',
+        clickTab: '.tab-link[data-tab-target="#custom-standards-panel"]',
+        text: '<p>Input which extra characters you swapped with Standard chars and their constellation level. This information is necessary for accurate cashback predictions.</p>',
         position: 'right',
         size: 'big'
     },

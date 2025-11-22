@@ -2,6 +2,7 @@ import { CalculationHandler } from '../../core/calculation-constructor.js';
 import { exportDataAsJson, initializeImporter } from "../../ui/data-action.js";
 import { initializePullPlanManager } from "../../ui/pull-plan.js";
 import { initializeTables, initializeTarget, initializeButtons } from "../../ui/initialize-inputs.js";
+import { initializeStandardTable } from "./initialize-standard-table.js";
 import { setUpInputPersist } from "../../ui/input-persist.js";
 import { createPersistence } from "../../core/save-input.js";
 import { DataValidator } from '../../ui/data-validator.js';
@@ -13,7 +14,7 @@ import { getPageConfiguration, getLabels, getPullPlan, getTarget } from "../../c
 import { updateChart, convertToChartData } from "../../ui/chart-configs.js";
 import { recalcInputs } from "../../ui/recalc-inputs.js";
 import { SELECTORS, INITIAL_CONFIG, DEFAULTS } from './page-config.js';
-import { CONSTELLATION_OPTIONS } from './config.js';
+import { CONSTELLATION_OPTIONS, CUSTOM_CHARS_5_STAR_STANDARD } from './config.js';
 import { ChibiTutorial } from '../../ui/chibi-tutorial.js';
 import { chibiHtmlFragment, HSRTourSteps, helpContentMap } from './tutorial-config.js';
 
@@ -62,8 +63,8 @@ export class HSRPageController {
         this.validator.initialize();
         
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
+        initializeStandardTable(CUSTOM_CHARS_5_STAR_STANDARD, CONSTELLATION_OPTIONS, this.persistence);
         initializeTabs();
-        initializeImporter();
         initializeButtons(this.persistence);
 
         this.#setupEventListeners();

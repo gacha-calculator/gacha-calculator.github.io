@@ -8,6 +8,12 @@ export function adaptFromWuwaTracker(importedData) {
         '6': 'europe',
         '5': 'america'
     };
+
+    if (!importedData.playerId || !importedData.pulls) {
+        console.error("Imported data is missing key wuwatracker.com properties.");
+        return null;
+    }
+    
     const playerId = importedData.playerId;
     const timeZone = timeZoneMap[playerId[0]];
     const BANNER_HISTORY_COPY = BANNER_HISTORY;
@@ -155,7 +161,7 @@ function aggregateConstellationCounts(pulls) {
 
     const fourStarMap = new Map();
     const fiveStarMap = new Map();
-    
+
     for (let pull of pulls) {
         const isCharacter = pull.resourceId.toString().length === 4;
         const rarity = pull.qualityLevel;

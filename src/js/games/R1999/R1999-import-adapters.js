@@ -1,9 +1,18 @@
 import { gachaConfig, CONSTELLATION_MAP, BANNER_HISTORY, UPDATE_HISTORY } from "./config.js";
 
 export function adaptFromKornblume(importedData) {
-    const pulls = JSON.parse(importedData.pulls);
+    if (!importedData.pulls) {
+        console.error("Imported data is missing key Kornblume properties.");
+        return null;
+    }
 
+    const pulls = JSON.parse(importedData.pulls);
     const charPity = calculatePityFromPulls(pulls.data, BANNER_HISTORY);
+
+    if (!pulls || !pulls.data) {
+        console.error("Imported data is missing key Kornblume properties.");
+        return null;
+    }
 
     const finalPityData = [
         { banner: 'character', ...charPity }

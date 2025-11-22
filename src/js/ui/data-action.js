@@ -32,7 +32,7 @@ async function handleFileSelect(event, persistence, adapterFN, validator, SELECT
                 standardData = adapterFN(parsedData);
             }
         } else if (file.type === 'text/csv') { // only hsr so far
-            standardData = adapterFN(fileContent)
+            standardData = adapterFN(fileContent, persistence);
         } else {
             alert('Error: Invalid or unsupported file format.');
         }
