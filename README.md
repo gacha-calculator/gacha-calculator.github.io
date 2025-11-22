@@ -2,6 +2,7 @@ gacha-calculator
 
 Source code for the live website:
 https://gacha-calculator.github.io/
+
 License
 
 This project is licensed under the GNU General Public License v3.0.
