@@ -1264,6 +1264,14 @@ table td:first-child {
         border-radius: 4px;
         background: var(--bg-tables);
         border-left: 3px solid var(--group-color);
+        flex-wrap: nowrap;
+    }
+    .rows-container {
+        width: 96vw;
+        overflow-x: auto;
+        display: inline-block;
+        white-space: nowrap;
+        /* if you want inline children to scroll horizontally */
     }
 
     .dropdown {
