@@ -1,6 +1,7 @@
 export function initializeStandardTable(CUSTOM_CHARS_5_STAR_STANDARD, CONSTELLATION_OPTIONS, persistence) {
     const standardsSelects = document.querySelectorAll('select[data-control^="standard-slot-"]');
-    const constSelects = document.querySelectorAll('select[data-control^="rate-up-slot-"]');
+    const standardTable = document.getElementById('custom-standards-panel');
+    const constSelects = standardTable.querySelectorAll('select[data-control^="rate-up-slot-"]');
     if (standardsSelects.length === 0) return;
 
     let standardData = persistence._load('hsr-constellations');
@@ -85,7 +86,7 @@ function findCurrentSelection(ALL_OPTIONS, standardData) {
 }
 
 function updateDisplayedConst(constSelects, standardData) {
-    for (let i = 0; i < constSelects.length - 3; i++) {
+    for (let i = 0; i < constSelects.length; i++) {
         constSelects[i].value = standardData.constValues[standardData.selectedChars[i]];
     }
 }

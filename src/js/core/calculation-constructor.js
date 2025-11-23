@@ -41,7 +41,7 @@ export class CalculationHandler {
         );
         const chartLabels = this.getLabels(this.calculatorConfig.gachaConfig.paths);
         if (chartLabels.length > 99) {
-            this.chibi.showError('Too many items! Maximum 99 items allowed.');
+            this.chibi.showError('Too many items! Even I can\'t calculate so quickly, maximum 99 items allowed.');
             return;
         }
         const results = await this.calculatorFunction(inputConfig, target);

@@ -41,7 +41,7 @@ export const wuwaTourSteps = [
     {
         id: 'calculate-button-step',
         element: '#calculate-btn',
-        text: '<p>Once your plan and target are set, click <strong>Calculate</strong> to see your results..</p>',
+        text: '<p>Once your plan and target are set, click <strong>Calculate</strong> and I will calculate everything for you.</p>',
         position: 'right',
         size: 'small'
     },

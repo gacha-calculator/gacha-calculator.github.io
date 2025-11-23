@@ -121,7 +121,7 @@ function initializeConstellationTable(config, INITIAL_CONFIG, SELECTORS) {
             const clone = constTemplate.content.cloneNode(true);
             const input = clone.querySelector('input');
 
-            if (i === INITIAL_CONFIG.constellationColumns - 1) { // p5 column
+            if (i === 0) {
                 const defaultValue = rarity === '5' ? StandardSSRDefault : LimitedSRDefault;
                 input.value = defaultValue;
             }
@@ -212,7 +212,7 @@ export function initializeTarget(DEFAULTS, savedSettings = null) {
         }
 
         let numValue = parseInt(this.value) || 0;
-        if (numValue > 100) {
+        if (numValue ) {
             this.value = '100';
             errorAnimation(this);
         } else if (numValue === 0) {

@@ -200,6 +200,16 @@ table td:first-child {
     align-items: center;
 }
 
+.footer {
+    margin: 100px auto 0;
+    position: relative;
+    z-index: 2;
+    width: 1200px;
+    max-width: 100%;
+    max-width: min(1200px, 100%);
+    align-items: center;
+}
+
 .nav-list {
     display: flex;
     list-style: none;
@@ -1056,6 +1066,7 @@ table td:first-child {
 
 /* Animations */
 @keyframes wiggle-error {
+
     0%,
     100% {
         transform: translateX(0);
