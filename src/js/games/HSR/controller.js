@@ -74,11 +74,22 @@ export class HSRPageController {
 
     #setupEventListeners() {
         manageHeader();
+        this.isCalculating = false;
 
         if (this.calculateBtn) {
             this.calculateBtn.addEventListener('click', async () => {
-                if (this.#runValidation()) {
+                if (this.isCalculating || !this.#runValidation()) {
+                    return;
+                }
+
+                this.isCalculating = true;
+                this.calculateBtn.disabled = true;
+
+                try {
                     await this.calculationHandler.runCalculation();
+                } finally {
+                    this.isCalculating = false;
+                    this.calculateBtn.disabled = false;
                 }
             });
         }
