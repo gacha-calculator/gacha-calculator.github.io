@@ -1,4 +1,4 @@
-# gacha-calculator
+# Gacha Calculator
 
 Source code for the live website:
 https://gacha-calculator.github.io/
