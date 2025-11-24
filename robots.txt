@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://gacha-calculator.github.io/sitemap.xml
