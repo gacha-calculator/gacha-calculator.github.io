@@ -6,10 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "gzip-sitemap": "node scripts/gzip-sitemap.mjs",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist && npm run gzip-sitemap"
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "vite": "^7.0.0"
