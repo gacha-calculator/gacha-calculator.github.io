@@ -212,7 +212,7 @@ export function initializeTarget(DEFAULTS, savedSettings = null) {
         }
 
         let numValue = parseInt(this.value) || 0;
-        if (numValue ) {
+        if (numValue > 100) {
             this.value = '100';
             errorAnimation(this);
         } else if (numValue === 0) {
