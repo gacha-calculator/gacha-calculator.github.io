@@ -1,6 +1,6 @@
 name: Update Now
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   build-and-deploy:
@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -19,20 +21,8 @@ jobs:
 
       - name: Install and build
         run: |
-          npm ci
+          npm install
           npm run build
-
-      - name: Gzip sitemap.xml
-        run: |
-          node -e "
-            const fs = require('fs'), zlib = require('zlib');
-            if (fs.existsSync('./dist/sitemap.xml')) {
-              fs.writeFileSync('./dist/sitemap.xml.gz', zlib.gzipSync(fs.readFileSync('./dist/sitemap.xml')));
-              console.log('✅ Created sitemap.xml.gz');
-            } else {
-              console.warn('⚠️ sitemap.xml not found — skipping gzip');
-            }
-          "
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
