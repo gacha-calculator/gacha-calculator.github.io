@@ -59,6 +59,7 @@ class PullPlanManager {
         // Single dropdown handler
         this.setupDropdownHandler(row, dropdown, typeSelector);
         this.setupTypeChangeHandler(row, typeSelector);
+        this.setupGoalChangeChecker(row);
         this.setupButtonHandlers(row);
     }
 
@@ -98,6 +99,45 @@ class PullPlanManager {
 
             this.updatePathSelector(row, typeSelector.value);
             this.handleTypeChangeGroupUpdate(row, typeSelector.value);
+        });
+    }
+
+    setupGoalChangeChecker(row) {
+        const firstSelect = row.querySelector('.first-select');
+        const secondSelect = row.querySelector('.second-select');
+
+        firstSelect.addEventListener('change', () => {
+            const allOptions = [];
+            for (let option of firstSelect) {
+                allOptions.push(option.value);
+            }
+            allOptions.push(secondSelect[secondSelect.length - 1].value);
+
+            const firstSelectValue = firstSelect.value;
+            const secondSelectValue = secondSelect.value;
+            const firstSelectValueIndex = allOptions.indexOf(firstSelectValue);
+            const secondSelectValueIndex = allOptions.indexOf(secondSelectValue);
+
+            if (firstSelectValueIndex >= secondSelectValueIndex) {
+                secondSelect.value = allOptions[firstSelectValueIndex + 1];
+            }
+        });
+
+        secondSelect.addEventListener('change', () => {
+            const allOptions = [];
+            for (let option of firstSelect) {
+                allOptions.push(option.value);
+            }
+            allOptions.push(secondSelect[secondSelect.length - 1].value);
+
+            const firstSelectValue = firstSelect.value;
+            const secondSelectValue = secondSelect.value;
+            const firstSelectValueIndex = allOptions.indexOf(firstSelectValue);
+            const secondSelectValueIndex = allOptions.indexOf(secondSelectValue);
+
+            if (firstSelectValueIndex >= secondSelectValueIndex) {
+                firstSelect.value = allOptions[secondSelectValueIndex - 1];
+            }
         });
     }
 
