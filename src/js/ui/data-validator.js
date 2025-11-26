@@ -8,54 +8,54 @@ export class DataValidator {
     initialize() {
         if (this.isInitialized) return;
 
-        const rootElement = document;
+        const allInputs = document.querySelectorAll('input[type="number"]');
 
-        rootElement.addEventListener('focus', (event) => {
-            if (event.target.matches('input[type="number"]')) {
-                try {
-                    event.target.select();
-                } catch (e) {
-                    console.warn("Could not select text in input.", e);
-                }
-            }
-        }, { capture: true });
-
-        rootElement.addEventListener('keydown', (event) => {
-            if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
-                return;
-            }
-            if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) {
-                return;
-            }
-            if (!/^\d$/.test(event.key)) {
-                event.preventDefault();
-            }
+        allInputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.select();
+            });
         });
 
-        rootElement.addEventListener('input', (event) => {
-            const target = event.target;
+        allInputs.forEach(input => {
+            input.addEventListener('keydown', (event) => {
+                if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+                    return;
+                }
+                if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) {
+                    return;
+                }
+                if (!/^\d$/.test(event.key)) {
+                    event.preventDefault();
+                }
+            });
+        });
+        
+        allInputs.forEach(input => {
+            input.addEventListener('input', (event) => {
+                const target = event.target;
 
-            const parentTable = target.closest('table');
-            if (!parentTable) return;
+                const parentTable = target.closest('table');
+                if (!parentTable) return;
 
-            switch (parentTable.id) {
-                case 'constellation-table': {
-                    const row = target.closest('tr');
-                    if (row) {
-                        this.validateRowSum(row);
+                switch (parentTable.id) {
+                    case 'constellation-table': {
+                        const row = target.closest('tr');
+                        if (row) {
+                            this.validateRowSum(row);
+                        }
+                        this.updateAvailableCountsCache();
+                        this.validateRateUpEligibility();
+                        break;
                     }
-                    this.updateAvailableCountsCache();
-                    this.validateRateUpEligibility();
-                    break;
+                    case 'rate-up-table': {
+                        this.validateRateUpEligibility();
+                        break;
+                    }
+                    case 'pity-table': {
+                        break;
+                    }
                 }
-                case 'rate-up-table': {
-                    this.validateRateUpEligibility();
-                    break;
-                }
-                case 'pity-table': {
-                    break;
-                }
-            }
+            });
         });
 
         this.isInitialized = true;
