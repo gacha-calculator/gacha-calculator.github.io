@@ -227,6 +227,7 @@ table td:first-child {
     height: 60vh;
     z-index: 1;
     overflow: hidden;
+    background-image: var(--bg-desktop);
 }
 
 .background-container img {
@@ -1266,6 +1267,7 @@ table td:first-child {
         border-left: 3px solid var(--group-color);
         flex-wrap: nowrap;
     }
+
     .rows-container {
         width: 96vw;
         overflow-x: auto;
