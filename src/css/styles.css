@@ -200,6 +200,21 @@ table td:first-child {
     align-items: center;
 }
 
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.main-title {
+    margin: 0;
+    /* H1s have default margins that can mess up alignment, remove them */
+    line-height: 1.2;
+}
+
 .footer {
     margin: 100px auto 0;
     position: relative;
@@ -227,6 +242,9 @@ table td:first-child {
     height: 60vh;
     z-index: 1;
     overflow: hidden;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
     background-image: var(--bg-desktop);
 }
 
@@ -652,6 +670,7 @@ table td:first-child {
 
 .btn--tour {
     background-color: #256575;
+    white-space: nowrap;
 }
 
 .btn--hide-buttons {
