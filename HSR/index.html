@@ -26,14 +26,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script data-goatcounter="https://bubartem.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-  <script type="module" crossorigin src="/assets/hsr-kT9Wmi9R.js"></script>
+  <script type="module" crossorigin src="/assets/hsr-CCuIBUp8.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/solvers-Wr47IEVx.js">
   <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-uZn2ii9Y.js">
   <link rel="modulepreload" crossorigin href="/assets/common-helpers-CPLJV1Gy.js">
   <link rel="modulepreload" crossorigin href="/assets/make-distribution-arrays-Cl3ImG5G.js">
   <link rel="modulepreload" crossorigin href="/assets/common-pull-logic-CWsuZInA.js">
   <link rel="modulepreload" crossorigin href="/assets/cashback-BB1nworQ.js">
-  <link rel="stylesheet" crossorigin href="/assets/styles-DNwgYqeA.css">
+  <link rel="stylesheet" crossorigin href="/assets/styles-DGa6b5-s.css">
 </head>
 
 <body>
@@ -113,18 +113,17 @@
         </nav>
     </header>
 
-    <div class="background-container">
+    <div class="background-container" role="img" aria-label="Background art" style="--bg-desktop: url('/images/honkai_bg.webp'); 
+            --bg-mobile:  url('/images/honkai_bg_small.webp');">
         <div class="image-fade"></div>
-        <img src="/images/honkai_bg.webp" alt="Background art">
-    </div>
-
-    <div class="small-background-container">
-        <img src="/images/honkai_bg_small.webp" alt="Background art">
     </div>
 
     <main class="main-content">
         <section class="content-box" aria-label="Calculator interface">
-            <h1 class="main-title">Honkai Star Rail Gacha Calculator</h1>
+            <div class="header-row">
+                <h1 class="main-title">Honkai Star Rail Gacha Calculator</h1>
+                <button id="start-tour-btn" class="btn btn--tour">Quick Tutorial</button>
+            </div>
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
@@ -142,7 +141,8 @@
                             </button>
                         </div>
                         <div class="button-container">
-                            <button class="tab-link" data-tab-target="#custom-standards-panel">Standard Characters</button>
+                            <button class="tab-link" data-tab-target="#custom-standards-panel">Standard
+                                Characters</button>
                             <button class="help-btn" data-help-key="standard-help"
                                 aria-label="Help for Entering Custom Standard Characters">
                                 ?
@@ -453,4 +453,5 @@
         </section>
     </main>
 </footer>
+
 </html>
