@@ -255,16 +255,6 @@ table td:first-child {
     object-position: center top;
 }
 
-.small-background-container {
-    width: 0;
-    height: 0;
-}
-
-.small-background-container img {
-    width: 0;
-    height: 0;
-}
-
 .image-fade {
     position: absolute;
     bottom: 0;
@@ -1201,25 +1191,7 @@ table td:first-child {
     }
 
     .background-container {
-        width: 0;
-        height: 0;
-    }
-
-    .small-background-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        min-height: calc(25vh + 75px);
-        z-index: 1;
-        overflow: hidden;
-    }
-
-    .small-background-container img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        object-position: center top;
+        background-image: var(--bg-mobile);
     }
 }
 
@@ -1235,22 +1207,6 @@ table td:first-child {
 
     .expand-button {
         margin-right: calc(32vw - 150px);
-    }
-
-    .small-background-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        min-height: calc(25vh + 75px);
-        z-index: 1;
-        overflow: hidden;
-    }
-
-    .small-background-container img {
-        width: auto;
-        height: 100%;
-        min-width: 100%;
     }
 
     .tab-panel-card {
