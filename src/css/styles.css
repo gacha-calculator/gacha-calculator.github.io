@@ -1074,6 +1074,34 @@ table td:first-child {
     color: #2c48e7;
 }
 
+/* Define the animation */
+@keyframes pulse-teal {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(77, 182, 172, 0.7);
+        /* #4DB6AC is your teal color */
+    }
+
+    70% {
+        transform: scale(1.05);
+        /* Grow slightly (5%) */
+        box-shadow: 0 0 0 10px rgba(77, 182, 172, 0);
+        /* Shadow expands and fades to transparent */
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(77, 182, 172, 0);
+    }
+}
+
+/* The class you will toggle with JS */
+.btn--tour.attention-grabber {
+    animation: pulse-teal 2s infinite;
+    z-index: 10;
+    /* Ensures the glow sits on top of nearby elements */
+}
+
 /* Animations */
 @keyframes wiggle-error {
 
