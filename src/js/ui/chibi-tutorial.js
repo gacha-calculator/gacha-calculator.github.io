@@ -70,11 +70,20 @@ export class ChibiTutorial {
         this.showDisplay(step);
     }
 
-    showTutorialIfNeeded(steps) {
+    showTutorialIfNeeded() {
         const hasSeenTutorial = localStorage.getItem('tutorialSeen');
 
+
         if (!hasSeenTutorial) {
-            this.startTour(steps);
+            const tourBtn = document.getElementById('start-tour-btn');
+
+            if (tourBtn) {
+                tourBtn.classList.add('attention-grabber');
+
+                setTimeout(() => {
+                    tourBtn.classList.remove('attention-grabber');
+                }, 10000);
+            }
         }
     }
 
