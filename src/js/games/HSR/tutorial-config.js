@@ -103,7 +103,7 @@ export const helpContentMap = {
     'pity-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#pity-panel"]',
-        text: '<p>You can input your current pity and guarantees here. You can import data from paimon.moe directly.</p>',
+        text: '<p>You can input your current pity and guarantees here. You can import data from starrailstation.com directly.</p>',
         position: 'right',
         size: 'big'
     },

@@ -60,13 +60,13 @@ export class HSRPageController {
     }
 
     initialize() {
-        this.validator.initialize();
-        
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
         initializeStandardTable(CUSTOM_CHARS_5_STAR_STANDARD, CONSTELLATION_OPTIONS, this.persistence);
         initializeTabs();
         initializeButtons(this.persistence);
 
+        this.validator.initialize();
+        
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(HSRTourSteps);

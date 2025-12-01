@@ -12,7 +12,7 @@ export const chibiHtmlFragment = `
         <button class="btn btn--tutorial_end">x</button>
     </div>`;
 
-export const zenlessTourSteps = [
+export const morimensTourSteps = [
     {
         text: '<p>Welcome to the Gacha Calculator! Let me show you around.</p>',
         size: 'small'
@@ -21,13 +21,14 @@ export const zenlessTourSteps = [
         id: 'pity-input-step',
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#pity-panel"]',
-        text: '<p>First, input your current pity and guarantees here. You can import data from zzz.rng.moe directly(press ? near respective elements to learn more)</p>',
-        position: 'right'
+        text: '<p>First, input your current pity and guarantees here.</p>',
+        position: 'right',
+        size: 'small'
     },
     {
         id: 'pull-plan-step',
         element: '.pull-plan-section',
-        text: '<p>Next, build your pull plan here. Add all the characters and weapons in the order you plan to obtain them.</p>',
+        text: '<p>Here add all the characters in the order you plan to obtain them.</p>',
         position: 'bottom'
     },
     {
@@ -51,24 +52,8 @@ export const zenlessTourSteps = [
         position: 'top'
     },
     {
-        id: 'constellation-input-step',
-        element: '.tab-panel-card',
-        clickTab: '.tab-link[data-tab-target="#constellation-panel"]',
-        text: '<p>Input how many Standard 5* and non-standard 4* characters you have at each constellation level. This information is necessary for accurate cashback predictions, you can skip it if you don\'t need it.</p>',
-        position: 'right',
-        size: 'big'
-    },
-    {
-        id: 'rate-ups-step',
-        element: '.tab-panel-card',
-        clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
-        text: '<p>If you know the rate-up 4-star characters, you can input their constellations on your account. This improves cashback accuracy and reduces unnecessary computation.</p>',
-        position: 'right',
-        size: 'huge'
-    },
-    {
         element: '#probability-table',
-        text: '<p>And down here, you can see a detailed table with cashback estimates, for the given amount of pulls, it\'s only accurate if you inputed your data correctly.</p>',
+        text: '<p>And down here, you can see a detailed probability table, for the given amount of pulls.</p>',
         position: 'top'
     }
 ];
@@ -81,7 +66,7 @@ export const helpContentMap = {
 
     'import-help': {
         element: '.tab-panel-card',
-        text: '<p>You can import your data directly from <a href="https://zzz.rng.moe" target="_blank" rel="noopener noreferrer" class="soft-link">zzz.rng.moe</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
+       text: '<p>" Click the "Import Data" button and paste your exported JSON data.</p>',
         position: 'right'
     },
     'export-help': {
@@ -93,27 +78,15 @@ export const helpContentMap = {
     'pity-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#pity-panel"]',
-        text: '<p>You can input your current pity and guarantees here. You can import data from zzz.rng.moe directly.</p>',
-        position: 'right'
-    },
-    'constelation-help': {
-        element: '.tab-panel-card',
-        clickTab: '.tab-link[data-tab-target="#constellation-panel"]',
-        text: '<p>Input how many Standard 5* and non-standard 4* characters you have at each constellation level. This information is necessary for accurate cashback predictions.</p>',
+        text: '<p>You can input your current pity and guarantees here, in morimens character guarantee is only after 2 lost rate up so look that up in history.</p>',
         position: 'right',
         size: 'big'
     },
-    'rate-up-help': {
-        element: '.tab-panel-card',
-        clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
-        text: '<p>If you know the featured 4*, you can then check what constellation it has on your account. This improves cashback accuracy and reduces unnecessary computation.</p>',
-        position: 'right',
-        size: 'huge'
-    },
     'pull-plan-help': {
         element: '.pull-plan-section',
-        text: '<p>Build your pull plan here. Add all the characters and weapons in order you want to get them.</p>',
-        position: 'bottom'
+        text: '<p>Here add all the characters in the order you plan to obtain them.</p>',
+        position: 'bottom',
+        size: 'small'
     },
     'target-help': {
         element: '.header-controls',
@@ -121,12 +94,5 @@ export const helpContentMap = {
         position: 'top',
         chibiSide: 'left',
         size: 'big'
-    },
-    'cashback-help': {
-        element: '#probability-table',
-        text: '<p>Expected cashback for each 5* target reached with their respective probabilities, percentiles give you a reasonable range by cutting off extreme results(10% from each side).</p>',
-        size: 'big',
-        chibiSide: 'left',
-        position: 'top'
     }
 };

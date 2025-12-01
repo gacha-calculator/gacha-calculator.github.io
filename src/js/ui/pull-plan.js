@@ -369,6 +369,9 @@ class PullPlanManagerWithPity extends PullPlanManager {
     addPityGuaranteeToRow(row, savedData) {
         const pityInput = row.querySelector('[data-control="pity-4"]');
         const guaranteeInput = row.querySelector('.guarantee-4');
+        if (pityInput === null) {
+            return;
+        }
 
         if (savedData) {
             if (pityInput && savedData.pity !== undefined) pityInput.value = savedData.pity;

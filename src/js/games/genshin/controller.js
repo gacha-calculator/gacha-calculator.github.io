@@ -59,11 +59,12 @@ export class GenshinPageController {
 
     initialize() {
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
-        this.validator.initialize();
         initializeTabs();
         initializeImporter();
         initializeButtons(this.persistence);
 
+        this.validator.initialize();
+        
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded();

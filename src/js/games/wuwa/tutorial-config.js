@@ -93,9 +93,8 @@ export const helpContentMap = {
     'pity-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#pity-panel"]',
-        text: '<p>You can input your current pity and guarantees here, as well as Capturing Radiance and Epitomized Path points. You can import data from paimon.moe directly.</p>',
-        position: 'right',
-        size: 'big'
+        text: '<p>You can input your current pity and guarantees here. You can import data from wuwatracker.com directly.</p>',
+        position: 'right'
     },
     'constelation-help': {
         element: '.tab-panel-card',

@@ -63,23 +63,8 @@ export class DataValidator {
 
     validateAll() {
         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        this.updateAvailableCountsCache();
-
         const constellationTable = document.querySelector('#constellation-table');
         if (constellationTable) constellationTable.querySelectorAll('tbody tr').forEach(row => this.validateRowSum(row));
-
-        this.validateRateUpEligibility();
-    }
-
-    updateAvailableCountsCache() {
-        const counts = new Array(Object.keys(this.constellationMap).length).fill(0);
-        const fourStarRows = document.querySelectorAll('#constellation-table tbody tr[data-rarity="4"]');
-        fourStarRows.forEach(row => {
-            row.querySelectorAll('input[type="number"]').forEach((input, index) => {
-                counts[index] += parseInt(input.value, 10) || 0;
-            });
-        });
-        this.availableConstellationCounts = counts;
     }
 
     getRateUpUsage() {
@@ -98,17 +83,6 @@ export class DataValidator {
         let currentSum = 0;
         inputs.forEach(input => currentSum += parseFloat(input.value) || 0);
         inputs.forEach(input => input.classList.toggle('is-invalid', currentSum !== targetSum));
-    }
-
-    validateRateUpEligibility() {
-        const usage = this.getRateUpUsage();
-        const isOverBudget = this.availableConstellationCounts.map((avail, i) => usage[i] > avail);
-
-        document.querySelectorAll('#rate-up-table select.custom-select').forEach(select => {
-            const index = this.constellationMap[select.value];
-            const isInvalid = index !== undefined && isOverBudget[index];
-            select.classList.toggle('is-invalid', isInvalid);
-        });
     }
 
     isDataValid() {

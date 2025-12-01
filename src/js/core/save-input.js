@@ -100,7 +100,6 @@ export function createPersistence(namespace, SELECTORS) {
         setupTableListeners() {
             const elementsToWatch = [
                 `${SELECTORS.PITY_TABLE} input`,
-                `${SELECTORS.CONSTELLATION_TABLE} input`,
                 '#rate-up-table select'
             ].join(',');
 

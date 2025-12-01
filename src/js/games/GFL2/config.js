@@ -6,7 +6,7 @@ export const gachaConfig = {
     maxCharacterConstelation: 6,
     rateUpCharacterSR: 2,           // 4* characters on banner are not included in the general pool
     rateUpWeaponSR: 3,              // 4* weapon on banner
-    poolStandardCharSSR: 6,         // Standard 5* character pool size
+    poolStandardCharSSR: 7,         // Standard 5* character pool size
     poolCharSR: 9,                 // Limited 4* character pool size
     configSR: {
         maxType: 7,

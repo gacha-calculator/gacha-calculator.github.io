@@ -58,12 +58,12 @@ export class WuwaPageController {
     }
 
     initialize() {
-        this.validator.initialize();
-        
         initializeTables(this.persistence, this.parts.gachaConfig, this.validator, INITIAL_CONFIG, CONSTELLATION_OPTIONS, SELECTORS);
         initializeTabs();
         initializeButtons(this.persistence);
 
+        this.validator.initialize();
+        
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(wuwaTourSteps);
