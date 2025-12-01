@@ -66,7 +66,7 @@ export class HSRPageController {
         initializeButtons(this.persistence);
 
         this.validator.initialize();
-        
+
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(HSRTourSteps);
@@ -80,6 +80,13 @@ export class HSRPageController {
             this.calculateBtn.addEventListener('click', async () => {
                 if (this.isCalculating || !this.#runValidation()) {
                     return;
+                }
+
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/hsr-calculation-initiated',
+                        title: 'HSR Calculation Initiated'
+                    });
                 }
 
                 this.isCalculating = true;

@@ -79,6 +79,13 @@ export class WuwaPageController {
                     return;
                 }
 
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/wuwa-calculation-initiated',
+                        title: 'Wuwa Calculation Initiated'
+                    });
+                }
+
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
 

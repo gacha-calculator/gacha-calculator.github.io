@@ -80,6 +80,13 @@ export class GenshinPageController {
                     return;
                 }
 
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/genshin-calculation-initiated',
+                        title: 'Genshin Calculation Initiated'
+                    });
+                }
+
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
 

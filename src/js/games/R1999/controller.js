@@ -82,6 +82,13 @@ export class R1999PageController {
                     return;
                 }
 
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/R1999-calculation-initiated',
+                        title: 'R1999 Calculation Initiated'
+                    });
+                }
+
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
 

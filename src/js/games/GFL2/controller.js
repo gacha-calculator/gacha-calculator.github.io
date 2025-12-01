@@ -76,6 +76,13 @@ export class GFL2PageController {
                     return;
                 }
 
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/gfl2-calculation-initiated',
+                        title: 'GFL2 Calculation Initiated'
+                    });
+                }
+
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
 

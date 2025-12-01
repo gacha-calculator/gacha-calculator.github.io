@@ -80,6 +80,13 @@ export class zenlessPageController {
                     return;
                 }
 
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/ZZZ-calculation-initiated',
+                        title: 'ZZZ Calculation Initiated'
+                    });
+                }
+
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
 
