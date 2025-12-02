@@ -1,4 +1,4 @@
-// ver Luna II
+// ver Luna III
 
 export const ODDS_CHARACTER_SSR = [0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.006, 0.066, 0.126, 0.186, 0.246, 0.306, 0.366, 0.426, 0.486, 0.546, 0.606, 0.666, 0.726, 0.786, 0.846, 0.906, 0.966, 1];
 export const ODDS_WEAPON_SSR = [0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.077, 0.147, 0.217, 0.287, 0.357, 0.427, 0.497, 0.567, 0.637, 0.707, 0.777, 0.847, 0.917, 0.987, 1];
@@ -9,7 +9,7 @@ export const gachaConfig = {
     rateUpCharacterSR: 3,           // 4* characters on banner are not included in the general pool
     rateUpWeaponSR: 5,              // 4* weapon on banner
     poolStandardCharSSR: 8,         // Standard 5* character pool size
-    poolCharSR: 44,                 // Limited 4* character pool size
+    poolCharSR: 45,                 // Limited 4* character pool size
     configSR: {
         maxType: 7,
         regularPoints: 0.4,
@@ -73,7 +73,7 @@ export const CHARS_4_STAR = new Set([
     'aino', 'barbara', 'beidou', 'bennett', 'candace', 'charlotte', 'chevreuse',
     'chongyun', 'collei', 'dahlia', 'diona', 'dori', 'faruzan', 'fischl',
     'freminet', 'gaming', 'gorou', 'iansan', 'ifa', 'kachina', 'kaveh', 'kirara',
-    'kujou_sara', 'kuki_shinobu', 'lan_yan', 'layla', 'lynette', 'mika', 'ningguang', 'noelle',
+    'kujou_sara', 'kuki_shinobu', 'lan_yan', 'layla', 'lynette', 'jahoda', 'mika', 'ningguang', 'noelle',
     'ororon', 'razor', 'rosaria', 'sayu', 'sethos', 'shikanoin_heizou', 'sucrose',
     'thoma', 'xiangling', 'xingqiu', 'xinyan', 'yanfei', 'yaoyao', 'yun_jin'
 ]);
