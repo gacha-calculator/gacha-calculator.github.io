@@ -153,7 +153,7 @@ function addProgressBarToRow(row) {
     row.appendChild(progressBar);
 }
 
-function updateRowProgress(row) {
+export function updateRowProgress(row) {
     const inputs = row.querySelectorAll('input');
     const targetSum = parseInt(row.dataset.targetSum);
     let currentSum = 0;
