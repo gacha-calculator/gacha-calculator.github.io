@@ -91,7 +91,7 @@ export const BANNER_HISTORY = [ // taking maint end time with -2 hours just to b
     { type: 'phase1', startDate: '2025-11-20T01:00:00+00:00', rateUpChars: new Set(['Yuanwu', 'Taoqi', 'Aalto']),       rateUpWeps: new Set(['Fusion Accretion', 'Novaburst', 'Helios Cleaver'])           },
     { type: 'phase2', startDate: '2025-12-11'               , rateUpChars: new Set(['Buling', 'Chixia', 'Danjin']),     rateUpWeps: new Set(['Commando of Conviction', 'Fusion Accretion', 'Helios Cleaver'])},
     { type: 'phase1', startDate: '2025-12-25T01:00:00+00:00', rateUpChars: new Set(['Youhu', 'Baizhi', 'Yangyang']),    rateUpWeps: new Set(['Relativistic Jet', 'Endless Collapse', 'Undying Flame'])     },
-    { type: 'phase2', startDate: '2026-01-15'               , rateUpChars: new Set(['Sanhua', 'Chixia', 'Danjin']),     rateUpWeps: new Set(['Waning Redshift', 'Celestial Spiral', 'Discord'])            },
+    { type: 'phase2', startDate: '2026-01-15'               , rateUpChars: new Set(['Sanhua', 'Chixia', 'Danjin']),     rateUpWeps: new Set(['Waning Redshift', 'Celestial Spiral', 'Discord'])             },
 ];
 
 export const CHARS_5_STAR_STANDARD = new Set([
