@@ -2,11 +2,8 @@ let isInitialized = false;
 let distributionChar = null;
 let distributionWep = null;
 let context = null;
-let iterationCount = 0;
 let charRankUps;
 let wepRankUps;
-let shouldPrune;
-const PRUNE_EVERY_N = 10;
 
 let pullLogicModule;
 let helpersModule;
@@ -18,25 +15,16 @@ self.onmessage = function (e) {
                 self.postMessage({ type: 'Error', message: 'Not initialized' });
                 return;
             }
-            iterationCount++;
-            shouldPrune = iterationCount === PRUNE_EVERY_N;
             charRankUps = e.data.lossData.charRankUps;
             wepRankUps = e.data.lossData.wepRankUps;
 
             if (charRankUps.pullsSum > 0) {
                 pullLogicModule.rankUpSR(distributionChar, charRankUps, context.ODDS_SR, context.SR_PITY);
-                if (shouldPrune) {
-                    helpersModule.pruneAndNormalize(distributionChar);
-                }
+                helpersModule.pruneAndNormalize(distributionChar);
             }
             if (wepRankUps.pullsSum > 0) {
                 pullLogicModule.rankUpSR(distributionWep, wepRankUps, context.ODDS_SR, context.SR_PITY);
-                if (shouldPrune) {
-                    helpersModule.pruneAndNormalize(distributionWep);
-                }
-            }
-            if (shouldPrune) {
-                iterationCount = 0;
+                helpersModule.pruneAndNormalize(distributionWep);
             }
             self.postMessage({ type: 'IterationComplete' });
             break;
@@ -48,15 +36,9 @@ self.onmessage = function (e) {
             charRankUps = e.data.lossData.charRankUps;
             wepRankUps = e.data.lossData.wepRankUps;
             if (charRankUps.pullsSum > 0) {
-                if (!shouldPrune) {
-                    helpersModule.pruneAndNormalize(distributionChar);
-                }
                 pullLogicModule.rankUpSR(distributionChar, charRankUps, context.ODDS_SR, context.SR_PITY);
             }
             if (wepRankUps.pullsSum > 0) {
-                if (!shouldPrune) {
-                    helpersModule.pruneAndNormalize(distributionWep);
-                }
                 pullLogicModule.rankUpSR(distributionWep, wepRankUps, context.ODDS_SR, context.SR_PITY);
             }
             self.postMessage({ type: 'LastIteration', distributionCharSR: distributionChar, distributionWepSR: distributionWep });

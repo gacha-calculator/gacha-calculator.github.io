@@ -9,7 +9,7 @@ export function initializePullPlanManagerWithPity(pathsConfig, savedData = null)
     return manager.initialize();
 }
 
-class PullPlanManager {
+export class PullPlanManager {
     constructor(pathsConfig, savedData = null) {
         this.pathsConfig = pathsConfig;
         this.savedData = savedData;
@@ -57,7 +57,9 @@ class PullPlanManager {
         const typeSelector = row.querySelector('.type-selector');
 
         // Single dropdown handler
-        this.setupDropdownHandler(row, dropdown, typeSelector);
+        if (dropdown) {
+            this.setupDropdownHandler(row, dropdown, typeSelector);
+        }
         this.setupTypeChangeHandler(row, typeSelector);
         this.setupGoalChangeChecker(row);
         this.setupButtonHandlers(row);
@@ -151,9 +153,12 @@ class PullPlanManager {
     }
 
     setupButtonHandlers(row) {
-        row.querySelector('.btn--chainAdd').addEventListener('click', () => {
-            this.rowsContainer.appendChild(this.createRow(row));
-        });
+        const chainAdd = row.querySelector('.btn--chainAdd');
+        if (chainAdd) {
+            chainAdd.addEventListener('click', () => {
+                this.rowsContainer.appendChild(this.createRow(row));
+            });
+        }
 
         row.querySelector('.btn--delete').addEventListener('click', () => {
             this.handleRowDeletion(row);
@@ -243,9 +248,12 @@ class PullPlanManager {
         const selectedOption = typeSelector.options[typeSelector.selectedIndex];
         const typeIcon = row.querySelector('.type-icon');
         const typeText = row.querySelector('.type-text');
-
-        typeIcon.src = selectedOption.dataset.icon;
-        typeText.textContent = selectedOption.textContent;
+        if (typeIcon) {
+            typeIcon.src = selectedOption.dataset.icon;
+        }
+        if (typeText) {
+            typeText.textContent = selectedOption.textContent;
+        }
     }
 
     updatePathSelector(row, type, fromValue = null, toValue = null) {
@@ -393,7 +401,37 @@ class PullPlanManagerWithPity extends PullPlanManager {
                 this.value = 0;
                 errorAnimation(this);
             }
-        })
+        });
+
+        pityInput.addEventListener('focus', () => {
+            pityInput.select();
+        });
+
+        pityInput.addEventListener('keydown', (event) => {
+            if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+                return;
+            }
+
+            if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) {
+                return;
+            }
+
+            if (!/^\d$/.test(event.key)) {
+                event.preventDefault();
+            }
+        });
+
+        pityInput.addEventListener('paste', (event) => {
+            const pasteData = (event.clipboardData || window.clipboardData).getData('text');
+
+            if (!/^\d+$/.test(pasteData)) {
+                event.preventDefault();
+            }
+        });
+
+        pityInput.addEventListener('drop', (event) => {
+            event.preventDefault();
+        });
     }
 }
 

@@ -1074,6 +1074,11 @@ table td:first-child {
     color: #2c48e7;
 }
 
+.max {
+    white-space: nowrap; /* Forces the / and the 2 to stay side-by-side */
+    display: inline;     /* Ensures it doesn't act like a block */
+}
+
 @keyframes pulse-teal {
     0% {
         transform: scale(1);

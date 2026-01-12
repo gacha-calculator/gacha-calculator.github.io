@@ -6,7 +6,7 @@ const PROBABILITY_THRESHOLD = 1e-8;
 
 export function cashback(inputConfig, gachaConfig, probabilitiesSSR, probabilitiesCharSR, probabilitiesWepSR, knownCharSRCombos, CONSTELLATION_MAP) {
     probabilitiesSSR = normalizeDistribution(probabilitiesSSR);
-    knownCharSRCombos = processKnownPicks(inputConfig.SR.consCount, knownCharSRCombos, CONSTELLATION_MAP)
+    knownCharSRCombos = processKnownPicks(inputConfig.SR.consCount, knownCharSRCombos, CONSTELLATION_MAP);
     const charSRCombos = getCombinationsWithKnownValues(inputConfig.SR.consCount, gachaConfig.rateUpCharacterSR, knownCharSRCombos);
     calculateProbabilityWithKnownValues(charSRCombos, inputConfig.SR.consCount, knownCharSRCombos);
     const SSRCashback = cashbackSSR(probabilitiesSSR, gachaConfig.poolStandardCharSSR, inputConfig.SSR.consCountStandard, inputConfig.SSR.cashbackRoadmap, gachaConfig);

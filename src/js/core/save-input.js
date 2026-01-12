@@ -14,7 +14,8 @@ export function createPersistence(namespace, SELECTORS) {
         TABLES: `gacha_tables_${namespace}_v1`,
         CALCULATIONS: `gacha_calc_${namespace}_v1`,
         PULL_PLANS: `gacha_plans_${namespace}_v1`,
-        BUTTONS: 'gacha_buttons_${namespace}_v1'
+        BUTTONS: `gacha_buttons_${namespace}_v1`,
+        PAGE_TYPE: `gacha_page_type_${namespace}_v1`,
     };
 
     return {
@@ -22,27 +23,44 @@ export function createPersistence(namespace, SELECTORS) {
         debug: false,
         saveTimeout: null,
 
-        init() {
-            this.setupTableListeners();
-            window.addEventListener('beforeunload', () => this.saveTables());
+        init(type) {
+            this.setupTableListeners(type);
+            if (this._beforeUnloadHandler) {
+                window.removeEventListener('beforeunload', this._beforeUnloadHandler);
+            }
+            this._beforeUnloadHandler = () => this.saveTables(type);
+
+            window.addEventListener('beforeunload', this._beforeUnloadHandler);
         },
 
-        saveCalculation(results) {
-            this._save(STORAGE_KEYS.CALCULATIONS, {
+        saveCalculation(results, key = '') {
+            const storageKey = key
+                ? `${STORAGE_KEYS.CALCULATIONS}_${key}`
+                : STORAGE_KEYS.CALCULATIONS;
+
+            this._save(storageKey, {
                 _schema: SCHEMA_VERSIONS.CALCULATIONS,
                 ...results
             });
         },
 
-        loadCalculation() {
+        loadCalculation(key = '') {
+            const storageKey = key
+                ? `${STORAGE_KEYS.CALCULATIONS}_${key}`
+                : STORAGE_KEYS.CALCULATIONS;
+
             return this._validate(
-                this._load(STORAGE_KEYS.CALCULATIONS),
+                this._load(storageKey),
                 'CALCULATIONS'
             );
         },
 
-        saveTables() {
-            this._save(STORAGE_KEYS.TABLES, {
+        saveTables(key = '') {
+            const storageKey = key
+                ? `${STORAGE_KEYS.TABLES}_${key}`
+                : STORAGE_KEYS.TABLES;
+
+            this._save(storageKey, {
                 _schema: SCHEMA_VERSIONS.TABLES,
                 pity: this.getPityData(),
                 constellation: this.getConstellationData(),
@@ -50,9 +68,13 @@ export function createPersistence(namespace, SELECTORS) {
             });
         },
 
-        loadTables() {
+        loadTables(key = '') {
+            const storageKey = key
+                ? `${STORAGE_KEYS.TABLES}_${key}`
+                : STORAGE_KEYS.TABLES;
+
             return this._validate(
-                this._load(STORAGE_KEYS.TABLES),
+                this._load(storageKey),
                 'TABLES'
             );
         },
@@ -67,6 +89,19 @@ export function createPersistence(namespace, SELECTORS) {
         loadButtons() {
             return (
                 this._load(STORAGE_KEYS.BUTTONS)
+            );
+        },
+
+        savePageType(type) {
+            this._save(STORAGE_KEYS.PAGE_TYPE, {
+                _schema: SCHEMA_VERSIONS.PAGE_TYPE,
+                type: type
+            });
+        },
+
+        loadPageType() {
+            return (
+                this._load(STORAGE_KEYS.PAGE_TYPE)
             );
         },
 
@@ -97,20 +132,20 @@ export function createPersistence(namespace, SELECTORS) {
             return button.classList.contains('hidden');
         },
 
-        setupTableListeners() {
+        setupTableListeners(type) {
             const elementsToWatch = [
                 `${SELECTORS.PITY_TABLE} input`,
                 '#rate-up-table select'
             ].join(',');
 
             document.querySelectorAll(elementsToWatch).forEach(input => {
-                input.addEventListener('input', () => this.queueSave());
+                input.addEventListener('input', () => this.queueSave(type));
             });
         },
 
-        queueSave() {
+        queueSave(type) {
             clearTimeout(this.saveTimeout);
-            this.saveTimeout = setTimeout(() => this.saveTables(), this.DEBOUNCE_TIME);
+            this.saveTimeout = setTimeout(() => this.saveTables(type), this.DEBOUNCE_TIME);
         },
 
         _save(key, data) {

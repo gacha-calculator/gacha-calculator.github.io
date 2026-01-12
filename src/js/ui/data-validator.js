@@ -16,19 +16,31 @@ export class DataValidator {
             input.addEventListener('focus', () => {
                 input.select();
             });
-        });
 
-        allInputs.forEach(input => {
             input.addEventListener('keydown', (event) => {
-                if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+                if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
                     return;
                 }
+
                 if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) {
                     return;
                 }
+
                 if (!/^\d$/.test(event.key)) {
                     event.preventDefault();
                 }
+            });
+
+            input.addEventListener('paste', (event) => {
+                const pasteData = (event.clipboardData || window.clipboardData).getData('text');
+
+                if (!/^\d+$/.test(pasteData)) {
+                    event.preventDefault();
+                }
+            });
+
+            input.addEventListener('drop', (event) => {
+                event.preventDefault();
             });
         });
 

@@ -61,17 +61,30 @@ export class CalculationHandler {
         this.postCalculationHooks.forEach(hook => hook(context));
 
         if (this.persistence) {
-            const pull = parseInt(document.querySelector('[data-control="pulls"]').value);
-            const prob = parseInt(document.querySelector('[data-control="probability"]').value);
-
-            this.persistence.saveCalculation({
-                input: this.getPullPlan(),
-                targetProb: prob,
-                targetPull: pull,
-                persistInput: document.querySelector('.mode-label.active').getAttribute('data-target')
-            });
-
-            this.persistence.saveButtons();
+            this.saveData();
         }
+    }
+
+    saveData() {
+        const pull = parseInt(document.querySelector('[data-control="pulls"]').value);
+        const prob = parseInt(document.querySelector('[data-control="probability"]').value);
+        const row = document.querySelector('.row');
+        let pageType = row.querySelector('.dropdown .dropdown__header .type-text');
+        let storageKey;
+        if (pageType) {
+            pageType = pageType.textContent;
+            storageKey = pageType.trim().toLowerCase().replace(/\s+/g, '_');
+        }
+
+        const calculationData = {
+            input: this.getPullPlan(),
+            targetProb: prob,
+            targetPull: pull,
+            persistInput: document.querySelector('.mode-label.active').getAttribute('data-target')
+        };
+
+        this.persistence.saveCalculation(calculationData, storageKey);
+        this.persistence.saveButtons();
+        this.persistence.savePageType(pageType);
     }
 }

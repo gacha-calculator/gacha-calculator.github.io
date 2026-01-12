@@ -87,8 +87,8 @@ function initializePityTable(pityConfig, INITIAL_CONFIG, SELECTORS) {
 
                 if (value.length > 1 && value.startsWith('0')) {
                     this.value = value.replace(/^0+/, '');
-                    if (this.value === '') this.value = '0';
                 }
+                if (this.value === '') this.value = '0';
 
                 let numValue = parseInt(this.value) || 0;
                 if (numValue > input.max) {
@@ -208,8 +208,8 @@ export function initializeTarget(DEFAULTS, savedSettings = null) {
 
         if (value.length > 1 && value.startsWith('0')) {
             this.value = value.replace(/^0+/, '');
-            if (this.value === '') this.value = '0';
         }
+        if (this.value === '') this.value = '0';
 
         let numValue = parseInt(this.value) || 0;
         if (numValue > 100) {
@@ -225,8 +225,8 @@ export function initializeTarget(DEFAULTS, savedSettings = null) {
 
         if (value.length > 1 && value.startsWith('0')) {
             this.value = value.replace(/^0+/, '');
-            if (this.value === '') this.value = '0';
         }
+        if (this.value === '') this.value = '0';
 
         let numValue = parseInt(this.value) || 0;
         if (numValue > 9999) {

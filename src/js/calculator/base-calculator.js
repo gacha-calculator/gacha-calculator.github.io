@@ -36,7 +36,6 @@ export class gachaCalculator {
         let pastLossPerBannerType = {};
         let isTarget = false;
         let isEmpty = false;
-
         const { ssrWorker, srWorker } = this.adapters.workerManager.getWorkers();
 
         const pity = this.adapters.distributionArrays.sortPity(inputConfig);
@@ -90,18 +89,14 @@ export class gachaCalculator {
             WepSR: this.adapters.helpers.consolidateDistributionForCashback(distributionWepSR)
         }
         this.adapters.helpers.simplifyDistribution(distributionSSR);
+        isEmpty = this.adapters.helpers.checkIsEmpty(distributionSSR, isTarget);
         distributionCharSR = null;
         distributionWepSR = null;
 
-        let iterationCount = 0;
-        const PRUNE_EVERY_N = 10;
         while (!isEmpty) {
             if (isTarget) {
-                iterationCount++;
                 this.adapters.pullLogic.rankUpSSRCheap(distributionSSR, pity);
-                if (iterationCount === PRUNE_EVERY_N) {
-                    this.adapters.helpers.normalizeCheap(distributionSSR);
-                }
+                this.adapters.helpers.normalizeCheap(distributionSSR);
                 allPullsDistributionSSR.push(this.adapters.helpers.consolidateProbabilitiesCheap(distributionSSR));
                 isEmpty = this.adapters.helpers.checkIsEmpty(distributionSSR, isTarget);
             }

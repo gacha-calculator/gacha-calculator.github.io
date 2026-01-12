@@ -1,46 +1,53 @@
-import { CONSTELLATION_OPTIONS } from "./config.js";
 import { SELECTORS, INITIAL_CONFIG } from "./page-config.js";
 
-export function initializeTables(persistence, gachaConfig, validator) {
-    initializePityTable(gachaConfig.pity);
+export function initializeTables(persistence, gachaConfig, validator, pageType) {
+    initializePityTable(gachaConfig.pity, pageType);
     initializeConstellationTable(gachaConfig);
-    initializeRateUpTable();
 
-    const savedData = persistence.loadTables();
+    const savedData = persistence.loadTables(pageType);
 
     if (savedData) {
         restorePityTable(savedData.pity);
         restoreConstellationTable(savedData.constellation);
-        restoreRateUpTable(savedData.rateUps);
 
         validator.validateAll();
     }
 
-    persistence.init();
+    persistence.init(pageType);
 };
 
-function initializePityTable(pityConfig) {
+function initializePityTable(pityConfig, bannerType = 'Character') {
     const pityTemplate = document.getElementById('pity-row-template');
     const pityTbody = document.querySelector(`${SELECTORS.PITY_TABLE} tbody`);
+    let config;
+    if (bannerType === 'Character') {
+        config = INITIAL_CONFIG.pitySettings.character;
+    } else {
+        config = INITIAL_CONFIG.pitySettings.weapon;
+    }
 
-    Object.entries(INITIAL_CONFIG.pitySettings).forEach(([bannerType, config]) => {
-        const row = pityTemplate.content.cloneNode(true).querySelector('tr');
+    const row = pityTemplate.content.cloneNode(true).querySelector('tr');
 
-        row.dataset.validationType = 'individual';
+    row.dataset.validationType = 'individual'; // Tell the validator what to do
 
-        const pity5Input = row.querySelector('[data-control="pity-5"]');
+    const pity4Input = row.querySelector('[data-control="pity-4"]');
+    const pity5Input = row.querySelector('[data-control="pity-5"]');
 
-        if (pity5Input) {
-            pity5Input.min = 0;
-            pity5Input.max = pityConfig.pitySSR - 1;
-        }
+    if (pity4Input) {
+        pity4Input.min = 0;
+        pity4Input.max = pityConfig.pitySRChar - 1;
+    }
+    if (pity5Input) {
+        pity5Input.min = 0;
+        pity5Input.max = pityConfig.pitySSRChar - 1;
+    }
 
-        row.dataset.banner = bannerType;
-        row.querySelector('.banner-name').textContent = bannerType;
-        row.querySelector('[data-control="pity-5"]').value = config.pity5;
+    row.dataset.banner = bannerType;
+    row.querySelector('.banner-name').textContent = bannerType;
+    row.querySelector('[data-control="pity-4"]').value = config.pity4;
+    row.querySelector('[data-control="pity-5"]').value = config.pity5;
 
-        pityTbody.appendChild(row);
-    });
+    pityTbody.appendChild(row);
 
     const pityTable = document.querySelector('#pity-table');
     if (pityTable) pityTable.querySelectorAll('tbody tr input[type="number"]').forEach(input =>
@@ -49,14 +56,14 @@ function initializePityTable(pityConfig) {
 
             if (value.length > 1 && value.startsWith('0')) {
                 this.value = value.replace(/^0+/, '');
-                if (this.value === '') this.value = '0';
             }
+            if (this.value === '') this.value = '0';
 
             let numValue = parseInt(this.value) || 0;
             if (numValue > input.max) {
                 this.value = input.max;
                 errorAnimation(this);
-            } else if (numValue <= input.min) {
+            } else if (numValue < input.min) {
                 this.value = input.min;
                 errorAnimation(this);
             }
@@ -88,18 +95,19 @@ function initializeConstellationTable(config) {
 
         row.dataset.validationType = 'row-sum';
         row.dataset.targetSum = rarity === '5' ? StandardSSRDefault : LimitedSRDefault;
-
         // Add the data columns
         for (let i = 0; i < INITIAL_CONFIG.constellationColumns; i++) {
             const clone = constTemplate.content.cloneNode(true);
             const input = clone.querySelector('input');
+            const td = clone.querySelector('td');
 
-            if (i === 0) { // p5 column
-                const defaultValue = rarity === '5' ? StandardSSRDefault : LimitedSRDefault;
-                input.value = defaultValue;
+            if (i === 0) {
+                input.value = 0;
             }
 
-            input.addEventListener('input', () => updateRowProgress(row));
+            const separator = document.createTextNode(` / ${row.dataset.targetSum}`);
+            td.appendChild(separator);
+
             input.addEventListener('input', function () {
                 if (input.value.length > 1 && input.value.startsWith('0')) {
                     input.value = input.value.replace(/^0+/, '');
@@ -109,59 +117,11 @@ function initializeConstellationTable(config) {
                     input.value = '0';
                 }
             })
-            
+
             fragment.appendChild(clone);
         }
 
         row.appendChild(fragment);
-        addProgressBarToRow(row);
-        updateRowProgress(row);
-    });
-}
-
-function addProgressBarToRow(row) {
-    const progressBar = document.createElement('div');
-    progressBar.className = 'row-progress-bar';
-
-    row.appendChild(progressBar);
-}
-
-function updateRowProgress(row) {
-    const inputs = row.querySelectorAll('input');
-    const targetSum = parseInt(row.dataset.targetSum);
-    let currentSum = 0;
-
-    inputs.forEach(input => {
-        currentSum += parseInt(input.value) || 0;
-    });
-
-    const progressBar = row.querySelector('.row-progress-bar');
-    const percentage = Math.min((currentSum / targetSum) * 100, 100);
-    progressBar.style.width = percentage + '%';
-
-    if (percentage < 60 || currentSum > targetSum) {
-        progressBar.style.background = 'rgba(244, 67, 54, 0.3)';
-    } else if (percentage < 80) {
-        progressBar.style.background = 'rgba(241, 244, 54, 0.3)';
-    } else {
-        progressBar.style.background = 'rgba(54, 244, 79, 0.3)';
-    }
-}
-
-function initializeRateUpTable() {
-    const rateUpSelects = document.querySelectorAll('#rate-up-table select');
-
-    if (rateUpSelects.length === 0) {
-        return;
-    }
-
-    const optionsHTML = CONSTELLATION_OPTIONS.map(opt =>
-        `<option value="${opt.value}">${opt.text}</option>`
-    ).join('');
-
-    rateUpSelects.forEach(select => {
-        select.innerHTML = optionsHTML;
-        select.value = 'unknown';
     });
 }
 
@@ -204,13 +164,59 @@ export function updateProbabilityTable(distribution, names, cashback) {
 }
 
 export function restorePityTable(savedPity) {
+    if (savedPity[0].banner === 'Character') {
+        toggleScroll(false);
+    } else if (savedPity[0].banner === 'Weapon') {
+        toggleScroll(true);
+    }
+
     savedPity.forEach(savedRow => {
         const row = document.querySelector(`${SELECTORS.PITY_TABLE} tr[data-banner="${savedRow.banner}"]`);
         if (row) {
+            row.querySelector('[data-control="pity-4"]').value = savedRow.pity4;
             row.querySelector('[data-control="pity-5"]').value = savedRow.pity5;
-            row.querySelector('.guarantee-5').checked = savedRow.guarantee5;
         }
     });
+}
+
+function toggleScroll(enable) {
+    const SSR = document.querySelector('[data-control="pity-5"]');
+    const SR = document.querySelector('[data-control="pity-4"]');
+
+    if (!SSR._scrollHandler) {
+        SSR._scrollHandler = function (e) {
+            const options = [0, 10, 20, 30];
+            if (e.type === 'wheel') e.preventDefault();
+
+            let i = options.indexOf(parseInt(this.value));
+            if (i === -1) i = 0;
+
+            if (e.type === 'wheel') {
+                e.deltaY > 0 ? i++ : i--;
+            } else {
+                i++;
+            }
+
+            if (i >= options.length) i = (e.type === 'wheel') ? options.length - 1 : 0;
+            if (i < 0) i = 0;
+
+            this.value = options[i];
+            this.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+    }
+
+    if (enable) {
+        SSR.readOnly = true;
+        SSR.addEventListener('wheel', SSR._scrollHandler, { passive: false });
+        SSR.addEventListener('click', SSR._scrollHandler);
+        SR.value = '0';
+        SR.readOnly = true;
+    } else {
+        SSR.readOnly = false;
+        SSR.removeEventListener('wheel', SSR._scrollHandler);
+        SSR.removeEventListener('click', SSR._scrollHandler);
+        SR.readOnly = false;
+    }
 }
 
 export function restoreConstellationTable(savedConstellation) {
@@ -225,20 +231,6 @@ export function restoreConstellationTable(savedConstellation) {
                     input.value = savedRow[colIndex];
                 }
             });
-        }
-    });
-}
-
-export function restoreRateUpTable(savedRateUps) {
-    if (!savedRateUps || !Array.isArray(savedRateUps)) {
-        return;
-    }
-
-    const rateUpSelects = document.querySelectorAll('#rate-up-table select.custom-select');
-
-    rateUpSelects.forEach((select, index) => {
-        if (savedRateUps[index] !== undefined) {
-            select.value = savedRateUps[index];
         }
     });
 }

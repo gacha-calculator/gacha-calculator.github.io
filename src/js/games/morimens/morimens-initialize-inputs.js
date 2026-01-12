@@ -113,8 +113,8 @@ function initializePityTable(pityConfig) {
 
             if (value.length > 1 && value.startsWith('0')) {
                 this.value = value.replace(/^0+/, '');
-                if (this.value === '') this.value = '0';
             }
+            if (this.value === '') this.value = '0';
 
             let numValue = parseInt(this.value) || 0;
             if (numValue > input.max) {

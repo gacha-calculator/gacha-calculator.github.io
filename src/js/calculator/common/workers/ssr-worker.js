@@ -1,8 +1,6 @@
 let isInitialized = false;
 let distribution = null;
 let context = null;
-let iterationCount = 0;
-const PRUNE_EVERY_N = 10;
 let allPullsDistributionSSR = [];
 
 let pullLogicModule;
@@ -11,12 +9,8 @@ let helpersModule;
 self.onmessage = function (e) {
     switch (e.data?.type) {
         case 'Iterate':
-            iterationCount++;
             const currentLossData = pullLogicModule.rankUpSSR(distribution, context.ODDS_CHARACTER_SSR, context.ODDS_WEAPON_SSR, context.SSR_CHAR_PITY, context.SSR_WEP_PITY, context.pities, context.RATE_UP_ODDS);
-            if (iterationCount === PRUNE_EVERY_N) {
-                helpersModule.pruneAndNormalize(distribution);
-                iterationCount = 0;
-            }
+            helpersModule.pruneAndNormalize(distribution);
             allPullsDistributionSSR.push(helpersModule.consolidateProbabilities(distribution));
             const isTarget = helpersModule.checkIsTarget(distribution, context.target, allPullsDistributionSSR.length);
             let isEmpty = false;
@@ -25,9 +19,7 @@ self.onmessage = function (e) {
             }
 
             if (isEmpty || isTarget) {
-                if (iterationCount != PRUNE_EVERY_N) {
-                    helpersModule.pruneAndNormalize(distribution);
-                }
+                helpersModule.pruneAndNormalize(distribution);
                 self.postMessage({ type: 'LastIteration', lossData: currentLossData, isEmpty: isEmpty, isTarget: isTarget, allPullsDistributionSSR: [...allPullsDistributionSSR], distributionSSR: distribution });
             } else {
                 self.postMessage({ type: 'IterationComplete', lossData: currentLossData });
