@@ -75,7 +75,7 @@ export const CHARS_4_STAR = new Set([
     'freminet', 'gaming', 'gorou', 'iansan', 'ifa', 'kachina', 'kaveh', 'kirara',
     'kujou_sara', 'kuki_shinobu', 'lan_yan', 'layla', 'lynette', 'jahoda', 'mika', 'ningguang', 'noelle',
     'ororon', 'razor', 'rosaria', 'sayu', 'sethos', 'shikanoin_heizou', 'sucrose',
-    'thoma', 'xiangling', 'xingqiu', 'xinyan', 'yanfei', 'yaoyao', 'yun_jin'
+    'thoma', 'xiangling', 'xingqiu', 'xinyan', 'yanfei', 'yaoyao', 'yun_jin', 'illuga'
 ]);
 
 // --- Weapons ---
