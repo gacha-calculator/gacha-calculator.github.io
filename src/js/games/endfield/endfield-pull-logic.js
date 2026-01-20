@@ -39,11 +39,13 @@ export function rankUpSSR(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, 
         const len = distribution.length - 1;
 
         for (let i = 0; i < len; i++) {
-            const { type, states } = distribution[i];
+            const { type, spark } = distribution[i];
             let sum = 0;
-            for (const pityState of states) {
-                for (const { prob } of pityState.values()) {
-                    sum += prob;
+            for (const sparkState of spark) {
+                for (const pityState of sparkState.pity) {
+                    for (const { prob } of pityState.values()) {
+                        sum += prob;
+                    }
                 }
             }
             switch (type) {
@@ -95,130 +97,176 @@ export function rankUpSSRCheap(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_
 }
 
 function handleSSR(odds, inputIndex, array, pity, rankUps, type, winIndex) {
-    const size = array[inputIndex].states.length;
-    let rateUpOdds = type === 'Weapon' ? 0.25 : 0.5;
+    array[inputIndex].isEmpty = true;
+    for (let i = array[inputIndex].spark.length - 1; i >= 0; i--) {
+        const isLast = inputIndex + 2 === array.length;
+        const sparkState = array[inputIndex].spark[i];
 
-    const isLast = inputIndex + 2 === array.length;
-    let currentStates = array[inputIndex].states;
-    const nextStates = array[inputIndex + 1].states;
-    const areNextStatesNewBanner = array[inputIndex + 1].bannerCount !== array[inputIndex].bannerCount;
-    let doubleNextStates;
-    let areDoubleNextStatesNewBanner;
-    if (!isLast) {
-        doubleNextStates = array[inputIndex + 2].states;
-        areDoubleNextStatesNewBanner = array[inputIndex + 2].bannerCount !== array[inputIndex].bannerCount;
-    }
-    let buffer = new Map();
-    for (let i = size - 1; i >= 0; i--) {
-        const currentState = currentStates[i];
-        for (const [currentKey, currentMap] of currentState) {
-            let sparkCounter = currentKey % 10000;
-            let isSpark, isExtra;
+        if (!sparkState.isEmpty) {
+            sparkState.isEmpty = true;
+            const size = sparkState.pity.length;
+            let rateUpOdds = type === 'Weapon' ? 0.25 : 0.5;
 
-            if (type === 'Character') {
-                isSpark = sparkCounter === 120;
-                if (sparkCounter > 1120) isExtra = (sparkCounter - 1120) % 240 === 0;
-            } else {
-                isSpark = sparkCounter === 80;
-                if (sparkCounter > 1120) isExtra = (sparkCounter - 1120) % 160 === 0;
+            let currentStates = array[inputIndex].spark;
+            const nextStates = array[inputIndex + 1].spark;
+            const areNextStatesNewBanner = array[inputIndex + 1].bannerCount !== array[inputIndex].bannerCount;
+            let doubleNextStates;
+            let areDoubleNextStatesNewBanner;
+            let isDoubleLast;
+            if (!isLast) {
+                doubleNextStates = array[inputIndex + 2].spark;
+                areDoubleNextStatesNewBanner = array[inputIndex + 2].bannerCount !== array[inputIndex].bannerCount;
+                isDoubleLast = inputIndex + 3 === array.length;
             }
-
-            let currentOdds = odds[i];
-            if (isSpark) {
-                currentOdds = 1;
-                rateUpOdds = 1;
-            }
-            const winProb = currentMap.prob * currentOdds;
-            const lossProb = currentMap.prob - winProb;
-
-            let probabilityWin = winProb * rateUpOdds;
-            if (probabilityWin > PRUNE_LEVEL) {
-                let nextKey = currentKey + 1;
-                let targetMap = nextStates[winIndex];
-                if (areNextStatesNewBanner) {
-                    nextKey = Math.trunc(nextKey / 10000) * 10000;
-                } else if (isSpark) {
-                    nextKey += 1000;
-                }
-                if (isExtra && !isLast) {
-                    targetMap = doubleNextStates[winIndex];
-                    if (!areNextStatesNewBanner) {
-                        if (areDoubleNextStatesNewBanner) {
-                            nextKey = Math.trunc(nextKey / 10000) * 10000;
+            for (let j = size - 1; j >= 0; j--) {
+                const currentState = currentStates[i].pity[j];
+                for (const [currentKey, currentMap] of currentState) {
+                    let isNotFirstBatch = currentKey % 10;
+                    let isSpark, isExtra;
+                    if (type === 'Character') {
+                        if (i === 119 && isNotFirstBatch === 0) {
+                            isSpark = true;
                         } else {
-                            nextKey = Math.trunc(nextKey / 1000) * 1000 + 120;
+                            isSpark = false;
+                        }
+                        if (i === 239) {
+                            isExtra = true;
+                        } else {
+                            isExtra = false;
+                        }
+                    } else {
+                        isSpark = isNotFirstBatch === 80;
+                        if (isNotFirstBatch > 1120) isExtra = (isNotFirstBatch - 1120) % 160 === 0;
+                    }
+
+                    let currentOdds = odds[j];
+                    if (isSpark) {
+                        currentOdds = 1;
+                        rateUpOdds = 1;
+                    }
+                    const winProb = currentMap.prob * currentOdds;
+                    const lossProb = currentMap.prob - winProb;
+
+                    let probabilityWin = winProb * rateUpOdds;
+                    if (probabilityWin > PRUNE_LEVEL) {
+                        let nextKey = currentKey;
+                        let targetMap;
+                        if (areNextStatesNewBanner) {
+                            nextKey = Math.trunc(nextKey / 1000) * 1000;
+                        } else if (isSpark) {
+                            nextKey += 1;
+                        }
+                        if (isLast) {
+                            targetMap = nextStates[0];
+                        } else if (isExtra) {
+                            if (isDoubleLast) {
+                                targetMap = doubleNextStates[0];
+                            } else {
+                                targetMap = doubleNextStates[0].pity[winIndex];
+                                doubleNextStates[0].isEmpty = false;
+                                array[inputIndex + 2].isEmpty = false;
+                            }
+                            if (!areNextStatesNewBanner && areDoubleNextStatesNewBanner) {
+                                nextKey = Math.trunc(nextKey / 1000) * 1000;
+                            }
+                        } else {
+                            targetMap = nextStates[i + 1].pity[winIndex];
+                            nextStates[i + 1].isEmpty = false;
+                            array[inputIndex + 1].isEmpty = false;
+                        }
+                        const existing = targetMap.get(nextKey);
+                        if (existing) {
+                            existing.prob += probabilityWin;
+                        } else {
+                            targetMap.set(nextKey, {
+                                prob: probabilityWin
+                            });
+                        }
+                        if (type === 'Character') {
+                            rankUps.characters += probabilityWin;
+                        } else if (type === 'Weapon') {
+                            rankUps.weapons += probabilityWin;
                         }
                     }
-                }
-                const existing = targetMap.get(nextKey);
-                if (existing) {
-                    existing.prob += probabilityWin;
-                } else {
-                    targetMap.set(nextKey, {
-                        prob: probabilityWin
-                    });
-                }
-                if (type === 'Character') {
-                    rankUps.characters += probabilityWin;
-                } else if (type === 'Weapon') {
-                    rankUps.weapons += probabilityWin;
-                }
-            }
 
-            let probabilityLossRateUp = winProb * (1 - rateUpOdds);
-            if (probabilityLossRateUp > PRUNE_LEVEL) {
-                let nextKey = currentKey + 1;
-                if (type === 'Character') {
-                    nextKey += 10000;
-                }
+                    let probabilityLossRateUp = winProb * (1 - rateUpOdds);
+                    if (probabilityLossRateUp > PRUNE_LEVEL) {
+                        let nextKeyGlobal = currentKey;
+                        let nextKeyLocal = currentKey;
+                        if (type === 'Character') {
+                            nextKeyGlobal += 10;
+                            nextKeyLocal += 1000;
+                        }
 
-                let targetMap = buffer;
-                if (isExtra) {
-                    targetMap = nextStates[0];
-                    if (areNextStatesNewBanner) {
-                        nextKey = Math.trunc(nextKey / 10000) * 10000;
-                    } else {
-                        nextKey = Math.trunc(nextKey / 1000) * 1000 + 120;
+                        let targetMap;
+                        if (isExtra) {
+                            if (isLast) {
+                                targetMap = nextStates[0];
+                            } else {
+                                targetMap = nextStates[0].pity[0];
+                                nextStates[0].isEmpty = false;
+                                array[inputIndex + 1].isEmpty = false;
+                            }
+                            if (areNextStatesNewBanner) {
+                                nextKeyGlobal = Math.trunc(currentKey / 1000) * 1000;
+                                nextKeyLocal = Math.trunc(currentKey / 1000) * 1000;
+                            }
+                        } else {
+                            targetMap = currentStates[i + 1].pity[0];
+                            currentStates[i + 1].isEmpty = false;
+                            array[inputIndex].isEmpty = false;
+                        }
+                        const existingGlobal = targetMap.get(nextKeyGlobal);
+
+                        if (existingGlobal) {
+                            existingGlobal.prob += probabilityLossRateUp * 5 / 7; // do proper instead of hardcoding
+                        } else {
+                            targetMap.set(nextKeyGlobal, {
+                                prob: probabilityLossRateUp * 5 / 7
+                            });
+                        }
+
+                        const existingLocal = targetMap.get(nextKeyLocal);
+                        if (existingLocal) {
+                            existingLocal.prob += probabilityLossRateUp * 2 / 7; // do proper instead of hardcoding
+                        } else {
+                            targetMap.set(nextKeyLocal, {
+                                prob: probabilityLossRateUp * 2 / 7
+                            });
+                        }
                     }
-                }
-                const existing = targetMap.get(nextKey);
-                if (existing) {
-                    existing.prob += probabilityLossRateUp;
-                } else {
-                    targetMap.set(nextKey, {
-                        prob: probabilityLossRateUp
-                    });
+                    let probabilityLossSSR = lossProb;
+                    if (probabilityLossSSR > PRUNE_LEVEL) {
+                        let targetMap;
+                        let nextKey = currentKey;
+                        if (isExtra) {
+                            if (areNextStatesNewBanner) {
+                                nextKey = Math.trunc(nextKey / 1000) * 1000;
+                            }
+                            if (!isLast) {
+                                targetMap = nextStates[0].pity[j + 1];
+                                nextStates[0].isEmpty = false;
+                                array[inputIndex + 1].isEmpty = false;
+                            } else {
+                                targetMap = nextStates[0];
+                            }
+                        } else {
+                            targetMap = currentStates[i + 1].pity[j + 1];
+                            currentStates[i + 1].isEmpty = false;
+                            array[inputIndex].isEmpty = false;
+                        }
+                        const existing = targetMap.get(nextKey);
+                        if (existing) {
+                            existing.prob += probabilityLossSSR;
+                        } else {
+                            targetMap.set(nextKey, {
+                                prob: probabilityLossSSR
+                            });
+                        }
+                    }
+                    currentState.delete(currentKey);
                 }
             }
-            let probabilityLossSSR = lossProb;
-            if (probabilityLossSSR > PRUNE_LEVEL) {
-                let targetMap = currentStates[i + 1];
-                let nextKey = currentKey + 1;
-                if (isExtra) {
-                    if (areNextStatesNewBanner) {
-                        nextKey = Math.trunc(nextKey / 10000) * 10000;
-                    } else {
-                        nextKey = Math.trunc(nextKey / 1000) * 1000 + 120;
-                    }
-                    if (!isLast) {
-                        targetMap = nextStates[i + 1];
-                    } else {
-                        targetMap = nextStates[0];
-                    }
-                }
-                const existing = targetMap.get(nextKey);
-                if (existing) {
-                    existing.prob += probabilityLossSSR;
-                } else {
-                    targetMap.set(nextKey, {
-                        prob: probabilityLossSSR
-                    });
-                }
-            }
-            currentMap.prob = 0;
-        }
-        if (i === 0) {
-            currentStates[0] = buffer;
         }
     }
 }
@@ -283,121 +331,156 @@ function handleSR(odds, inputIndex, array, pity, pullsCoef) { // dif is no rate 
 }
 
 function handleSSRCheap(odds, inputIndex, array, pity, type, winIndex) {
-    const size = array[inputIndex].states.length;
-    let rateUpOdds = type === 'Weapon' ? 0.25 : 0.5;
+    array[inputIndex].isEmpty = true;
+    for (let i = array[inputIndex].spark.length - 1; i >= 0; i--) {
+        const isLast = inputIndex + 2 === array.length;
+        const sparkState = array[inputIndex].spark[i];
 
-    const isLast = inputIndex + 2 === array.length;
-    let currentStates = array[inputIndex].states;
-    const nextStates = array[inputIndex + 1].states;
-    const areNextStatesNewBanner = array[inputIndex + 1].bannerCount !== array[inputIndex].bannerCount;
-    let doubleNextStates;
-    let areDoubleNextStatesNewBanner;
-    if (!isLast) {
-        doubleNextStates = array[inputIndex + 2].states;
-        areDoubleNextStatesNewBanner = array[inputIndex + 2].bannerCount !== array[inputIndex].bannerCount;
-    }
-    let buffer = new Map();
-    for (let i = size - 1; i >= 0; i--) {
-        const currentState = currentStates[i];
-        for (const [currentKey, currentMap] of currentState) {
-            let sparkCounter = currentKey;
-            let isSpark, isExtra;
-            if (type === 'Character') {
-                isSpark = sparkCounter === 120;
-                if (sparkCounter > 1120) isExtra = (sparkCounter - 1120) % 240 === 0;
-            } else {
-                isSpark = sparkCounter === 80;
-                if (sparkCounter > 1120) isExtra = (sparkCounter - 1120) % 160 === 0;
+        if (!sparkState.isEmpty) {
+            sparkState.isEmpty = true;
+            const size = sparkState.pity.length;
+            let rateUpOdds = type === 'Weapon' ? 0.25 : 0.5;
+
+            let currentStates = array[inputIndex].spark;
+            const nextStates = array[inputIndex + 1].spark;
+            const areNextStatesNewBanner = array[inputIndex + 1].bannerCount !== array[inputIndex].bannerCount;
+            let doubleNextStates;
+            let areDoubleNextStatesNewBanner;
+            let isDoubleLast;
+            if (!isLast) {
+                doubleNextStates = array[inputIndex + 2].spark;
+                areDoubleNextStatesNewBanner = array[inputIndex + 2].bannerCount !== array[inputIndex].bannerCount;
+                isDoubleLast = inputIndex + 3 === array.length;
             }
+            for (let j = size - 1; j >= 0; j--) {
+                const currentState = currentStates[i].pity[j];
+                for (const [currentKey, currentMap] of currentState) {
+                    let sparkCounter = currentKey;
+                    let isSpark, isExtra;
 
-            let currentOdds = odds[i];
-            if (isSpark) {
-                currentOdds = 1;
-                rateUpOdds = 1;
-            }
-            const winProb = currentMap.prob * currentOdds;
-            const lossProb = currentMap.prob - winProb;
-
-            let probabilityWin = winProb * rateUpOdds;
-            if (probabilityWin > PRUNE_LEVEL) {
-                let nextKey = currentKey + 1;
-                let targetMap = nextStates[winIndex];
-                if (areNextStatesNewBanner) {
-                    nextKey = 0;
-                } else if (isSpark) {
-                    nextKey += 1000;
-                }
-                if (isExtra && !isLast) {
-                    targetMap = doubleNextStates[winIndex];
-                    if (!areNextStatesNewBanner) {
-                        if (areDoubleNextStatesNewBanner) {
-                            nextKey = 0;
+                    if (type === 'Character') {
+                        if (i === 119 && currentKey === 0) {
+                            isSpark = true;
                         } else {
-                            nextKey = 1120;
+                            isSpark = false;
+                        }
+                        if (i === 239) {
+                            isExtra = true;
+                        } else {
+                            isExtra = false;
+                        }
+                    } else {
+                        isSpark = sparkCounter === 80;
+                        if (sparkCounter > 1120) isExtra = (sparkCounter - 1120) % 160 === 0;
+                    }
+
+                    let currentOdds = odds[j];
+                    if (isSpark) {
+                        currentOdds = 1;
+                        rateUpOdds = 1;
+                    }
+                    const winProb = currentMap.prob * currentOdds;
+                    const lossProb = currentMap.prob - winProb;
+
+                    let probabilityWin = winProb * rateUpOdds;
+                    if (probabilityWin > PRUNE_LEVEL) {
+                        let nextKey = currentKey;
+                        let targetMap;
+                        if (areNextStatesNewBanner) {
+                            nextKey = 0;
+                        } else if (isSpark) {
+                            nextKey = 1;
+                        }
+                        if (isLast) {
+                            targetMap = nextStates[0];
+                        } else if (isExtra) {
+                            if (isDoubleLast) {
+                                targetMap = doubleNextStates[0];
+                            } else {
+                                targetMap = doubleNextStates[0].pity[winIndex];
+                                doubleNextStates[0].isEmpty = false;
+                                array[inputIndex + 2].isEmpty = false;
+                            }
+                            if (!areNextStatesNewBanner && areDoubleNextStatesNewBanner) {
+                                nextKey = 0;
+                            }
+                        } else {
+                            targetMap = nextStates[i + 1].pity[winIndex];
+                            nextStates[i + 1].isEmpty = false;
+                            array[inputIndex + 1].isEmpty = false;
+                        }
+
+                        const existing = targetMap.get(nextKey);
+                        if (existing) {
+                            existing.prob += probabilityWin;
+                        } else {
+                            targetMap.set(nextKey, {
+                                prob: probabilityWin
+                            });
                         }
                     }
-                }
-                const existing = targetMap.get(nextKey);
-                if (existing) {
-                    existing.prob += probabilityWin;
-                } else {
-                    targetMap.set(nextKey, {
-                        prob: probabilityWin
-                    });
-                }
-            }
 
-            let probabilityLossRateUp = winProb * (1 - rateUpOdds);
-            if (probabilityLossRateUp > PRUNE_LEVEL) {
-                let nextKey = currentKey + 1;
-
-                let targetMap = buffer;
-                if (isExtra) {
-                    targetMap = nextStates[0];
-                    if (areNextStatesNewBanner) {
-                        nextKey = 0;
-                    } else {
-                        nextKey = 1120;
+                    let probabilityLossRateUp = winProb * (1 - rateUpOdds);
+                    if (probabilityLossRateUp > PRUNE_LEVEL) {
+                        let nextKey = currentKey;
+                        let targetMap;
+                        if (isExtra) {
+                            if (isLast) {
+                                targetMap = nextStates[0];
+                            } else {
+                                targetMap = nextStates[0].pity[0];
+                                nextStates[0].isEmpty = false;
+                                array[inputIndex + 1].isEmpty = false;
+                            }
+                            if (areNextStatesNewBanner) {
+                                nextKey = 0;
+                            }
+                        } else {
+                            targetMap = currentStates[i + 1].pity[0];
+                            currentStates[i + 1].isEmpty = false;
+                            array[inputIndex].isEmpty = false;
+                        }
+                        const existing = targetMap.get(nextKey);
+                        if (existing) {
+                            existing.prob += probabilityLossRateUp;
+                        } else {
+                            targetMap.set(nextKey, {
+                                prob: probabilityLossRateUp
+                            });
+                        }
                     }
-                }
-                const existing = targetMap.get(nextKey);
-                if (existing) {
-                    existing.prob += probabilityLossRateUp;
-                } else {
-                    targetMap.set(nextKey, {
-                        prob: probabilityLossRateUp
-                    });
+                    let probabilityLossSSR = lossProb;
+                    if (probabilityLossSSR > PRUNE_LEVEL) {
+                        let targetMap;
+                        let nextKey = currentKey;
+                        if (isExtra) {
+                            if (areNextStatesNewBanner) {
+                                nextKey = 0;
+                            }
+                            if (!isLast) {
+                                targetMap = nextStates[0].pity[j + 1];
+                                nextStates[0].isEmpty = false;
+                                array[inputIndex + 1].isEmpty = false;
+                            } else {
+                                targetMap = nextStates[0];
+                            }
+                        } else {
+                            targetMap = currentStates[i + 1].pity[j + 1];
+                            currentStates[i + 1].isEmpty = false;
+                            array[inputIndex].isEmpty = false;
+                        }
+                        const existing = targetMap.get(nextKey);
+                        if (existing) {
+                            existing.prob += probabilityLossSSR;
+                        } else {
+                            targetMap.set(nextKey, {
+                                prob: probabilityLossSSR
+                            });
+                        }
+                    }
+                    currentState.delete(currentKey);
                 }
             }
-            let probabilityLossSSR = lossProb;
-            if (probabilityLossSSR > PRUNE_LEVEL) {
-                let targetMap = currentStates[i + 1];
-                let nextKey = currentKey + 1;
-                if (isExtra) {
-                    if (areNextStatesNewBanner) {
-                        nextKey = 0;
-                    } else {
-                        nextKey = 1120;
-                    }
-                    if (!isLast) {
-                        targetMap = nextStates[i + 1];
-                    } else {
-                        targetMap = nextStates[0];
-                    }
-                }
-                const existing = targetMap.get(nextKey);
-                if (existing) {
-                    existing.prob += probabilityLossSSR;
-                } else {
-                    targetMap.set(nextKey, {
-                        prob: probabilityLossSSR
-                    });
-                }
-            }
-            currentMap.prob = 0;
-        }
-        if (i === 0) {
-            currentStates[0] = buffer;
         }
     }
 }

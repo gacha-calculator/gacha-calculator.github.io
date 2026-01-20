@@ -49,7 +49,7 @@ export const CONSTELLATION_MAP = {
 };
 
 export const UPDATE_HISTORY = ['1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6',
-    '2.7', 'AC', '2.8', '3.0', '3.1'
+    '2.7', 'AC', '2.8', '3.0', '3.1', '3.2', '3.3'
 ]
 
 export const BANNER_HISTORY = {
@@ -88,6 +88,8 @@ export const BANNER_HISTORY = {
     'From the Ruin of the Past': {char: 'Moldir', release: '2.8'},
     'A Beating Heart Beneath the Stone': {char: 'Sentinel', release: '3.0'},
     'The Mourner\'s Eulogy': {char: 'Charon', release: '3.0'},
-    //'The Midnight Flutist': {char: 'Rubuska', release: '3.1'},
-    //'The Land\'s Iron Stitch': {char: 'Corvus', release: '3.1'}
+    'The Midnight Flutist': {char: 'Rubuska', release: '3.1'},
+    'The Land\'s Iron Stitch': {char: 'Corvus', release: '3.1'},
+    'On Fate\'s Cue': {char: 'Beryl', release: '3.2'},
+    'The Brilliace Within': {char: 'Brume', release: '3.2'}
 }

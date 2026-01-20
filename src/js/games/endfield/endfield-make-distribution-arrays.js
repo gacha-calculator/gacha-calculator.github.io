@@ -9,24 +9,25 @@ export function makeDistributionArraysSSR(inputConfig, pity, STATES_LIMITS) {
 
         if (isCharacterBanner) {
             distributionSSR.push(
-                { states: Array.from({ length: STATES_LIMITS.CHARACTER }, () => new Map()), type: 'Character', isEmpty: true, bannerCount: bannerPlan[i].bannerCount }
-            );
+                { spark: Array.from({ length: 240 }, () => ({ pity: Array.from({ length: STATES_LIMITS.CHARACTER }, () => new Map()), isEmpty: true })), 
+                type: 'Character', isEmpty: true, bannerCount: bannerPlan[i].bannerCount});
         } else {
             distributionSSR.push(
                 { states: Array.from({ length: STATES_LIMITS.WEAPON }, () => new Map()), type: 'Weapon', isEmpty: true, bannerCount: bannerPlan[i].bannerCount }
             );
         }
     }
-    distributionSSR.push({ states: Array.from({ length: 1 }, () => new Map()) });
+    distributionSSR.push({ spark: Array.from({ length: 1 }, () => new Map()) });
     initializeStartingState(pity);
 
     return { distributionSSR };
 
     function initializeStartingState(pityData) {
-        distributionSSR[0].states[pityData[0]].set(1, { // key is now yyzxxx xxx is sparkcounter, z is if first guarantee was cleared
+        distributionSSR[0].spark[0].pity[pityData[0]].set(0, { // key is now xxyyz, yy is this banner's losses, xx global, z is if first guarantee was cleared
             prob: 1.0
         });
         distributionSSR[0].isEmpty = false;
+        distributionSSR[0].spark[0].isEmpty = false;
     }
 }
 

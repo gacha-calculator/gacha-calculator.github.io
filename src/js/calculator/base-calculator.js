@@ -42,7 +42,7 @@ export class gachaCalculator {
         this.adapters.contexts.contextSSR.pities = pity;
         let { distributionSSR } = this.adapters.distributionArrays.makeSSR(inputConfig, pity);
         let { distributionCharSR, distributionWepSR } = this.adapters.distributionArrays.makeSR(inputConfig);
-
+        console.profile();
         try {
             await initializeWorkers(ssrWorker, srWorker, this.adapters.contexts, distributionSSR, { distributionCharSR, distributionWepSR }, pity);
         } catch (error) {
@@ -102,7 +102,7 @@ export class gachaCalculator {
             }
         }
         const chartData = allPullsDistributionSSR;
-
+        console.profileEnd();
         return {
             chartData,
             cashbackData

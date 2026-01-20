@@ -57,7 +57,13 @@ export class EndfieldPageController {
     }
 
     initialize() {
-        const type = this.persistence.loadPageType().type;
+        let type;
+        const savedData = this.persistence.loadButtons();
+        if (savedData !== null) {
+            type = this.persistence.loadPageType().type;
+        } else {
+            type = 'Character';
+        }
         const header = document.querySelector('.dropdown__header');
         const typeText = header.querySelector('.type-text');
         const typeIcon = header.querySelector('.type-icon');
