@@ -8,12 +8,12 @@ export function cashback(inputConfig, gachaConfig, probabilitiesSSR, probabiliti
     probabilitiesSSR = normalizeDistribution(probabilitiesSSR);
     const Standards = gachaConfig.poolStandardCharSSR + gachaConfig.poolStandardLimitedCharSSR;
     const SSRCashback = cashbackSSR(probabilitiesSSR, Standards, inputConfig.SSR.consCountStandard, inputConfig.SSR.cashbackRoadmap, gachaConfig, inputConfig.pull, inputConfig.SSR.consCountLimitedStandard);
-    const SRCashback = cashbackSR(probabilitiesCharSR, gachaConfig, inputConfig);
+    //const SRCashback = cashbackSR(probabilitiesCharSR, gachaConfig, inputConfig);
 
     const finalCashback = SSRCashback;
     for (let i = 0; i < finalCashback.length; i++) {
-        finalCashback[i].mean += SRCashback.mean;
-        finalCashback[i].variance += SRCashback.variance;
+        //finalCashback[i].mean += SRCashback.mean;
+        //finalCashback[i].variance += SRCashback.variance;
         finalCashback[i] = chebyshevInequiality(finalCashback[i]);
     }
 
