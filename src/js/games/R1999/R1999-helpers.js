@@ -7,7 +7,9 @@ export function consolidateSRBanners(distributionSR) {
                     for (let k = 0; k < banner[i].states[j].length; k++) {
                         for (let [currentKey, currentMap] of banner[i].states[j][k]) {
                             if (newDistribution[i] === undefined) {
-                                newDistribution.push({ states: Array.from({ length: 2 }, () => new Map()) });
+                                while (i >= newDistribution.length) {
+                                    newDistribution.push({ states: Array.from({ length: 2 }, () => new Map()) });
+                                }
                                 newDistribution[i].states[0].set(currentKey, { prob: currentMap.prob });
                             } else {
                                 const targetMap = newDistribution[i].states[j];
@@ -25,7 +27,9 @@ export function consolidateSRBanners(distributionSR) {
                 } else {
                     for (let [currentKey, currentMap] of banner[i].states[j]) {
                         if (newDistribution[i] === undefined) {
-                            newDistribution.push({ states: Array.from({ length: 2 }, () => new Map()) });
+                            while (i >= newDistribution.length) {
+                                newDistribution.push({ states: Array.from({ length: 2 }, () => new Map()) });
+                            }
                             newDistribution[i].states[0].set(currentKey, { prob: currentMap.prob });
                         } else {
                             const targetMap = newDistribution[i].states[j];
