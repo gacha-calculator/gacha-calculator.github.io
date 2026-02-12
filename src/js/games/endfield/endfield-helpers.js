@@ -1,28 +1,46 @@
-export function consolidateProbabilities(array, boundsIndices) {
+export function consolidateProbabilities(array, data, boundsIndices) { // max key/min key
     const result = new Array(array.length - 1);
+    //const PITY_STATES = 80;
+    //const SPARKS = 360;
+    //const STATES_PER_KEY = PITY_STATES * SPARKS; // 800
 
-    for (let i = 0; i < array.length; i++) {
+    for (let i = boundsIndices.minItem; i <= boundsIndices.maxItem; i++) {
         let probabilitySum = 0;
-        if (array[i].distribution !== null) {
-            for (let j = 0; j < array[i].distribution.length; j++) {
-                probabilitySum += array[i].distribution[j];
+        let arr = array[i];
+        if (array[i] !== null) {
+            let first = data[i].minIndex;
+            for (let j = first; j <= data[i].maxIndex; j++) {
+                probabilitySum += arr[j];
+                //let prob = arr.distribution[j];
+                //if (prob > 1e-10) {
+                //    let key = Math.floor(j / STATES_PER_KEY);
+                //    if (key < arr.minKey) {
+                //        arr.minKey = key;
+                //    }
+                //    if (key > arr.maxKey) {
+                //        arr.maxKey = key;
+                //    }
+                //}
             }
-            if (array[i].type !== 'Double Target') {
-                result[i] = probabilitySum;
-            } else {
-                result[i - 1] += probabilitySum;
-            }
+            result[i] = probabilitySum;
         }
     }
-    const KEYS = 20;
 
-    for (let i = 0; i < KEYS; i++) {
-        let probabilitySum = 0;
-        for (let j = i; j < array[array.length - 2].distribution.length; j += KEYS) {
-            probabilitySum += array[array.length - 2].distribution[j];
-            array[array.length - 2].distribution[j] = 0;
+    if (array.length - 3 === boundsIndices.maxItem) {
+        for (let i = array.length - 2; i < array.length; i++) {
+            let probabilitySum = 0;
+            let arr = array[i];
+            if (array[i] !== null) {
+                for (let j = 0; j < array[i].length; j++) {
+                    probabilitySum += arr[j];
+                }
+                if (data[i].type !== 'Double Target') {
+                    result[i] = probabilitySum;
+                } else {
+                    result[i - 1] += probabilitySum;
+                }
+            }
         }
-        array[array.length - 2].distribution[i] = probabilitySum;
     }
 
     return result;

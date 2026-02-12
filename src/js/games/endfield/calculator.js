@@ -1,7 +1,7 @@
 import { consolidateDistributionForCashback, consolidateProbabilitiesCheap, consolidateProbabilities, simplifyDistribution, normalizeCheap, checkIsEmpty, clearMaps, normalize, checkIsTarget } from './endfield-helpers.js';
 import { makeDistributionArraysSSR, makeDistributionArraysSR } from './endfield-make-distribution-arrays.js';
 import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig } from './config.js';
-import { rankUpSSR, rankUpSR, rankUpSSRCheap } from './endfield-pull-logic.js';
+import init, { HandleSsrPulls } from '../../../rust/calculators/pkg/calculators.js';
 
 const STATES_LIMITS = {
     CHARACTER: gachaConfig.pity.pitySSRChar,
@@ -10,50 +10,37 @@ const STATES_LIMITS = {
 };
 const NORMALIZATION_THRESHOLD = 1e-5;
 
-const boundsIndices = {
-    maxItem: 0,
-    minItem: 0
-}
-
-export function runEndfieldGachaCalc(inputConfig, target) {
+export async function runEndfieldGachaCalc(inputConfig, target) {
     const RATE_UP_ODDS = 0.5;
-    let chartData = [];
     let isTarget = false;
     let isEmpty = false;
-    console.profile();
-    let { distributionSSR } = makeDistributionArraysSSR(inputConfig, STATES_LIMITS);
-    let { distributionCharSR } = makeDistributionArraysSR(inputConfig, STATES_LIMITS);
+    let { distributionSSR, distributionSSRData } = makeDistributionArraysSSR(inputConfig, STATES_LIMITS);
     let normalizeSum = [0];
     let currentPull = 1;
     let iteration = 0;
 
+    await init();
+
+    const EndfieldPulls = new HandleSsrPulls(inputConfig.SSR.pullPlan, inputConfig.SSR.pity, STATES_LIMITS, ODDS_CHARACTER_SSR);
+    console.profile();
+    const result = EndfieldPulls.run_pulls();
+    console.profileEnd();
+    //const { chartData, distributionSSRFinal } = result;
+    debugger;
+
     while (!isEmpty && !isTarget) {
-        const currentLossData = rankUpSSR(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, normalizeSum, boundsIndices);
-        //if (normalizeSum[0] >= NORMALIZATION_THRESHOLD) {
-        //    normalize(distributionSSR, normalizeSum);
-        //}
-        //isTarget = checkIsTarget(distributionSSR, target, currentPull);
+        const currentLossData = rankUpSSR(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, normalizeSum, boundsIndices);
         if (iteration === 20) {
-            chartData.push(consolidateProbabilities(distributionSSR, boundsIndices));
+            chartData.push(consolidateProbabilities(distributionSSR, distributionSSRData, boundsIndices));
             iteration = 0;
         }
 
         if (currentPull === 800) {
-            console.profileEnd();
             debugger;
         }
 
         iteration++;
         currentPull++;
-
-        //normalizePullsPerBanner(currentLossData);
-
-        //let charRankUps = currentLossData.charRankUps; // can just do char
-
-        //if (charRankUps.pullsSum > 0) {
-        //    rankUpSR(distributionCharSR, charRankUps, ODDS_SR);
-        //    normalize(distributionCharSR);
-        //}
     }
 
     const cashbackData = {

@@ -1,42 +1,35 @@
 export function makeDistributionArraysSSR(inputConfig, STATES_LIMITS) {
     if (!Array.isArray(inputConfig.SSR.pullPlan)) throw new Error("Invalid pull plan");
-
     const { pullPlan: bannerPlan } = inputConfig.SSR;
+
     const distributionSSR = [];
+    const distributionSSRData = [];
     let pity;
-    const sum = 360 * 80 * 20;
+    const sum = 360 * 80 * 45;
 
     for (let i = 0; i < bannerPlan.length; i++) {
-        const isCharacterBanner = bannerPlan[i].type === 'char';
-
-        if (isCharacterBanner) {
-            pity = inputConfig.SSR.pity.char;
-            distributionSSR.push(
-                {
-                    distribution: new Float64Array(sum),
-                    type: 'Character', bannerCount: bannerPlan[i].bannerCount, minIndex: 0, maxIndex: 0
-                });
-        } else {
-            pity = inputConfig.pity.wep;
-            distributionSSR.push(
-                { states: Array.from({ length: STATES_LIMITS.WEAPON }, () => new Float64Array(20)), type: 'Weapon', bannerCount: bannerPlan[i].bannerCount }
-            );
-        }
+        pity = inputConfig.SSR.pity.char;
+        distributionSSR.push(new Float64Array(sum));
+        distributionSSRData.push({
+            type: 'Character', bannerCount: bannerPlan[i].bannerCount, minIndex: 0, maxIndex: 0
+        });
     }
-    distributionSSR.push({
-        distribution: new Float64Array(sum),
-        type: 'Target'
+    distributionSSR.push(new Float64Array(sum));
+    distributionSSR.push(new Float64Array(sum));
+
+    distributionSSRData.push({
+        type: 'Target', bannerCount: 0, minIndex: 0, maxIndex: 0
     });
-    distributionSSR.push({
-        distribution: new Float64Array(sum),
-        type: 'Double Target'
+    distributionSSRData.push({
+        type: 'Double Target', bannerCount: 0, minIndex: 0, maxIndex: 0
     });
+
     initializeStartingState(pity);
 
-    return { distributionSSR };
+    return { distributionSSR, distributionSSRData };
 
     function initializeStartingState(startingPity) {
-        distributionSSR[0].distribution[startingPity] = 1;
+        distributionSSR[0][startingPity] = 1;
     }
 }
 
