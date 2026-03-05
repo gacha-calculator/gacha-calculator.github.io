@@ -91,5 +91,7 @@ export const BANNER_HISTORY = {
     'The Midnight Flutist': {char: 'Rubuska', release: '3.1'},
     'The Land\'s Iron Stitch': {char: 'Corvus', release: '3.1'},
     'On Fate\'s Cue': {char: 'Beryl', release: '3.2'},
-    'The Brilliace Within': {char: 'Brume', release: '3.2'}
+    'The Brilliace Within': {char: 'Brume', release: '3.2'},
+    'On Fate\'s Cue': {char: 'Igor', release: '3.3'},
+    'The Brilliace Within': {char: 'Marsha', release: '3.3'}
 }

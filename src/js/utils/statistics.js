@@ -50,7 +50,7 @@ function calculateTotalCombinations(rateUpGroups, availableConstellations) {
     }, 0);
 }
 
-function binomialCoefficient(n, k) {
+export function binomialCoefficient(n, k) {
     if (k < 0 || k > n) return 0;
     if (k === 0 || k === n) return 1;
     k = Math.min(k, n - k); // Symmetrical so can do less

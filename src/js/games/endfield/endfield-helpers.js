@@ -1,218 +1,72 @@
-export function consolidateProbabilities(array, data, boundsIndices) { // max key/min key
-    const result = new Array(array.length - 1);
-    //const PITY_STATES = 80;
-    //const SPARKS = 360;
-    //const STATES_PER_KEY = PITY_STATES * SPARKS; // 800
-
-    for (let i = boundsIndices.minItem; i <= boundsIndices.maxItem; i++) {
-        let probabilitySum = 0;
-        let arr = array[i];
-        if (array[i] !== null) {
-            let first = data[i].minIndex;
-            for (let j = first; j <= data[i].maxIndex; j++) {
-                probabilitySum += arr[j];
-                //let prob = arr.distribution[j];
-                //if (prob > 1e-10) {
-                //    let key = Math.floor(j / STATES_PER_KEY);
-                //    if (key < arr.minKey) {
-                //        arr.minKey = key;
-                //    }
-                //    if (key > arr.maxKey) {
-                //        arr.maxKey = key;
-                //    }
-                //}
-            }
-            result[i] = probabilitySum;
+export function updateProbDistr(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, sparkDistr) {
+    let rankUps = 0;
+    let last = probDistr.length - 1;
+    for (let i = 0, j = 0; i < last; i++) {
+        if (!probDistrRankUps[i].isFirst) {
+            j++;
         }
-    }
+        if (probDistr !== null) {
+            const rankUpscurrent = probDistrRankUps[i];
+            const rankUpsDouble = probDistrRankUpsDouble[i];
+            const rankUpsSpark = probDistrRankUpsSpark[i];
+            probDistr[i] -= rankUpscurrent + rankUpsDouble + rankUpsSpark;
+            probDistr[i + 1] += rankUpscurrent + rankUpsSpark;
 
-    if (array.length - 3 === boundsIndices.maxItem) {
-        for (let i = array.length - 2; i < array.length; i++) {
-            let probabilitySum = 0;
-            let arr = array[i];
-            if (array[i] !== null) {
-                for (let j = 0; j < array[i].length; j++) {
-                    probabilitySum += arr[j];
-                }
-                if (data[i].type !== 'Double Target') {
-                    result[i] = probabilitySum;
-                } else {
-                    result[i - 1] += probabilitySum;
+            const curSparkDistr = sparkDistr[j];
+            if (curSparkDistr != null) {
+                curSparkDistr.rUps += rankUpscurrent + rankUpsDouble;
+                curSparkDistr.sparks += rankUpsSpark;
+                const nextSparkDistr = sparkDistr[j + 1];
+                if (nextSparkDistr != null) {
+                    nextSparkDistr.sparks += rankUpsDouble;
                 }
             }
-        }
-    }
-
-    return result;
-}
-
-export function consolidateProbabilitiesCheap(distribution) {
-    const result = new Array(distribution.length);
-
-    for (let i = 0; i < distribution.length; i++) {
-        let probabilitySum = 0;
-        if (distribution[i] && !distribution[i].isEmpty) {
-            const winStates = distribution[i].spark;
-            for (const sparkStates of winStates) {
-                if (sparkStates && !sparkStates.isEmpty) {
-                    if (sparkStates.pity !== undefined) {
-                        for (const pityStates of sparkStates.pity) {
-                            for (const value of pityStates.values()) {
-                                probabilitySum += value.prob;
-                            }
-                        }
-                    } else {
-                        for (const value of sparkStates.values()) {
-                            probabilitySum += value.prob;
-                        }
-                    }
-                }
+            if (i + 1 === last) {
+                probDistr[i + 1] += rankUpsDouble;
+            } else {
+                probDistr[i + 2] += rankUpsDouble;
             }
-        }
-        result[i] = probabilitySum;
-    }
 
-    return result;
-}
-
-export function normalize(array, normalizeSum) {
-    const NORMALIZATION_THRESHOLD = 1e-5;
-    let totalSum = 0;
-
-    if (array[0] && array[0].spark !== undefined) {
-        for (let i = 0; i < array.length - 1; i++) {
-            if (array && !array[i].isEmpty) {
-                for (const sparkState of array[i].spark) {
-                    if (sparkState && !sparkState.isEmpty) {
-                        for (const pityState of sparkState.pity) {
-                            for (const [key, value] of pityState) {
-                                totalSum += value.prob;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        for (const sparkState of array[array.length - 1].spark) {
-            for (const [key, value] of sparkState) {
-                totalSum += value.prob;
-            }
-        }
-    }
-
-    const diff = Math.abs(totalSum - 1);
-    if (diff > NORMALIZATION_THRESHOLD) {
-        const factor = 1 / totalSum;
-        for (let i = 0; i < array.length - 1; i++) {
-            if (array[i] && !array[i].isEmpty) {
-                for (const sparkState of array[i].spark) {
-                    if (sparkState && !sparkState.isEmpty) {
-                        for (const pityState of sparkState.pity) {
-                            for (const [key, value] of pityState) {
-                                value.prob *= factor;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    normalizeSum[0] = 0;
-}
-
-export function normalizeCheap(array) {
-    const PRUNE_LEVEL = 1e-10;
-    const NORMALIZATION_THRESHOLD = 1e-5;
-    let totalSum = 0;
-
-    for (let i = 0; i < array.length - 1; i++) {
-        if (array[i] && !array[i].isEmpty) {
-            for (const sparkState of array[i].spark) {
-                if (sparkState && !sparkState.isEmpty) {
-                    for (const pityState of sparkState.pity) {
-                        for (const [key, value] of pityState) {
-                            if (value.prob <= PRUNE_LEVEL) {
-                                pityState.delete(key);
-                            } else {
-                                totalSum += value.prob;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    for (const sparkState of array[array.length - 1].spark) {
-        for (const [key, value] of sparkState) {
-            totalSum += value.prob;
-        }
-    }
-
-    const diff = Math.abs(totalSum - 1);
-    if (diff > NORMALIZATION_THRESHOLD) {
-        const factor = 1 / totalSum;
-        for (let i = 0; i < array.length - 1; i++) {
-            if (array[i] && !array[i].isEmpty) {
-                for (const sparkState of array[i].spark) {
-                    if (sparkState && !sparkState.isEmpty) {
-                        for (const pityState of sparkState.pity) {
-                            for (const [key, value] of pityState) {
-                                value.prob *= factor;
-                            }
-                        }
-                    }
-                }
-            }
+            rankUps += rankUpscurrent + rankUpsDouble;
+            probDistrRankUps[i] = 0;
+            probDistrRankUpsDouble[i] = 0;
+            probDistrRankUpsSpark[i] = 0;
         }
     }
 }
 
-export function checkIsEmpty(distribution) {
-    let globalIsEmpty = true;
+export function updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, pullsCoef) {
+    let rankUps = 0;
+    let last = probDistr.length - 1;
+    for (let i = 0; i < last; i++) {
+        if (probDistr !== null) {
+            const rankUpscurrent = probDistrRankUps[i];
+            const rankUpsDouble = probDistrRankUpsDouble[i];
+            const rankUpsSpark = probDistrRankUpsSpark[i];
+            probDistr[i] -= rankUpscurrent + rankUpsDouble + rankUpsSpark;
+            probDistr[i + 1] += rankUpscurrent + rankUpsSpark;
 
-    // Iterate through all banners except the last one (Target bucket)
-    for (let i = 0; i < distribution.length - 1; i++) {
-        const banner = distribution[i];
-        if (!banner) continue;
-
-        banner.isEmpty = true;
-
-        for (const sparkState of banner.spark) {
-            if (!sparkState) continue;
-
-            sparkState.isEmpty = true;
-            const pityArray = sparkState.pity;
-
-            // Check each pity level's TypedArray
-            for (let p = 0; p < pityArray.length; p++) {
-                const typedArray = pityArray[p];
-
-                for (let k = 0; k < 200; k++) {
-                    if (typedArray[k] > 0) {
-                        sparkState.isEmpty = false;
-                        banner.isEmpty = false;
-                        globalIsEmpty = false;
-                        break; // Exit k loop
-                    }
-                }
-                if (!sparkState.isEmpty) break; // Exit p loop
+            if (i + 1 === last) {
+                probDistr[i + 1] += rankUpsDouble;
+            } else {
+                probDistr[i + 2] += rankUpsDouble;
             }
+
+            rankUps += rankUpscurrent + rankUpsDouble;
+            probDistrRankUps[i] = 0;
+            probDistrRankUpsDouble[i] = 0;
+            probDistrRankUpsSpark[i] = 0;
         }
     }
-
-    return globalIsEmpty;
+    pullsCoef.rankUps = rankUps;
+    pullsCoef.pullsSum = 1 - probDistr[last];
 }
 
 export function checkIsTarget(distribution, target, allPulls) {
     if (target.type === 'probability') {
-        const lastIndex = distribution.length - 1;
         let probabilitySum = 0;
-        const winArray = distribution[lastIndex].spark[0];
-        if (!winArray.isEmpty) {
-            for (let key = 0; key < winArray.length; key++) {
-                probabilitySum += winArray[key];
-            }
-        }
+        probabilitySum += distribution[distribution.length - 1];
+
         if (probabilitySum > target.value) {
             return true;
         } else {
@@ -228,123 +82,413 @@ export function checkIsTarget(distribution, target, allPulls) {
     }
 }
 
-export function clearMaps(distribution) {
-    let clearingDone = false;
-    for (let i = 0; i < distribution.length; i++) {
-        if (!distribution[i]) continue;
-        for (let j = 0; j < distribution[i].spark.length; j++) {
-            if (!clearingDone) {
-                if (!distribution[i].spark[j]) continue;
-                if (distribution[i].spark[j].isEmpty) {
-                    distribution[i].spark[j] = null;
-                } else {
-                    clearingDone = true;
-                    continue;
-                }
-            }
-        }
-        if (!clearingDone) {
-            distribution[i] = null;
-        }
-    }
-}
-
-export function consolidateDistributionForCashback(distribution) {
+export function consolidateSSRDistributionForCashback(distribution, distributionData, boundsIndices) {
     const result = [];
+    const PITY_STATES = 80;
 
-    for (let i = 0; i < distribution.length - 1; i++) {
-        if (distribution[i]) {
-            for (const pityStates of distribution[i].spark) {
-                if (pityStates) {
-                    let type = 'None';
-                    if (i > 0 && i <= distribution.length && distribution[i - 1]) {
-                        type = distribution[i - 1].type || 'None';
-                    }
+    for (let i = boundsIndices.minItem; i < distribution.length - 2; i++) {
+        if (distribution[i] === null) {
+            continue;
+        }
+        let SPARKS;
+        let currentStates = distribution[i];
+        if (distribution[i].length === 864000 || distribution[i].length === 422400) {
+            SPARKS = 240;
+        } else {
+            SPARKS = 120;
+        }
+        const STATES_PER_KEY = PITY_STATES * SPARKS;
+        let currentItemData = distributionData[i];
+        let consolidatedDistibution = new Map();
+        let startingIndex = currentItemData.minIndex;
+        let finalIndex = currentItemData.maxIndex;
 
-                    let consolidatedDistibution = { offRates: new Map(), type: type };
+        let withinKey = startingIndex % STATES_PER_KEY;
+        let key = (startingIndex - withinKey) / STATES_PER_KEY;
+        let keySum = 0;
+        let j = startingIndex;
 
-                    if (pityStates.pity !== undefined) {
-                        for (const map of pityStates.pity) {
-                            for (const [key, value] of map) {
-                                let nextKey = Math.trunc(key / 10);
-                                const existing = consolidatedDistibution.offRates.get(nextKey);
-                                if (existing) {
-                                    existing.prob += value.prob;
-                                } else {
-                                    consolidatedDistibution.offRates.set(nextKey, {
-                                        prob: value.prob
-                                    });
-                                }
-                            }
-                        }
-                    } else {
-                        for (const [key, value] of pityStates) {
-                            let nextKey = Math.trunc(key / 10);
-                            const existing = consolidatedDistibution.offRates.get(nextKey);
-                            if (existing) {
-                                existing.prob += value.prob;
-                            } else {
-                                consolidatedDistibution.offRates.set(nextKey, {
-                                    prob: value.prob
-                                });
-                            }
-                        }
-                    }
-                    if (consolidatedDistibution.offRates.size > 0) {
-                        result.push(consolidatedDistibution);
-                    }
+        while (j <= finalIndex) {
+            keySum += currentStates[j];
+            j++;
+            withinKey++;
+            if (withinKey === STATES_PER_KEY) {
+                if (keySum !== 0) {
+                    consolidatedDistibution.set(key, {
+                        prob: keySum
+                    });
+                    keySum = 0;
                 }
+                key++;
+                withinKey = 0;
             }
         }
+        if (keySum !== 0) {
+            consolidatedDistibution.set(key, {
+                prob: keySum
+            });
+        }
+        result.push(consolidatedDistibution);
+    }
+
+    for (let i = distribution.length - 2; i < distribution.length; i++) {
+        let consolidatedDistibution = new Map();
+        const SPARKS = 240;
+        let currentStates = distribution[i];
+        const STATES_PER_KEY = PITY_STATES * SPARKS;
+        let withinKey = 0;
+        let key = 0;
+        let keySum = 0;
+        for (let j = 0; j < currentStates.length; j++) {
+            keySum += currentStates[j];
+            withinKey++;
+            if (withinKey === STATES_PER_KEY) {
+                if (keySum !== 0) {
+                    const existing = consolidatedDistibution.get(key);
+                    if (existing) {
+                        existing.prob += keySum;
+                    } else {
+                        consolidatedDistibution.set(key, {
+                            prob: keySum
+                        });
+                    }
+                    keySum = 0;
+                }
+                key++;
+                withinKey = 0;
+            }
+        }
+        if (keySum !== 0) {
+            const existing = consolidatedDistibution.get(key);
+            if (existing) {
+                existing.prob += keySum;
+            } else {
+                consolidatedDistibution.set(key, {
+                    prob: keySum
+                });
+            }
+        }
+
+        result.push(consolidatedDistibution);
     }
 
     return result;
 }
 
-export function simplifyDistribution(distribution) {
-    for (const winStates of distribution) {
-        if (winStates) {
-            for (let sparkStates of winStates.spark) {
-                if (sparkStates) {
+export function consolidateSRDistributionForCashback(distribution) {
+    let consolidatedDistibution = new Map();
 
-                    const pityStates = sparkStates.pity;
-                    if (pityStates !== undefined) {
-                        for (let j = 0; j < pityStates.length; j++) {
-                            const oldMap = pityStates[j];
-                            const clampedMap = new Map();
-
-                            for (const [currentKey, data] of oldMap) {
-                                const clampedKey = currentKey % 10;
-
-                                const existing = clampedMap.get(clampedKey);
-                                if (existing) {
-                                    existing.prob += data.prob;
-                                } else {
-                                    clampedMap.set(clampedKey, { ...data });
-                                }
-                            }
-
-                            pityStates[j] = clampedMap;
-                        }
-                    } else {
-                        const oldMap = sparkStates;
-                        const clampedMap = new Map();
-
-                        for (const [currentKey, data] of oldMap) {
-                            const clampedKey = ((currentKey / 1000) * 1000) % 10;
-
-                            const existing = clampedMap.get(clampedKey);
-                            if (existing) {
-                                existing.prob += data.prob;
-                            } else {
-                                clampedMap.set(clampedKey, { ...data });
-                            }
-                        }
-
-                        sparkStates = clampedMap;
-                    }
+    for (let pityStates of distribution[0].states) {
+        for (const [key, value] of pityStates) {
+            if (value.prob !== 0) {
+                const existing = consolidatedDistibution.get(key);
+                if (existing) {
+                    existing.prob += value.prob;
+                } else {
+                    consolidatedDistibution.set(key, {
+                        prob: value.prob
+                    });
                 }
             }
         }
+    }
+
+    return consolidatedDistibution;
+}
+
+export function simplifyDistribution(distribution, distributionData, boundsIndices) { // get rid of keys
+    const result = [];
+    const PITY_STATES = 80;
+
+    for (let i = 0; i < boundsIndices.minItem; i++) {
+        result.push(null);
+    }
+
+    for (let i = boundsIndices.minItem; i < distribution.length; i++) {
+        let SPARKS;
+        let currentStates = distribution[i];
+        if (distribution[i].length === 864000) {
+            SPARKS = 240;
+        } else {
+            SPARKS = 120;
+        }
+        const STATES_PER_KEY = PITY_STATES * SPARKS;
+        let currentItemData = distributionData[i];
+        let consolidatedDistibution = new Float64Array(STATES_PER_KEY);
+        let startingIndex = currentItemData.minIndex;
+        let finalIndex = currentItemData.maxIndex;
+
+        let withinKey = startingIndex % STATES_PER_KEY;
+        let j = startingIndex;
+
+        while (j <= finalIndex) {
+            consolidatedDistibution[withinKey] += currentStates[j];
+            j++;
+            withinKey++;
+            if (withinKey === STATES_PER_KEY) {
+                withinKey = 0;
+            }
+        }
+        result.push(consolidatedDistibution);
+        currentItemData.minIndex = 0;
+        currentItemData.maxIndex = STATES_PER_KEY - 1;
+    }
+    return result;
+}
+
+export function findBounds(distribution, distributionSSRData, boundsIndices, probDistr) {
+    const minItem = boundsIndices.minItem;
+    if (boundsIndices.maxItem + 3 !== distributionSSRData.length) {
+        if (boundsIndices.maxItem + 4 === distributionSSRData.length) {
+            boundsIndices.maxItem += 1;
+        } else {
+            boundsIndices.maxItem += 2;
+        }
+    }
+    const maxItem = boundsIndices.maxItem;
+    const oldData = distributionSSRData;
+    let minItemNotFound = true;
+    let i = minItem;
+    const Prune = 1e-8;
+    const SPARKS = 240;
+    const STATES_PER_KEY = 80 * SPARKS;
+    const iteration = STATES_PER_KEY + 241;
+
+    while (minItemNotFound && i <= maxItem) {
+        let maxIndex;
+        const maxIndexFromCurrent = oldData[i].maxIndex + iteration;
+        if (oldData[i - 1] != undefined) { // intentional, compares with null and undefined
+            const maxIndexFromLast = oldData[i - 1].maxIndex + 241; // if new banner no spark either, win so pity should reset, can account for
+            if (maxIndexFromLast > maxIndexFromCurrent) { // if from last is undefined(i is 0) it would still work, but make it proper later
+                maxIndex = maxIndexFromLast;
+            } else {
+                maxIndex = maxIndexFromCurrent;
+            }
+        } else {
+            maxIndex = maxIndexFromCurrent;
+        }
+        let minIndex;
+        const minIndexFromCurrent = oldData[i].minIndex - oldData[i].minIndex % STATES_PER_KEY; // just go down to key breakpoint
+        if (oldData[i - 1] != undefined) {
+            const minIndexFromLast = oldData[i - 1].minIndex - oldData[i - 1].minIndex % STATES_PER_KEY;
+            if (minIndexFromLast < minIndexFromCurrent) {
+                minIndex = minIndexFromLast;
+            } else {
+                minIndex = minIndexFromCurrent;
+            }
+        } else {
+            minIndex = minIndexFromCurrent;
+        }
+
+        const distr = distribution[i];
+        const data = distributionSSRData[i];
+        for (let j = minIndex; j <= maxIndex; j++) {
+            const probJ = distr[j];
+            if (probJ > Prune) {
+                boundsIndices.minItem = i;
+                data.minIndex = j;
+                minItemNotFound = false;
+                for (let k = maxIndex; k >= j; k--) {
+                    const probK = distr[k];
+                    if (probK > Prune) {
+                        data.maxIndex = k;
+                        break;
+                    } else if (probK > 0) {
+                        distr[k] = 0;
+                    }
+                }
+                break;
+            } else if (probJ > 0) {
+                distr[j] = 0;
+            }
+        }
+        if (minItemNotFound) {
+            if (distribution[i - 1] == undefined) { // == will count undefined (-1 index) and nulls 
+                distribution[i] = null;
+                distributionSSRData[i] = null;
+                probDistr[i] = null;
+                if (i === distribution.length - 3) {
+                    return true;
+                }
+            } else {
+                distributionSSRData[i].minIndex = 0;
+                distributionSSRData[i].maxIndex = 0;
+            }
+            distributionSSRData[i + 1].minIndex = 0;
+        }
+        i++;
+    }
+
+    while (i <= maxItem) {
+        let maxIndex;
+        const maxIndexFromCurrent = oldData[i].maxIndex + iteration;
+        if (oldData[i - 1] != undefined) { // + 1 bad, should be sparks
+            const maxIndexFromLast = oldData[i - 1].maxIndex + 241; // if new banner no spark either, win so pity should reset, can account for
+            if (maxIndexFromLast > maxIndexFromCurrent) { // if from last is undefined(i is 0) it would still work, but make it proper later
+                maxIndex = maxIndexFromLast;
+            } else {
+                maxIndex = maxIndexFromCurrent;
+            }
+        } else {
+            maxIndex = maxIndexFromCurrent;
+        }
+        let minIndex;
+        const minIndexFromCurrent = oldData[i].minIndex - oldData[i].minIndex % STATES_PER_KEY; // just go down to key breakpoint
+        if (oldData[i - 1] != undefined) {
+            const minIndexFromLast = oldData[i - 1].minIndex - oldData[i - 1].minIndex % STATES_PER_KEY;
+            if (minIndexFromLast < minIndexFromCurrent) {
+                minIndex = minIndexFromLast;
+            } else {
+                minIndex = minIndexFromCurrent;
+            }
+        } else {
+            minIndex = minIndexFromCurrent;
+        }
+
+        const distr = distribution[i];
+        const data = distributionSSRData[i];
+        for (let j = minIndex; j <= maxIndex; j++) {
+            const probJ = distr[j];
+            if (probJ > Prune) {
+                data.minIndex = j;
+                for (let k = maxIndex; k >= j; k--) {
+                    const probK = distr[k];
+                    if (probK > Prune) {
+                        data.maxIndex = k;
+                        break;
+                    } else if (probK > 0) {
+                        distr[k] = 0;
+                    }
+                }
+                break;
+            } else if (probJ > 0) {
+                distr[j] = 0;
+            }
+        }
+        i++;
+    }
+    return false;
+}
+
+export function findBoundsCheap(distribution, distributionSSRData, boundsIndices, probDistr) {
+    const minItem = boundsIndices.minItem;
+    if (boundsIndices.maxItem + 3 !== distributionSSRData.length) {
+        if (boundsIndices.maxItem + 4 === distributionSSRData.length) {
+            boundsIndices.maxItem += 1;
+        } else {
+            boundsIndices.maxItem += 2;
+        }
+    }
+    const maxItem = boundsIndices.maxItem;
+    const oldData = distributionSSRData;
+    let minItemNotFound = true;
+    let i = minItem;
+    const Prune = 1e-8;
+    const iteration = 241;
+
+    while (minItemNotFound && i <= maxItem) {
+        let maxIndex;
+        const maxIndexFromCurrent = oldData[i].maxIndex + iteration;
+        if (oldData[i - 1] != undefined) { // intentional, compares with null and undefined
+            const maxIndexFromLast = oldData[i - 1].maxIndex + iteration; // if new banner no spark either, win so pity should reset, can account for
+            if (maxIndexFromLast > maxIndexFromCurrent) { // if from last is undefined(i is 0) it would still work, but make it proper later
+                maxIndex = maxIndexFromLast;
+            } else {
+                maxIndex = maxIndexFromCurrent;
+            }
+        } else {
+            maxIndex = maxIndexFromCurrent;
+        }
+        let minIndex = 0;
+
+        const distr = distribution[i];
+        const data = distributionSSRData[i];
+        for (let j = minIndex; j <= maxIndex; j++) {
+            const probJ = distr[j];
+            if (probJ > Prune) {
+                boundsIndices.minItem = i;
+                data.minIndex = j;
+                minItemNotFound = false;
+                for (let k = maxIndex; k >= j; k--) {
+                    const probK = distr[k];
+                    if (probK > Prune) {
+                        data.maxIndex = k;
+                        break;
+                    } else if (probK > 0) {
+                        distr[k] = 0;
+                    }
+                }
+                break;
+            } else if (probJ > 0) {
+                distr[j] = 0;
+            }
+        }
+        if (minItemNotFound) {
+            if (distribution[i - 1] == undefined) { // == will count undefined (-1 index) and nulls 
+                distribution[i] = null;
+                distributionSSRData[i] = null;
+                probDistr[i] = null;
+                if (i === distribution.length - 3) {
+                    return true;
+                }
+            } else {
+                distributionSSRData[i].minIndex = 0;
+                distributionSSRData[i].maxIndex = 0;
+            }
+            distributionSSRData[i + 1].minIndex = 0;
+        }
+        i++;
+    }
+
+    while (i <= maxItem) {
+        let maxIndex;
+        const maxIndexFromCurrent = oldData[i].maxIndex + iteration;
+        if (oldData[i - 1] != undefined) { // intentional, compares with null and undefined
+            const maxIndexFromLast = oldData[i - 1].maxIndex + iteration; // if new banner no spark either, win so pity should reset, can account for
+            if (maxIndexFromLast > maxIndexFromCurrent) { // if from last is undefined(i is 0) it would still work, but make it proper later
+                maxIndex = maxIndexFromLast;
+            } else {
+                maxIndex = maxIndexFromCurrent;
+            }
+        } else {
+            maxIndex = maxIndexFromCurrent;
+        }
+        let minIndex = 0;
+
+        const distr = distribution[i];
+        const data = distributionSSRData[i];
+        for (let j = minIndex; j <= maxIndex; j++) {
+            if (distr === undefined) {
+                debugger;
+            }
+            const probJ = distr[j];
+            if (probJ > Prune) {
+                data.minIndex = j;
+                for (let k = maxIndex; k >= j; k--) {
+                    const probK = distr[k];
+                    if (probK > Prune) {
+                        data.maxIndex = k;
+                        break;
+                    } else if (probK > 0) {
+                        distr[k] = 0;
+                    }
+                }
+                break;
+            } else if (probJ > 0) {
+                distr[j] = 0;
+            }
+        }
+        i++;
+    }
+    return false;
+}
+
+export function normalizePullsCoef(pullsCoef) {
+    const NORMALIZATION_THRESHOLD = 1e-5;
+    let pullsSum = pullsCoef.pullsSum;
+    const diff = 1 - pullsSum;
+    if (diff > NORMALIZATION_THRESHOLD) {
+        pullsCoef.pullsSum /= pullsSum;
+        pullsCoef.rankUps /= pullsSum;
     }
 }

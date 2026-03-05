@@ -307,11 +307,9 @@ class PullPlanManagerEndfield extends PullPlanManager {
             if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
                 return;
             }
-
             if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) {
                 return;
             }
-
             if (!/^\d$/.test(event.key)) {
                 event.preventDefault();
             }
@@ -319,7 +317,6 @@ class PullPlanManagerEndfield extends PullPlanManager {
 
         standardLimitedCharCounter.addEventListener('paste', (event) => {
             const pasteData = (event.clipboardData || window.clipboardData).getData('text');
-
             if (!/^\d+$/.test(pasteData)) {
                 event.preventDefault();
             }

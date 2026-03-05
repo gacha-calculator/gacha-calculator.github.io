@@ -6,9 +6,10 @@
 //
 //You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
 
-const PRUNE_LEVEL = 1e-10;
+const PRUNE_LEVEL = 1e-8;
 
-export function rankUpSSR(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, rateUpOdds = 0.5, normalizeSum, boundsIndices) {
+
+export function rankUpSSR(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, rateUpOdds = 0.5, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark) {
     let isCharacter;
     let isWeapon;
     for (const distribution of distributionSSRData) {
@@ -18,153 +19,69 @@ export function rankUpSSR(distributionSSR, distributionSSRData, ODDS_CHARACTER_S
             break;
         }
     }
-    let charPullsSum, wepPullsSum;
-
-    if (isCharacter) {
-        charPullsSum = 1;
-        wepPullsSum = 0;
-    } else if (isWeapon) {
-        charPullsSum = 0;
-        wepPullsSum = 1;
-    }
-
-    const rankUps = [];
-    const pullsPerBanner = {};
     const maxActive = boundsIndices.maxItem;
     const minActive = boundsIndices.minItem;
+    const PITY_STATES = ODDS_CHARACTER_SSR.length
 
     for (let wins = maxActive; wins >= minActive; wins--) {
         const currentArray = distributionSSR[wins];
         if (isCharacter) {
-            handleSSR(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, rankUps, normalizeSum);
+            if (distributionSSRData[wins].isFirst) {
+                if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
+                    handleSSRFirst(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps);
+                } else {
+                    handleSSRFirstNextNew(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps);
+                }
+            } else {
+                if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
+                    handleSSR(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark);
+                } else {
+                    handleSSRNextNew(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark);
+                }
+            }
         } else if (isWeapon) {
             handleSSR(ODDS_WEAPON_SSR, wins, distributionSSR, distributionSSRData, rankUps, currentArray.type);
         } else {
             throw new Error(`Unknown SSR array type: ${currentArray.type}`);
         }
     }
-    let isEmpty = false;
-    isEmpty = findBounds(distributionSSR, distributionSSRData, normalizeSum, boundsIndices);
+}
 
-    return isEmpty;
-
-    function findBounds(distribution, distributionSSRData, normalizeSum, boundsIndices) {
-        const minItem = boundsIndices.minItem;
-        if (boundsIndices.maxItem + 3 !== distributionSSRData.length) {
-            if (boundsIndices.maxItem + 4 === distributionSSRData.length) {
-                boundsIndices.maxItem += 1;
-            } else {
-                boundsIndices.maxItem += 2;
-            }
+export function rankUpSSRPerItem(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, rateUpOdds = 0.5, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, perBannerData) {
+    let isCharacter;
+    let isWeapon;
+    for (const distribution of distributionSSRData) {
+        if (distribution !== null) {
+            isCharacter = distribution.type === 'Character';
+            isWeapon = distribution.type === 'Weapon';
+            break;
         }
-        const maxItem = boundsIndices.maxItem;
-        const oldData = distributionSSRData;
-        let minItemNotFound = true;
-        let i = minItem;
-        let sum = 0;
-        const Prune = PRUNE_LEVEL;
-        const SPARKS = 360;
-        const PITY_STATES = 80;
-        const STATES_PER_KEY = PITY_STATES * SPARKS;
-        const iteration = STATES_PER_KEY + 361;
-
-        while (minItemNotFound && i <= maxItem) {
-            let maxIndex;
-            const maxIndexFromCurrent = oldData[i].maxIndex + iteration;
-            if (i - 1 !== -1) { // should look for -2 too?
-                const maxIndexFromLast = oldData[i - 1].maxIndex + 1; // if new banner no spark either, win so pity should reset, can account for
-                if (maxIndexFromLast > maxIndexFromCurrent) { // if from last is undefined(i is 0) it would still work, but make it proper later
-                    maxIndex = maxIndexFromLast;
-                } else {
-                    maxIndex = maxIndexFromCurrent;
-                }
-            } else {
-                maxIndex = maxIndexFromCurrent;
-            }
-
-            const distr = distribution[i];
-            const data = distributionSSRData[i];
-            for (let j = data.minIndex; j <= maxIndex; j++) {
-                const probJ = distr[j];
-                if (probJ > Prune) {
-                    boundsIndices.minItem = i;
-                    data.minIndex = j;
-                    minItemNotFound = false;
-                    for (let k = maxIndex; k >= j; k--) {
-                        const probK = distr[k];
-                        if (probK > Prune) {
-                            data.maxIndex = k;
-                            break;
-                        } else if (probK > 0) {
-                            sum += probK;
-                            distr[k] = 0;
-                        }
-                    }
-                    break;
-                } else if (probJ > 0) {
-                    sum += probJ;
-                    distr[j] = 0;
-                }
-            }
-            if (minItemNotFound) {
-                if (distribution[i - 1] == undefined) { // == will count undefined (-1 index) and nulls 
-                    distribution[i] = null;
-                    if (i === distribution.length - 3) {
-                        return true;
-                    }
-                } else {
-                    distributionSSRData[i].minIndex = 0;
-                    distributionSSRData[i].maxIndex = 0;
-                }
-                distributionSSRData[i + 1].minIndex = 0;
-                distributionSSRData[i + 1].maxIndex = 0;
-            }
-            i++;
-        }
-
-        while (i <= maxItem) {
-            let maxIndex;
-            const maxIndexFromCurrent = oldData[i].maxIndex + iteration;
-            if (i - 1 !== -1) {
-                const maxIndexFromLast = oldData[i - 1].maxIndex + 1; // if new banner no spark either, win so pity should reset, can account for
-                if (maxIndexFromLast > maxIndexFromCurrent) { // if from last is undefined(i is 0) it would still work, but make it proper later
-                    maxIndex = maxIndexFromLast;
-                } else {
-                    maxIndex = maxIndexFromCurrent;
-                }
-            } else {
-                maxIndex = maxIndexFromCurrent;
-            }
-
-            const distr = distribution[i];
-            const data = distributionSSRData[i];
-            for (let j = 0; j <= maxIndex; j++) {
-                const probJ = distr[j];
-                if (probJ > Prune) {
-                    data.minIndex = j;
-                    for (let k = maxIndex; k >= j; k--) {
-                        const probK = distr[k];
-                        if (probK > Prune) {
-                            data.maxIndex = k;
-                            break;
-                        } else if (probK > 0) {
-                            sum += probK;
-                            distr[k] = 0;
-                        }
-                    }
-                    break;
-                } else if (probJ > 0) {
-                    sum += probJ;
-                    distr[j] = 0;
-                }
-            }
-            i++;
-        }
-        normalizeSum[0] += sum;
     }
+    const maxActive = boundsIndices.maxItem;
+    const minActive = boundsIndices.minItem;
+    const PITY_STATES = ODDS_CHARACTER_SSR.length
 
-    function lossPerBannerType(charPullsSum, wepPullsSum, rankUps) {
-        return;
+    for (let wins = maxActive; wins >= minActive; wins--) {
+        const currentArray = distributionSSR[wins];
+        if (isCharacter) {
+            if (distributionSSRData[wins].isFirst) {
+                if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
+                    handleSSRFirst(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps); // next isn't new so it writes normally and no spark so no double
+                } else {
+                    handleSSRFirstNextNewPerItem(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, perBannerData);
+                }
+            } else {
+                if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
+                    handleSSRPerItem(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, perBannerData);
+                } else {
+                    handleSSRNextNewPerItem(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, perBannerData);
+                }
+            }
+        } else if (isWeapon) {
+            handleSSR(ODDS_WEAPON_SSR, wins, distributionSSR, distributionSSRData, rankUps, currentArray.type);
+        } else {
+            throw new Error(`Unknown SSR array type: ${currentArray.type}`);
+        }
     }
 }
 
@@ -181,43 +98,552 @@ export function rankUpSR(distributionSR, pullsCoef, ODDS_SR) {
     }
 }
 
-export function rankUpSSRCheap(distributionSSR, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, rateUpOdds = 0.5) {
-    const lastActive = distributionSSR.length - 2;
-    for (let wins = lastActive; wins >= 0; wins--) {
+export function rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, rateUpOdds = 0.5, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, buffer, bufferSmall) {
+    let isCharacter;
+    let isWeapon;
+    for (const distribution of distributionSSRData) {
+        if (distribution !== null) {
+            isCharacter = distribution.type === 'Character';
+            isWeapon = distribution.type === 'Weapon';
+            break;
+        }
+    }
+
+    const maxActive = boundsIndices.maxItem;
+    const minActive = boundsIndices.minItem;
+
+    for (let wins = maxActive; wins >= minActive; wins--) {
         const currentArray = distributionSSR[wins];
-        if (currentArray && !currentArray.isEmpty) {
-            if (currentArray.type === 'Character') {
-                handleSSRCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, currentArray.type);
-            } else if (currentArray.type === 'Weapon') {
-                handleSSRCheap(ODDS_WEAPON_SSR, wins, distributionSSR, currentArray.type);
+        if (isCharacter) {
+            if (distributionSSRData[wins].isFirst) {
+                if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
+                    handleSSRFirstCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, probDistrRankUps, bufferSmall);
+                } else {
+                    handleSSRFirstNextNewCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, probDistrRankUps, bufferSmall);
+                }
             } else {
-                throw new Error(`Unknown SSR array type: ${currentArray.type}`);
+                if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
+                    handleSSRCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, buffer);
+                } else {
+                    handleSSRNextNewCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, buffer);
+                }
             }
+        } else if (isWeapon) {
+            handleSSR(ODDS_WEAPON_SSR, wins, distributionSSR, distributionSSRData, rankUps, currentArray.type);
+        } else {
+            throw new Error(`Unknown SSR array type: ${currentArray.type}`);
         }
     }
 }
 
-function handleSSR(odds, inputIndex, array, arrayData, rankUps, normalizeSum) {
-    const SPARKS = 360;
-    const SPARKS_PAST_GUARANTEE = 120;
-    const PITY_STATES = 80;
+function handleSSR(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark) {
+    const SPARKS = 240;
     const STATES_PER_KEY = PITY_STATES * SPARKS;
+    const STATES_PER_KEY_NEW = STATES_PER_KEY * 0.5;
+    let rankUps = 0;
+    let rankUpsDouble = 0;
+    let rankUpsSparks = 0;
 
     const currentStates = array[inputIndex];
     const currentItemData = arrayData[inputIndex];
-    const currentBannerCount = currentItemData.bannerCount;
-
     const nextStates = array[inputIndex + 1];
-    const nextItemData = arrayData[inputIndex + 1];
-    const areNextStatesNewBanner = nextItemData.bannerCount !== currentBannerCount;
 
     const doubleNextStates = array[inputIndex + 2];
     const doubleNextItemData = arrayData[inputIndex + 2];
-    const areDoubleNextStatesNewBanner = doubleNextItemData.bannerCount !== currentBannerCount;
+    const areDoubleNextStatesNewBanner = doubleNextItemData.isFirst;
 
-    let rankUpsSum = 0;
     let startingIndex = currentItemData.maxIndex;
     let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
+
+    let withinKey = startingIndex % STATES_PER_KEY;
+    let keyIndex = startingIndex - withinKey;
+    let pity = (withinKey / SPARKS) | 0;
+    let spark = withinKey % SPARKS;
+    let pityIndex = withinKey - spark;
+    let i = startingIndex;
+    let newBannerKeyIndex = keyIndex * 0.5;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+    let targetDoubleNextIdx = areDoubleNextStatesNewBanner ? newBannerKeyIndex : keyIndex;
+    let nextStateSparkWinIdx = keyIndex + STATES_PER_KEY;
+    let nextStateSparkLossIdx = keyIndex + pityIndex + SPARKS;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            const probSSRWinLoss = prob * wlOdds;
+            const probLoss = prob * lOdds;
+
+            if (spark === 239) {
+                doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkLossIdx] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+            } else {
+                nextStates[keyIndex + spark + 1] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += probLoss;
+                rankUps += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            if (pity === 0) {
+                pity = PITY_STATES - 1;
+                pityIndex = pity * SPARKS;
+                keyIndex -= STATES_PER_KEY;
+                newBannerKeyIndex -= STATES_PER_KEY_NEW;
+            } else {
+                pity -= 1;
+                pityIndex -= SPARKS;
+            }
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+            targetDoubleNextIdx = areDoubleNextStatesNewBanner ? newBannerKeyIndex : keyIndex;
+            nextStateSparkWinIdx = keyIndex + STATES_PER_KEY;
+            nextStateSparkLossIdx = keyIndex + pityIndex + SPARKS;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                const probSSRWinLoss = probSpark * wlOdds;
+                const probLoss = probSpark * lOdds;
+                doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkLossIdx] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 238; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[keyIndex + s + 1] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 241] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 239;
+
+        if (pity === 0) {
+            pity = PITY_STATES - 1;
+            pityIndex = pity * SPARKS;
+            keyIndex -= STATES_PER_KEY;
+            newBannerKeyIndex -= STATES_PER_KEY_NEW;
+        } else {
+            pity -= 1;
+            pityIndex -= SPARKS;
+        }
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+        targetDoubleNextIdx = areDoubleNextStatesNewBanner ? newBannerKeyIndex : keyIndex;
+        nextStateSparkWinIdx = keyIndex + STATES_PER_KEY;
+        nextStateSparkLossIdx = keyIndex + pityIndex + SPARKS;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            const probSSRWinLoss = probSpark * wlOdds;
+            const probLoss = probSpark * lOdds;
+            doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+            nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+            nextStates[nextStateSparkLossIdx] += probLoss;
+            rankUpsDouble += probSSRWinLoss;
+            rankUpsSparks += probSSRWinLoss + probLoss;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[keyIndex + spark + 1] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    probDistrRankUps[inputIndex] += rankUps;
+    probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
+}
+
+function handleSSRNextNew(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark) {
+    const SPARKS = 240;
+    const NEW_SPARKS = 120;
+    const STATES_PER_KEY = PITY_STATES * SPARKS;
+    const STATES_PER_KEY_NEW = STATES_PER_KEY * 0.5;
+    let rankUps = 0;
+    let rankUpsDouble = 0;
+    let rankUpsSparks = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+
+    const doubleNextStates = array[inputIndex + 2];
+    const areDoubleNextStatesNewBanner = arrayData[inputIndex + 2].isFirst;
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    let withinKey = startingIndex % STATES_PER_KEY;
+    let keyIndex = startingIndex - withinKey;
+    let newBannerKeyIndex = keyIndex * 0.5;
+    let pity = (withinKey / SPARKS) | 0;
+    let spark = withinKey % SPARKS;
+    let pityIndex = withinKey - spark;
+    let newPityIndex = pityIndex * 0.5;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+    let targetDoubleNextIdx = areDoubleNextStatesNewBanner ? newBannerKeyIndex : keyIndex;
+    let nextStateSparkWinIdx = newBannerKeyIndex + STATES_PER_KEY_NEW;
+    let nextStateSparkLossIdx = newBannerKeyIndex + newPityIndex + NEW_SPARKS;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            const probSSRWinLoss = prob * wlOdds;
+            const probLoss = prob * lOdds;
+
+            if (spark === 239) {
+                doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkLossIdx] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+            } else {
+                nextStates[newBannerKeyIndex] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += probLoss;
+                rankUps += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            if (pity === 0) {
+                pity = PITY_STATES - 1;
+                pityIndex = pity * SPARKS;
+                newPityIndex = pityIndex * 0.5;
+                keyIndex -= STATES_PER_KEY;
+                newBannerKeyIndex -= STATES_PER_KEY_NEW;
+            } else {
+                pity -= 1;
+                pityIndex -= SPARKS;
+                newPityIndex -= NEW_SPARKS;
+            }
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+            targetDoubleNextIdx = areDoubleNextStatesNewBanner ? newBannerKeyIndex : keyIndex;
+            nextStateSparkWinIdx = newBannerKeyIndex + STATES_PER_KEY_NEW;
+            nextStateSparkLossIdx = newBannerKeyIndex + newPityIndex + NEW_SPARKS;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                const probSSRWinLoss = probSpark * wlOdds;
+                const probLoss = probSpark * lOdds;
+                doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkLossIdx] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 238; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[newBannerKeyIndex] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 241] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 239;
+
+        if (pity === 0) {
+            pity = PITY_STATES - 1;
+            pityIndex = pity * SPARKS;
+            newPityIndex = pityIndex * 0.5;
+            keyIndex -= STATES_PER_KEY;
+            newBannerKeyIndex -= STATES_PER_KEY_NEW;
+        } else {
+            pity -= 1;
+            pityIndex -= SPARKS;
+            newPityIndex -= NEW_SPARKS;
+        }
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+        targetDoubleNextIdx = areDoubleNextStatesNewBanner ? newBannerKeyIndex : keyIndex;
+        nextStateSparkWinIdx = newBannerKeyIndex + STATES_PER_KEY_NEW;
+        nextStateSparkLossIdx = newBannerKeyIndex + newPityIndex + NEW_SPARKS;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            const probSSRWinLoss = probSpark * wlOdds;
+            const probLoss = probSpark * lOdds;
+            doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+            nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+            nextStates[nextStateSparkLossIdx] += probLoss;
+            rankUpsDouble += probSSRWinLoss;
+            rankUpsSparks += probSSRWinLoss + probLoss;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[newBannerKeyIndex] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    probDistrRankUps[inputIndex] += rankUps;
+    probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
+}
+
+function handleSSRFirst(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps) {
+    const SPARKS = 120;
+    const STATES_PER_KEY = PITY_STATES * SPARKS;
+    const STATES_PER_KEY_NORMAL = STATES_PER_KEY * 2;
+    let rankUps = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
+
+    let withinKey = startingIndex % STATES_PER_KEY;
+    let keyIndex = startingIndex - withinKey;
+    let pity = (withinKey / SPARKS) | 0;
+    let spark = withinKey % SPARKS;
+    let pityIndex = withinKey - spark;
+    let i = startingIndex;
+    let keyIndexNormal = keyIndex * 2;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+    let guaranteeIndex = keyIndexNormal + SPARKS;
+    let nextStateBaseIdx = keyIndexNormal + 1;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            if (spark === 119) {
+                nextStates[guaranteeIndex] += prob;
+                rankUps += prob;
+            } else {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[nextStateBaseIdx + spark] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            if (pity === 0) {
+                pity = PITY_STATES - 1;
+                pityIndex = pity * SPARKS;
+                keyIndexNormal -= STATES_PER_KEY_NORMAL;
+            } else {
+                pity -= 1;
+                pityIndex -= SPARKS;
+            }
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+            guaranteeIndex = keyIndexNormal + SPARKS;
+            nextStateBaseIdx = keyIndexNormal + 1;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                nextStates[guaranteeIndex] += probSpark;
+                rankUps += probSpark;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 118; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[nextStateBaseIdx + s] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 119;
+        if (pity === 0) {
+            pity = PITY_STATES - 1;
+            pityIndex = pity * SPARKS;
+            keyIndexNormal -= STATES_PER_KEY_NORMAL;
+        } else {
+            pity -= 1;
+            pityIndex -= SPARKS;
+        }
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+        guaranteeIndex = keyIndexNormal + SPARKS;
+        nextStateBaseIdx = keyIndexNormal + 1;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            nextStates[guaranteeIndex] += probSpark;
+            rankUps += probSpark;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[nextStateBaseIdx + spark] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    probDistrRankUps[inputIndex] += rankUps;
+}
+
+function handleSSRFirstNextNew(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps) {
+    const SPARKS = 120;
+    const STATES_PER_KEY = PITY_STATES * SPARKS;
+    let rankUps = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
 
     let withinKey = startingIndex % STATES_PER_KEY;
     let keyIndex = startingIndex - withinKey;
@@ -226,168 +652,640 @@ function handleSSR(odds, inputIndex, array, arrayData, rankUps, normalizeSum) {
     let pityIndex = withinKey - spark;
     let i = startingIndex;
 
-    let winLossOdds = odds[pity] * 0.5;
-    let SSRLossOdds = 1 - odds[pity];
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
 
-    if (areNextStatesNewBanner) {
-        while (i >= finalIndex) {
-            const prob = currentStates[i];
-            if (prob < PRUNE_LEVEL) {
-                if (prob > 0) normalizeSum[0] += prob;
-                currentStates[i] = 0;
-                spark--;
-                if (spark === -1) {
-                    spark = SPARKS - 1;
-                    pity--;
-                    if (pity === -1) {
-                        pity = PITY_STATES - 1;
-                        pityIndex = (PITY_STATES - 1) * SPARKS;
-                        keyIndex -= STATES_PER_KEY;
-                    } else {
-                        pityIndex -= SPARKS;
-                    }
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
 
-                    winLossOdds = odds[pity] * 0.5;
-                    SSRLossOdds = 1 - odds[pity];
-                }
-                i--;
-                continue;
-            }
+    let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
 
-            const guaranteeActive = (spark < 120);
-
-            if (guaranteeActive) {
-                const isGuarantee = (spark === 119);
-                if (isGuarantee) {
-                    rankUpsSum += prob;
-                    nextStates[keyIndex] += prob;
-                } else {
-                    const probSSRWinLoss = prob * winLossOdds;
-                    const probNoSSR = prob * SSRLossOdds;
-                    rankUpsSum += probSSRWinLoss;
-
-                    nextStates[keyIndex] += probSSRWinLoss
-                    currentStates[i + STATES_PER_KEY - pityIndex + 1] += probSSRWinLoss; // + 1 iterates key, - pity * KEYS means to reset pity, + 1 iterates spark
-                    currentStates[i + 361] += probNoSSR; // iterates pity and spark
-                }
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            if (spark === 119) {
+                nextStates[keyIndex] += prob;
+                rankUps += prob;
             } else {
-                const isSpark = (spark === 359);
-                const probSSRWinLoss = prob * winLossOdds;
-                const probNoSSR = prob * SSRLossOdds;
-                rankUpsSum += probSSRWinLoss;
-
-                if (isSpark) {
-                    doubleNextStates[keyIndex] += probSSRWinLoss;
-                    nextStates[keyIndex + STATES_PER_KEY] += probSSRWinLoss; // key iterates, pity reset, spark reset
-                    nextStates[keyIndex + pityIndex + SPARKS] += probNoSSR; // pity iterates, spark reset
-                } else {
-                    nextStates[keyIndex] += probSSRWinLoss;
-                    currentStates[i + STATES_PER_KEY - pityIndex + 1] += probSSRWinLoss; //  + 1 iterates key, - pity * KEYS means to reset pity, + 1 iterates spark
-                    currentStates[i + 361] += probNoSSR; // iterates pity and spark
-                }
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[keyIndex] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
             }
-
             currentStates[i] = 0;
-            spark--;
-            if (spark === -1) {
-                spark = SPARKS - 1;
-                pity--;
-                if (pity === -1) {
-                    pity = PITY_STATES - 1;
-                    pityIndex = (PITY_STATES - 1) * SPARKS;
-                    keyIndex -= STATES_PER_KEY;
-                } else {
-                    pityIndex -= SPARKS;
-                }
-
-                winLossOdds = odds[pity] * 0.5;
-                SSRLossOdds = 1 - odds[pity];
-            }
-            i--;
         }
-    } else {
-        while (i >= finalIndex) {
-            const prob = currentStates[i];
-            if (prob < PRUNE_LEVEL) {
-                if (prob > 0) normalizeSum[0] += prob;
-                currentStates[i] = 0;
-                spark--;
-                if (spark === -1) {
-                    spark = SPARKS - 1;
-                    pity--;
-                    if (pity === -1) {
-                        pity = PITY_STATES - 1;
-                        pityIndex = (PITY_STATES - 1) * SPARKS;
-                        keyIndex -= STATES_PER_KEY;
-                    } else {
-                        pityIndex -= SPARKS;
-                    }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
 
-                    winLossOdds = odds[pity] * 0.5;
-                    SSRLossOdds = 1 - odds[pity];
-                }
-                i--;
-                continue;
-            }
+    if (spark === 0 && i > finalIndex) i -= 1;
 
-            const guaranteeActive = (spark < 120);
-
-            if (guaranteeActive) {
-                const isGuarantee = (spark === 119);
-                if (isGuarantee) {
-                    rankUpsSum += prob;
-                    nextStates[keyIndex + spark + SPARKS_PAST_GUARANTEE + 1] += prob;
-                } else {
-                    const probSSRWinLoss = prob * winLossOdds;
-                    const probNoSSR = prob * SSRLossOdds;
-                    rankUpsSum += probSSRWinLoss;
-
-                    nextStates[keyIndex + spark + SPARKS_PAST_GUARANTEE + 1] += probSSRWinLoss;
-                    currentStates[i + STATES_PER_KEY - pityIndex + 1] += probSSRWinLoss; // + 1 iterates key, - pity * KEYS means to reset pity, + 1 iterates spark
-                    currentStates[i + 361] += probNoSSR; // iterates pity and spark
-                }
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            if (pity === 0) {
+                pity = PITY_STATES - 1;
+                pityIndex = pity * SPARKS;
+                keyIndex -= STATES_PER_KEY;
             } else {
-                const isSpark = (spark === 359);
-                const probSSRWinLoss = prob * winLossOdds;
-                const probNoSSR = prob * SSRLossOdds;
-                rankUpsSum += probSSRWinLoss;
-
-                if (isSpark) {
-                    if (areDoubleNextStatesNewBanner) {
-                        doubleNextStates[keyIndex] += probSSRWinLoss
-                    } else {
-                        doubleNextStates[keyIndex + SPARKS_PAST_GUARANTEE] += probSSRWinLoss;
-                    }
-                    nextStates[keyIndex + STATES_PER_KEY + SPARKS_PAST_GUARANTEE] += probSSRWinLoss; // iterates key, resets pity, saves guarantee inactivity
-                    nextStates[keyIndex + pityIndex + SPARKS + SPARKS_PAST_GUARANTEE] += probNoSSR; // pity iterates, saves guarantee inactivity
-                } else {
-                    nextStates[keyIndex + spark + 1] += probSSRWinLoss;
-                    currentStates[i + STATES_PER_KEY - pityIndex + 1] += probSSRWinLoss; //  + 1 iterates key, - pity * KEYS means to reset pity, + 1 iterates spark
-                    currentStates[i + 361] += probNoSSR; // iterates pity and spark
-                }
+                pity -= 1;
+                pityIndex -= SPARKS;
             }
 
-            currentStates[i] = 0;
-            spark--;
-            if (spark === -1) {
-                spark = SPARKS - 1;
-                pity--;
-                if (pity === -1) {
-                    pity = PITY_STATES - 1;
-                    pityIndex = (PITY_STATES - 1) * SPARKS;
-                    keyIndex -= STATES_PER_KEY;
-                } else {
-                    pityIndex -= SPARKS;
-                }
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
 
-                winLossOdds = odds[pity] * 0.5;
-                SSRLossOdds = 1 - odds[pity];
+            currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                nextStates[keyIndex] += probSpark;
+                rankUps += probSpark;
+                currentStates[i] = 0;
             }
-            i--;
+            i -= 1;
+
+            for (let s = 118; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[keyIndex] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
         }
     }
 
-    rankUps[0] += rankUpsSum;
+    if (i > finalIndex) {
+        spark = 119;
+
+        if (pity === 0) {
+            pity = PITY_STATES - 1;
+            pityIndex = pity * SPARKS;
+            keyIndex -= STATES_PER_KEY;
+        } else {
+            pity -= 1;
+            pityIndex -= SPARKS;
+        }
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            nextStates[keyIndex] += probSpark;
+            rankUps += probSpark;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[keyIndex] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    probDistrRankUps[inputIndex] += rankUps;
+}
+
+function handleSSRPerItem(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, perBannerData) {
+    const SPARKS = 240;
+    const STATES_PER_KEY = PITY_STATES * SPARKS;
+    let rankUps = 0;
+    let rankUpsDouble = 0;
+    let rankUpsSparks = 0;
+    let rankUpsDoublePerKey = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+    const currentBanner = arrayData[inputIndex].bannerCount;
+
+    const doubleNextStates = array[inputIndex + 2];
+    const doubleNextItemData = arrayData[inputIndex + 2];
+    const areDoubleNextStatesNewBanner = doubleNextItemData.isFirst;
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
+
+    let withinKey = startingIndex % STATES_PER_KEY;
+    let keyIndex = startingIndex - withinKey;
+    let key = keyIndex / STATES_PER_KEY;
+    let pity = (withinKey / SPARKS) | 0;
+    let spark = withinKey % SPARKS;
+    let pityIndex = withinKey - spark;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+    let targetDoubleNextIdx = areDoubleNextStatesNewBanner ? 0 : keyIndex;
+    let nextStateSparkWinIdx = keyIndex + STATES_PER_KEY;
+    let nextStateSparkLossIdx = keyIndex + pityIndex + SPARKS;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            const probSSRWinLoss = prob * wlOdds;
+            const probLoss = prob * lOdds;
+
+            if (spark === 239) {
+                doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkLossIdx] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                if (areDoubleNextStatesNewBanner) {
+                    rankUpsDoublePerKey += probSSRWinLoss;
+                }
+            } else {
+                nextStates[keyIndex + spark + 1] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += probLoss;
+                rankUps += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            if (pity === 0) {
+                if (areDoubleNextStatesNewBanner) {
+                    perBannerData[currentBanner][key] += rankUpsDoublePerKey;
+                    rankUpsDoublePerKey = 0;
+                }
+                pity = PITY_STATES - 1;
+                pityIndex = pity * SPARKS;
+                keyIndex -= STATES_PER_KEY;
+                key--;
+            } else {
+                pity -= 1;
+                pityIndex -= SPARKS;
+            }
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+            targetDoubleNextIdx = areDoubleNextStatesNewBanner ? 0 : keyIndex;
+            nextStateSparkWinIdx = keyIndex + STATES_PER_KEY;
+            nextStateSparkLossIdx = keyIndex + pityIndex + SPARKS;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                const probSSRWinLoss = probSpark * wlOdds;
+                const probLoss = probSpark * lOdds;
+                doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+                nextStates[nextStateSparkLossIdx] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                currentStates[i] = 0;
+                if (areDoubleNextStatesNewBanner) {
+                    rankUpsDoublePerKey += probSSRWinLoss;
+                }
+            }
+            i -= 1;
+
+            for (let s = 238; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[keyIndex + s + 1] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 241] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 239;
+        if (pity === 0) {
+            if (areDoubleNextStatesNewBanner) {
+                perBannerData[currentBanner][key] += rankUpsDoublePerKey;
+                rankUpsDoublePerKey = 0;
+            }
+            pity = PITY_STATES - 1;
+            pityIndex = pity * SPARKS;
+            keyIndex -= STATES_PER_KEY;
+            key--;
+        } else {
+            pity -= 1;
+            pityIndex -= SPARKS;
+        }
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+        targetDoubleNextIdx = areDoubleNextStatesNewBanner ? 0 : keyIndex;
+        nextStateSparkWinIdx = keyIndex + STATES_PER_KEY;
+        nextStateSparkLossIdx = keyIndex + pityIndex + SPARKS;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            const probSSRWinLoss = probSpark * wlOdds;
+            const probLoss = probSpark * lOdds;
+            doubleNextStates[targetDoubleNextIdx] += probSSRWinLoss;
+            nextStates[nextStateSparkWinIdx] += probSSRWinLoss;
+            nextStates[nextStateSparkLossIdx] += probLoss;
+            rankUpsDouble += probSSRWinLoss;
+            rankUpsSparks += probSSRWinLoss + probLoss;
+            currentStates[i] = 0;
+            if (areDoubleNextStatesNewBanner) {
+                rankUpsDoublePerKey += probSSRWinLoss;
+            }
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[keyIndex + spark + 1] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    if (areDoubleNextStatesNewBanner) {
+        perBannerData[currentBanner][key] += rankUpsDoublePerKey;
+    }
+    probDistrRankUps[inputIndex] += rankUps;
+    probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
+}
+
+function handleSSRNextNewPerItem(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, perBannerData) {
+    const SPARKS = 240;
+    const NEW_SPARKS = 120;
+    const STATES_PER_KEY = PITY_STATES * SPARKS;
+    let rankUps = 0;
+    let rankUpsDouble = 0;
+    let rankUpsSparks = 0;
+    let rankUpsPerKey = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+    const currentBanner = currentItemData.bannerCount;
+
+    const doubleNextStates = array[inputIndex + 2];
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    let withinKey = startingIndex % STATES_PER_KEY;
+    let key = (startingIndex - withinKey) / STATES_PER_KEY;
+    let pity = (withinKey / SPARKS) | 0;
+    let spark = withinKey % SPARKS;
+    let pityIndex = withinKey - spark;
+    let newPityIndex = pityIndex * 0.5;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            const probSSRWinLoss = prob * wlOdds;
+            const probLoss = prob * lOdds;
+
+            if (spark === 239) {
+                doubleNextStates[0] += probSSRWinLoss;
+                nextStates[0] += probSSRWinLoss;
+                nextStates[newPityIndex + NEW_SPARKS] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                perBannerData[currentBanner][key] += rankUpsDouble + rankUpsSparks;
+                rankUpsPerKey += probSSRWinLoss + probSSRWinLoss + probLoss;
+            } else {
+                nextStates[0] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += probLoss;
+                rankUps += probSSRWinLoss;
+                rankUpsPerKey += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            if (pity === 0) {
+                perBannerData[currentBanner][key] += rankUpsPerKey;
+                rankUpsPerKey = 0;
+                pity = PITY_STATES - 1;
+                pityIndex = pity * SPARKS;
+                newPityIndex = pityIndex * 0.5;
+                key--;
+            } else {
+                pity -= 1;
+                pityIndex -= SPARKS;
+                newPityIndex -= NEW_SPARKS;
+            }
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                const probSSRWinLoss = probSpark * wlOdds;
+                const probLoss = probSpark * lOdds;
+                doubleNextStates[0] += probSSRWinLoss;
+                nextStates[0] += probSSRWinLoss;
+                nextStates[newPityIndex + NEW_SPARKS] += probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                rankUpsPerKey += probSSRWinLoss + probSSRWinLoss + probLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 238; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[0] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 241] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    rankUpsPerKey += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 239;
+
+        if (pity === 0) {
+            perBannerData[currentBanner][key] += rankUpsPerKey;
+            rankUpsPerKey = 0;
+            pity = PITY_STATES - 1;
+            pityIndex = pity * SPARKS;
+            newPityIndex = pityIndex * 0.5;
+            key--;
+        } else {
+            pity -= 1;
+            pityIndex -= SPARKS;
+            newPityIndex -= NEW_SPARKS;
+        }
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            const probSSRWinLoss = probSpark * wlOdds;
+            const probLoss = probSpark * lOdds;
+            doubleNextStates[0] += probSSRWinLoss;
+            nextStates[0] += probSSRWinLoss;
+            nextStates[newPityIndex + NEW_SPARKS] += probLoss;
+            rankUpsDouble += probSSRWinLoss;
+            rankUpsSparks += probSSRWinLoss + probLoss;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 241] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    perBannerData[currentBanner][key] += rankUpsPerKey;
+    probDistrRankUps[inputIndex] += rankUps;
+    probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
+}
+
+function handleSSRFirstNextNewPerItem(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps, perBannerData) {
+    const SPARKS = 120;
+    const STATES_PER_KEY = PITY_STATES * SPARKS;
+    let rankUps = 0;
+    let rankUpsPerKey = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+    const currentBanner = currentItemData.bannerCount;
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
+
+    let withinKey = startingIndex % STATES_PER_KEY;
+    let key = (startingIndex - withinKey) / STATES_PER_KEY;
+    let pity = (withinKey / SPARKS) | 0;
+    let spark = withinKey % SPARKS;
+    let pityIndex = withinKey - spark;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            if (spark === 119) {
+                nextStates[0] += prob;
+                rankUps += prob;
+                rankUpsPerKey += prob;
+            } else {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                rankUpsPerKey += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            if (pity === 0) {
+                perBannerData[currentBanner][key] += rankUpsPerKey;
+                rankUpsPerKey = 0;
+                pity = PITY_STATES - 1;
+                pityIndex = pity * SPARKS;
+                key--;
+            } else {
+                pity -= 1;
+                pityIndex -= SPARKS;
+            }
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                nextStates[0] += probSpark;
+                rankUps += probSpark;
+                rankUpsPerKey += probSpark;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 118; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[0] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    rankUpsPerKey += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 119;
+
+        if (pity === 0) {
+            perBannerData[currentBanner][key] += rankUpsPerKey;
+            rankUpsPerKey = 0;
+            pity = PITY_STATES - 1;
+            pityIndex = pity * SPARKS;
+            key--;
+        } else {
+            pity -= 1;
+            pityIndex -= SPARKS;
+        }
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            nextStates[0] += probSpark;
+            rankUps += probSpark;
+            rankUpsPerKey += probSpark;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                rankUpsPerKey += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    perBannerData[currentBanner][key] += rankUpsPerKey;
+    probDistrRankUps[inputIndex] += rankUps;
 }
 
 function handleSR(odds, inputIndex, array, pullsCoef) { // dif is no rate ups at all, means just count how much, it's already a map, so key means amount of success
@@ -446,160 +1344,530 @@ function handleSR(odds, inputIndex, array, pullsCoef) { // dif is no rate ups at
             }
         }
     }
+    if (buffer.length === 0) {
+        debugger;
+    }
     currentStates[0] = buffer;
 }
 
-function handleSSRCheap(odds, inputIndex, array, type) {
-    array[inputIndex].isEmpty = true;
-    for (let i = array[inputIndex].spark.length - 1; i >= 0; i--) {
-        const isLast = inputIndex + 2 === array.length;
-        const sparkState = array[inputIndex].spark[i];
+function handleSSRCheap(odds, inputIndex, array, arrayData, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, buffer) {
+    const SPARKS = 240;
+    let rankUps = 0;
+    let rankUpsDouble = 0;
+    let rankUpsSparks = 0;
 
-        if (sparkState && !sparkState.isEmpty) {
-            sparkState.isEmpty = true;
-            const size = sparkState.pity.length;
-            let rateUpOdds = type === 'Weapon' ? 0.25 : 0.5;
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
 
-            let currentStates = array[inputIndex].spark;
-            const nextStates = array[inputIndex + 1].spark;
-            const areNextStatesNewBanner = array[inputIndex + 1].bannerCount !== array[inputIndex].bannerCount;
-            let doubleNextStates;
-            let areDoubleNextStatesNewBanner;
-            let isDoubleLast;
-            if (!isLast) {
-                doubleNextStates = array[inputIndex + 2].spark;
-                areDoubleNextStatesNewBanner = array[inputIndex + 2].bannerCount !== array[inputIndex].bannerCount;
-                isDoubleLast = inputIndex + 3 === array.length;
+    const doubleNextStates = array[inputIndex + 2];
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
+
+    let pity = (startingIndex / SPARKS) | 0;
+    let spark = startingIndex % SPARKS;
+    let pityIndex = startingIndex - spark;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            const probSSRWinLoss = prob * wlOdds;
+            const probLoss = prob * lOdds;
+
+            if (spark === 239) {
+                doubleNextStates[0] += probSSRWinLoss;
+                nextStates[0] += probSSRWinLoss;
+                nextStates[pityIndex + SPARKS] += probLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                rankUpsDouble += probSSRWinLoss;
+            } else {
+                nextStates[spark + 1] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 241] += probLoss;
+                rankUps += probSSRWinLoss;
             }
-            for (let j = size - 1; j >= 0; j--) {
-                const currentState = currentStates[i].pity[j];
-                for (const [currentKey, currentMap] of currentState) {
-                    let sparkCounter = currentKey;
-                    let isGuarantee, isSpark;
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
 
-                    if (type === 'Character') {
-                        if (i === 119 && currentKey === 0) {
-                            isGuarantee = true;
-                        } else {
-                            isGuarantee = false;
-                        }
-                        if (i === 239) {
-                            isSpark = true;
-                        } else {
-                            isSpark = false;
-                        }
-                    } else {
-                        isGuarantee = sparkCounter === 80;
-                        if (sparkCounter > 1120) isSpark = (sparkCounter - 1120) % 160 === 0;
-                    }
+    if (spark === 0 && i > finalIndex) i -= 1;
 
-                    let currentOdds = odds[j];
-                    if (isGuarantee) {
-                        currentOdds = 1;
-                        rateUpOdds = 1;
-                    }
-                    const winProb = currentMap.prob * currentOdds;
-                    const lossProb = currentMap.prob - winProb;
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            pity -= 1;
+            pityIndex -= SPARKS;
 
-                    let probabilityWin = winProb * rateUpOdds;
-                    if (probabilityWin > PRUNE_LEVEL) {
-                        let nextKey = currentKey;
-                        let targetMap;
-                        if (areNextStatesNewBanner) {
-                            nextKey = 0;
-                        } else if (isGuarantee) {
-                            nextKey = 1;
-                        }
-                        if (isLast) {
-                            targetMap = nextStates[0];
-                        } else if (isSpark) {
-                            if (isDoubleLast) {
-                                targetMap = doubleNextStates[0];
-                            } else {
-                                targetMap = doubleNextStates[0].pity[0];
-                                doubleNextStates[0].isEmpty = false;
-                                array[inputIndex + 2].isEmpty = false;
-                            }
-                            if (!areNextStatesNewBanner && areDoubleNextStatesNewBanner) {
-                                nextKey = 0;
-                            }
-                        } else {
-                            targetMap = nextStates[i + 1].pity[0];
-                            nextStates[i + 1].isEmpty = false;
-                            array[inputIndex + 1].isEmpty = false;
-                        }
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
 
-                        const existing = targetMap.get(nextKey);
-                        if (existing) {
-                            existing.prob += probabilityWin;
-                        } else {
-                            targetMap.set(nextKey, {
-                                prob: probabilityWin
-                            });
-                        }
-                    }
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                const probSSRWinLoss = probSpark * wlOdds;
+                const probLoss = probSpark * lOdds;
+                doubleNextStates[0] += probSSRWinLoss;
+                nextStates[0] += probSSRWinLoss;
+                nextStates[pityIndex + SPARKS] += probLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
 
-                    let probabilityLossRateUp = winProb * (1 - rateUpOdds);
-                    if (probabilityLossRateUp > PRUNE_LEVEL) {
-                        let nextKey = currentKey;
-                        let targetMap;
-                        if (isSpark) {
-                            if (isLast) {
-                                targetMap = nextStates[0];
-                            } else {
-                                targetMap = nextStates[0].pity[0];
-                                nextStates[0].isEmpty = false;
-                                array[inputIndex + 1].isEmpty = false;
-                            }
-                            if (areNextStatesNewBanner) {
-                                nextKey = 0;
-                            }
-                        } else {
-                            targetMap = currentStates[i + 1].pity[0];
-                            currentStates[i + 1].isEmpty = false;
-                            array[inputIndex].isEmpty = false;
-                        }
-                        const existing = targetMap.get(nextKey);
-                        if (existing) {
-                            existing.prob += probabilityLossRateUp;
-                        } else {
-                            targetMap.set(nextKey, {
-                                prob: probabilityLossRateUp
-                            });
-                        }
-                    }
-                    let probabilityLossSSR = lossProb;
-                    if (probabilityLossSSR > PRUNE_LEVEL) {
-                        let targetMap;
-                        let nextKey = currentKey;
-                        if (isSpark) {
-                            if (areNextStatesNewBanner) {
-                                nextKey = 0;
-                            }
-                            if (!isLast) {
-                                targetMap = nextStates[0].pity[j + 1];
-                                nextStates[0].isEmpty = false;
-                                array[inputIndex + 1].isEmpty = false;
-                            } else {
-                                targetMap = nextStates[0];
-                            }
-                        } else {
-                            targetMap = currentStates[i + 1].pity[j + 1];
-                            currentStates[i + 1].isEmpty = false;
-                            array[inputIndex].isEmpty = false;
-                        }
-                        const existing = targetMap.get(nextKey);
-                        if (existing) {
-                            existing.prob += probabilityLossSSR;
-                        } else {
-                            targetMap.set(nextKey, {
-                                prob: probabilityLossSSR
-                            });
-                        }
-                    }
-                    currentMap.prob = 0;
+            for (let s = 238; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[s + 1] += probSSRWinLoss;
+                    buffer[s + 1] += probSSRWinLoss;
+                    currentStates[i + 241] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
                 }
+                i -= 1;
             }
         }
     }
+
+    if (i > finalIndex) {
+        spark = 239;
+        pity -= 1;
+        pityIndex -= SPARKS;
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            const probSSRWinLoss = probSpark * wlOdds;
+            const probLoss = probSpark * lOdds;
+            doubleNextStates[0] += probSSRWinLoss;
+            nextStates[0] += probSSRWinLoss;
+            nextStates[pityIndex + SPARKS] += probLoss;
+            rankUpsSparks += probSSRWinLoss + probLoss;
+            rankUpsDouble += probSSRWinLoss;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[spark + 1] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 241] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    for (let i = 0; i < SPARKS; i++) {
+        currentStates[i] += buffer[i];
+    }
+    buffer.fill(0);
+
+    probDistrRankUps[inputIndex] += rankUps;
+    probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
+}
+
+function handleSSRNextNewCheap(odds, inputIndex, array, arrayData, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, buffer) {
+    const SPARKS = 240;
+    const NEW_SPARKS = 120;
+    let rankUps = 0;
+    let rankUpsDouble = 0;
+    let rankUpsSparks = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+
+    const doubleNextStates = array[inputIndex + 2];
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    let pity = (startingIndex / SPARKS) | 0;
+    let spark = startingIndex % SPARKS;
+    let pityIndex = startingIndex - spark;
+    let newPityIndex = pityIndex * 0.5;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            const probSSRWinLoss = prob * wlOdds;
+            const probLoss = prob * lOdds;
+
+            if (spark === 239) {
+                doubleNextStates[0] += probSSRWinLoss;
+                nextStates[0] += probSSRWinLoss;
+                nextStates[newPityIndex + NEW_SPARKS] += probLoss; // how is this handled normally...
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                rankUpsDouble += probSSRWinLoss;
+            } else {
+                nextStates[0] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 241] += probLoss;
+                rankUps += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            pity -= 1;
+            pityIndex -= SPARKS;
+            newPityIndex -= NEW_SPARKS;
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                const probSSRWinLoss = probSpark * wlOdds;
+                const probLoss = probSpark * lOdds;
+                doubleNextStates[0] += probSSRWinLoss;
+                nextStates[0] += probSSRWinLoss;
+                nextStates[newPityIndex + NEW_SPARKS] += probLoss;
+                rankUpsSparks += probSSRWinLoss + probLoss;
+                rankUpsDouble += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 238; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[0] += probSSRWinLoss;
+                    buffer[s + 1] += probSSRWinLoss;
+                    currentStates[i + 241] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 239;
+        pity -= 1;
+        pityIndex -= SPARKS;
+        newPityIndex -= NEW_SPARKS;
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            const probSSRWinLoss = probSpark * wlOdds;
+            const probLoss = probSpark * lOdds;
+            doubleNextStates[0] += probSSRWinLoss;
+            nextStates[0] += probSSRWinLoss;
+            nextStates[newPityIndex + NEW_SPARKS] += probLoss;
+            rankUpsSparks += probSSRWinLoss + probLoss;
+            rankUpsDouble += probSSRWinLoss;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 241] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    for (let i = 0; i < SPARKS; i++) {
+        currentStates[i] += buffer[i];
+    }
+    buffer.fill(0);
+
+    probDistrRankUps[inputIndex] += rankUps;
+    probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
+}
+
+function handleSSRFirstCheap(odds, inputIndex, array, arrayData, probDistrRankUps, buffer) {
+    const SPARKS = 120;
+    let rankUps = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
+
+    let pity = (startingIndex / SPARKS) | 0;
+    let spark = startingIndex % SPARKS;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            if (spark === 119) {
+                nextStates[SPARKS] += prob;
+                rankUps += prob;
+            } else {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[spark + 1] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            pity -= 1;
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                nextStates[SPARKS] += probSpark;
+                rankUps += probSpark;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 118; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[s + 1] += probSSRWinLoss;
+                    buffer[s + 1] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 119;
+        pity -= 1;
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            nextStates[SPARKS] += probSpark;
+            rankUps += probSpark;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[spark + 1] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    for (let i = 0; i < SPARKS; i++) {
+        currentStates[i] += buffer[i];
+    }
+    buffer.fill(0);
+
+    probDistrRankUps[inputIndex] += rankUps;
+}
+
+function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDistrRankUps, buffer) {
+    const SPARKS = 120;
+    let rankUps = 0;
+
+    const currentStates = array[inputIndex];
+    const currentItemData = arrayData[inputIndex];
+    const nextStates = array[inputIndex + 1];
+
+    let startingIndex = currentItemData.maxIndex;
+    let finalIndex = currentItemData.minIndex;
+
+    if (startingIndex < finalIndex) return;
+
+    let pity = (startingIndex / SPARKS) | 0;
+    let spark = startingIndex % SPARKS;
+    let i = startingIndex;
+
+    let final_spark_chunk = (((finalIndex / SPARKS) | 0) + 1) * SPARKS;
+    let starting_pity_bind = startingIndex - spark;
+    let have_pity_chunk = starting_pity_bind > final_spark_chunk;
+
+    let currentOdd = odds[pity];
+    let wlOdds = currentOdd * 0.5;
+    let lOdds = 1 - currentOdd;
+
+    while (i >= finalIndex) {
+        const prob = currentStates[i];
+        if (prob !== 0) {
+            if (spark === 119) {
+                nextStates[0] += prob;
+                rankUps += prob;
+            } else {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+            }
+            currentStates[i] = 0;
+        }
+        if (spark === 0 || i === finalIndex) break;
+        i -= 1;
+        spark -= 1;
+    }
+
+    if (spark === 0 && i > finalIndex) i -= 1;
+
+    if (have_pity_chunk) {
+        while (i > final_spark_chunk) {
+            pity -= 1;
+
+            currentOdd = odds[pity];
+            wlOdds = currentOdd * 0.5;
+            lOdds = 1 - currentOdd;
+
+            const probSpark = currentStates[i];
+            if (probSpark !== 0) {
+                nextStates[0] += probSpark;
+                rankUps += probSpark;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 118; s >= 0; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[0] += probSSRWinLoss;
+                    buffer[s + 1] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+        }
+    }
+
+    if (i > finalIndex) {
+        spark = 119;
+        pity -= 1;
+
+        currentOdd = odds[pity];
+        wlOdds = currentOdd * 0.5;
+        lOdds = 1 - currentOdd;
+
+        const probSpark = currentStates[i];
+        if (probSpark !== 0) {
+            nextStates[0] += probSpark;
+            rankUps += probSpark;
+            currentStates[i] = 0;
+        }
+        spark -= 1;
+        i -= 1;
+
+        while (i >= finalIndex) {
+            const prob = currentStates[i];
+            if (prob !== 0) {
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                buffer[spark + 1] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            spark -= 1;
+            i -= 1;
+        }
+    }
+
+    for (let i = 0; i < SPARKS; i++) {
+        currentStates[i] += buffer[i];
+    }
+    buffer.fill(0);
+
+    probDistrRankUps[inputIndex] += rankUps;
 }
