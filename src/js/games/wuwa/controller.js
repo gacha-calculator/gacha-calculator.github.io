@@ -67,6 +67,7 @@ export class WuwaPageController {
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(wuwaTourSteps);
+        this.tutorial.highlightExpandButton();
     }
 
     #setupEventListeners() {
@@ -103,6 +104,11 @@ export class WuwaPageController {
         if (this.startTourBtn) {
             this.startTourBtn.addEventListener('click', () => {
                 this.tutorial.startTour(wuwaTourSteps);
+            });
+        }
+        if (this.expandBtn) {
+            this.expandBtn.addEventListener('click', () => {
+                localStorage.setItem('expandSeen', 'true');
             });
         }
         initializeImporter(this.persistence, adaptFromWuwaTracker, this.validator, SELECTORS, this.tutorial);

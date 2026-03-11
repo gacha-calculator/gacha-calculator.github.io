@@ -57,19 +57,19 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/endfield/" class="nav-button" aria-label="Go to Arknights: Endfield" draggable="true">
+                        <div class="icon-container">
+                            <img src="/images/arknights_endfield_icon.webp" class="nav-icon">
+                        </div>
+                        <span>Arknights: Endfield</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/wuwa/" class="nav-button" aria-label="Go to Wuthering Waves Calculator">
                         <div class="icon-container">
                             <img src="/images/wuwa_icon.jpg" class="nav-icon">
                         </div>
                         <span>Wuthering Waves</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
-                        <div class="icon-container">
-                            <img src="/images/reverse_icon.webp" class="nav-icon">
-                        </div>
-                        <span>Reverse 1999</span>
                     </a>
                 </li>
                 <li>
@@ -82,7 +82,7 @@
                         </a>
                         <div class="expand-button" id="expand-button" aria-label="Expand Game Selection">
                             <svg id="Flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                <path style="fill:#232338; stroke:#948acf; stroke-width: 3px"
+                                <path class="pulse-shape" style="fill:#232338; stroke:#948acf; stroke-width: 3px"
                                     d="M236.77344,211.97656a23.75471,23.75471,0,0,1-20.79688,12.01563H40.02344a23.9925,23.9925,0,0,1-20.76563-36.02344L107.23437,35.97656h-.00781a24.00413,24.00413,0,0,1,41.54688,0l87.96875,151.99219A23.744,23.744,0,0,1,236.77344,211.97656Z" />
                             </svg>
                         </div>
@@ -98,6 +98,14 @@
                                 <img src="/images/gfl2_icon.jpg" class="nav-icon">
                             </div>
                             <span>Girls Frontline 2: Exilium</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
+                            <div class="icon-container">
+                                <img src="/images/reverse_icon.webp" class="nav-icon">
+                            </div>
+                            <span>Reverse 1999</span>
                         </a>
                     </li>
                     <li>
@@ -240,7 +248,12 @@
                     <div class="rows-container"></div>
                     <button id="add-btn" class="btn btn--add">+</button>
                     <div class="calculate-section">
-                        <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
+                        <button class="btn btn--calculate_no_cashback" id="calculate-btn_no_cashback">Calculate without
+                            cashback</button>
+                        <div class="button-row">
+                            <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
+                            <button class="btn btn--calculate_stop" id="calculate-stop-btn">Stop</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -248,6 +261,9 @@
             <div class="chart-wrapper">
                 <div class="chart-container">
                     <canvas id="myChart"></canvas>
+                    <div id="chartLoadingOverlay" class="loading-overlay" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
             </div>
 
@@ -275,23 +291,25 @@
 
             <div class="table-container">
                 <div class="button-container">
-                    <table id="probability-table" class="probability-table">
-                        <thead>
-                            <tr>
-                                <th class="const-col">Target Item</th>
-                                <th class="prob-col">Probability</th>
-                                <th class="cashback-col"><span class="cashback-header">P10<br><span
-                                            class="cashback-sub">Cashback</span></span></th>
-                                <th class="cashback-col highlight"><span class="cashback-header">Mean<br><span
-                                            class="cashback-sub">Cashback</span></span></th>
-                                <th class="cashback-col"><span class="cashback-header">P90<br><span
-                                            class="cashback-sub">Cashback</span></span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Filled by JS -->
-                        </tbody>
-                    </table>
+                    <div class="probability-table-wrapper">
+                        <table id="probability-table" class="probability-table">
+                            <thead>
+                                <tr>
+                                    <th class="const-col">Target Item</th>
+                                    <th class="prob-col">Probability</th>
+                                    <th class="cashback-col"><span class="cashback-header">P10<br><span
+                                                class="cashback-sub">Cashback (Pulls/Arsenal Issues)</span></span></th>
+                                    <th class="cashback-col highlight"><span class="cashback-header">Mean<br><span
+                                                class="cashback-sub">Cashback (Pulls/Arsenal Issues)</span></span></th>
+                                    <th class="cashback-col"><span class="cashback-header">P90<br><span
+                                                class="cashback-sub">Cashback (Pulls/Arsenal Issues)</span></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filled by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                     <button class="help-btn" data-help-key="cashback-help" aria-label="Help for Exporting Pity Data">
                         ?
                     </button>

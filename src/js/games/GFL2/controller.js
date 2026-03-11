@@ -64,6 +64,7 @@ export class GFL2PageController {
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(GFL2TourSteps);
+        this.tutorial.highlightExpandButton();
     }
 
     #setupEventListeners() {
@@ -100,6 +101,11 @@ export class GFL2PageController {
         if (this.startTourBtn) {
             this.startTourBtn.addEventListener('click', () => {
                 this.tutorial.startTour(GFL2TourSteps);
+            });
+        }
+        if (this.expandBtn) {
+            this.expandBtn.addEventListener('click', () => {
+                localStorage.setItem('expandSeen', 'true');
             });
         }
         const helpButtons = document.querySelectorAll('.help-btn');

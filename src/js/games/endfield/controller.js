@@ -17,6 +17,7 @@ import { updateChart, convertToChartData } from "../../ui/chart-configs.js";
 import { recalcInputs } from "../../ui/recalc-inputs.js";
 import { SELECTORS, INITIAL_CONFIG, DEFAULTS } from './page-config.js';
 
+let abortController = null;
 export class EndfieldPageController {
     constructor(parts) {
         this.parts = parts;
@@ -51,9 +52,12 @@ export class EndfieldPageController {
         this.calculationHandler = new CalculationHandler(config);
 
         this.calculateBtn = document.getElementById('calculate-btn');
+        this.calculateBtnNoCashback = document.getElementById('calculate-btn_no_cashback');
+        this.stopBtn = document.getElementById('calculate-stop-btn');
         this.exportBtn = document.getElementById('export-btn');
         this.startTourBtn = document.getElementById('start-tour-btn');
         this.toggleButtonsBtn = document.getElementById('toggle-buttons-btn');
+        this.expandBtn = document.getElementById('expand-button');
     }
 
     initialize() {
@@ -85,6 +89,7 @@ export class EndfieldPageController {
         this.#loadStateAndRunInitialCalculation(type);
         this.#setupPageTypeChanger();
         this.tutorial.showTutorialIfNeeded(endfieldTourSteps);
+        this.tutorial.highlightExpandButton();
     }
 
     #setupEventListeners() {
@@ -96,6 +101,8 @@ export class EndfieldPageController {
                 if (this.isCalculating || !this.#runValidation()) {
                     return;
                 }
+                const overlay = document.getElementById('chartLoadingOverlay');
+                overlay.style.display = 'flex';
 
                 if (window.goatcounter) {
                     window.goatcounter.count({
@@ -104,16 +111,64 @@ export class EndfieldPageController {
                     });
                 }
 
+                abortController = new AbortController();
+                const signal = abortController.signal;
+
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
-
+                this.calculateBtnNoCashback.disabled = true;
+                const type = document.querySelector('.banner-name').textContent;
+                let isCashback = true;
+                if (type === 'Weapon') {
+                    isCashback = false;
+                }
                 try {
-                    await this.calculationHandler.runCalculation();
+                    await this.calculationHandler.runCalculation(isCashback, signal);
+                    this.persistence.saveIsCashback(isCashback);
                 } finally {
                     this.isCalculating = false;
                     this.calculateBtn.disabled = false;
+                    this.calculateBtnNoCashback.disabled = false;
+                    overlay.style.display = 'none';
                 }
             });
+        }
+        if (this.calculateBtnNoCashback) {
+            this.calculateBtnNoCashback.addEventListener('click', async () => {
+                if (this.isCalculating || !this.#runValidation()) {
+                    return;
+                }
+                const overlay = document.getElementById('chartLoadingOverlay');
+                overlay.style.display = 'flex';
+
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/endfield-calculation-initiated',
+                        title: 'Endfield Calculation Initiated'
+                    });
+                }
+
+                abortController = new AbortController();
+                const signal = abortController.signal;
+
+                this.isCalculating = true;
+                this.calculateBtn.disabled = true;
+                this.calculateBtnNoCashback.disabled = true;
+                const isCashback = false;
+
+                try {
+                    await this.calculationHandler.runCalculation(isCashback, signal);
+                    this.persistence.saveIsCashback(isCashback);
+                } finally {
+                    this.isCalculating = false;
+                    this.calculateBtn.disabled = false;
+                    this.calculateBtnNoCashback.disabled = false;
+                    overlay.style.display = 'none';
+                }
+            });
+        }
+        if (this.stopBtn) {
+            this.stopBtn.addEventListener('click', () => stopCalculation());
         }
         if (this.exportBtn) {
             this.exportBtn.addEventListener('click', () => exportDataAsJson(this.persistence));
@@ -121,6 +176,11 @@ export class EndfieldPageController {
         if (this.startTourBtn) {
             this.startTourBtn.addEventListener('click', () => {
                 this.tutorial.startTour(endfieldTourSteps);
+            });
+        }
+        if (this.expandBtn) {
+            this.expandBtn.addEventListener('click', () => {
+                localStorage.setItem('expandSeen', 'true');
             });
         }
         const helpButtons = document.querySelectorAll('.help-btn');
@@ -231,7 +291,19 @@ export class EndfieldPageController {
         document.querySelector('[data-banner]').dataset.banner = type;
 
         const savedTables = this.persistence.loadTables(type);
-        restorePityTable(savedTables.pity);
+        let emptyData;
+        if (type === 'Character') {
+            emptyData = [{ banner: 'Character', pity5: '0', pity4: '0' }];
+            document.querySelector('[data-target="pulls"]').textContent = 'pulls';
+        } else {
+            emptyData = [{ banner: 'Weapon', pity5: '0', pity4: '0' }];
+            document.querySelector('[data-target="pulls"]').textContent = 'issues(1 issue = 10 pulls)';
+        }
+        if (savedTables) {
+            restorePityTable(savedTables.pity);
+        } else {
+            restorePityTable(emptyData);
+        }
         this.persistence.init(type);
         this.#loadStateAndRunInitialCalculation(type);
     }
@@ -242,7 +314,20 @@ export class EndfieldPageController {
             storageKey = type.trim().toLowerCase().replace(/\s+/g, '_');
         }
         const savedInput = this.persistence.loadCalculation(storageKey);
+        let isCashback;
+        if (type === 'Character') {
+            if (this.persistence.loadIsCashback()) {
+                const result = this.persistence.loadIsCashback();
+                isCashback = result.isCashback;
+            } else {
+                isCashback = true;
+            }
+        } else {
+            isCashback = false;
+        }
         const pullPlanData = savedInput ? savedInput.input : null;
+        abortController = new AbortController();
+        const signal = abortController.signal;
         if (savedInput) {
             initializePullPlanManagerEndfield(this.parts.gachaConfig.paths, pullPlanData);
             initializeTarget(DEFAULTS, savedInput);
@@ -252,13 +337,28 @@ export class EndfieldPageController {
             initializeTarget(DEFAULTS);
             setUpInputPersist();
         }
-        this.calculationHandler.runCalculation();
+
+        this.isCalculating = true;
+        this.calculateBtn.disabled = true;
+        this.calculateBtnNoCashback.disabled = true;
+
+        this.calculationHandler.runCalculation(isCashback, signal);
+
+        this.isCalculating = false;
+        this.calculateBtn.disabled = false;
+        this.calculateBtnNoCashback.disabled = false;
     }
 }
 
 export function initializePullPlanManagerEndfield(pathsConfig, savedData = null) {
     const manager = new PullPlanManagerEndfield(pathsConfig, savedData);
     return manager.initialize();
+}
+
+function stopCalculation() {
+    if (abortController) {
+        abortController.abort();
+    }
 }
 
 class PullPlanManagerEndfield extends PullPlanManager {

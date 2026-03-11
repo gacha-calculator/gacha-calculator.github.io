@@ -6,6 +6,7 @@ export default defineConfig({
             input: {
                 main: resolve(__dirname, 'index.html'),
 
+                endfield: resolve(__dirname, 'endfield/index.html'),
                 genshin: resolve(__dirname, 'genshin/index.html'),
                 gfl2: resolve(__dirname, 'GFL2/index.html'),
                 hsr: resolve(__dirname, 'HSR/index.html'),

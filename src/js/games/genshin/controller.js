@@ -68,6 +68,7 @@ export class GenshinPageController {
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded();
+        this.tutorial.highlightExpandButton();
     }
 
     #setupEventListeners() {
@@ -104,6 +105,11 @@ export class GenshinPageController {
         if (this.startTourBtn) {
             this.startTourBtn.addEventListener('click', () => {
                 this.tutorial.startTour(genshinTourSteps);
+            });
+        }
+        if (this.expandBtn) {
+            this.expandBtn.addEventListener('click', () => {
+                localStorage.setItem('expandSeen', 'true');
             });
         }
         initializeImporter(this.persistence, adaptFromPaimonMoe, this.validator, SELECTORS, this.tutorial);

@@ -127,14 +127,11 @@ function initializeConstellationTable(config) {
 
 export function updateProbabilityTable(distribution, names, cashback) {
     const probabilityData = [];
-    for (let i = 0; i < distribution.length; i++) {
-        let currentProb = 0;
-        for (const [key, value] of distribution[i].offRates) {
-            currentProb += value.prob;
-        }
-        currentProb = (currentProb * 100).toFixed(2);
+    for (let i = 0; i < distribution.probDistr.length; i++) {
+        let currentProb = distribution.probDistr[i];
+        let probString = (currentProb * 100).toFixed(2);
         if (currentProb > 0) {
-            probabilityData.push({ name: names[i], probability: currentProb, p10: cashback[i].LOWER_BOUND, mean: cashback[i].MEAN, p90: cashback[i].UPPER_BOUND, color: "#3498db" });
+            probabilityData.push({ name: names[i], probability: probString, p10: cashback.char[i].LOWER_BOUND, mean: cashback.char[i].MEAN, p90: cashback.char[i].UPPER_BOUND, p10Wep: cashback.wep[i].LOWER_BOUND, meanWep: cashback.wep[i].MEAN, p90Wep: cashback.wep[i].UPPER_BOUND, color: "#3498db" });
         }
     }
     const tableBody = document.querySelector('#probability-table tbody');
@@ -144,8 +141,8 @@ export function updateProbabilityTable(distribution, names, cashback) {
     probabilityData.forEach(item => {
         const row = document.createElement('tr');
         const widthPercent = item.probability;
-
-        row.innerHTML = `
+        if (item.p10 === 'N/A') {
+            row.innerHTML = `
       <td>${item.name}</td>
       <td>
         <div class="progress-container">
@@ -154,69 +151,49 @@ export function updateProbabilityTable(distribution, names, cashback) {
           </div>
         </div>
       </td>
-      <td class="cashback-value">${item.p10.toFixed(1)}</td>
-      <td class="cashback-value highlight">${item.mean.toFixed(1)}</td>
-      <td class="cashback-value">${item.p90.toFixed(1)}</td>
+      <td class="cashback-value">${item.p10} / ${item.p10Wep}</td>
+      <td class="cashback-value highlight">${item.mean} / ${item.meanWep}</td>
+      <td class="cashback-value">${item.p90} / ${item.p90Wep}</td>
     `;
+        } else {
+            row.innerHTML = `
+      <td>${item.name}</td>
+      <td>
+        <div class="progress-container">
+          <div class="progress-bar" style="width:${widthPercent}%;background:${item.color}">
+            <div class="progress-label">${item.probability}%</div>
+          </div>
+        </div>
+      </td>
+      <td class="cashback-value">${item.p10.toFixed(1)} / ${item.p10Wep.toFixed(1)}</td>
+      <td class="cashback-value highlight">${item.mean.toFixed(1)} / ${item.meanWep.toFixed(1)}</td>
+      <td class="cashback-value">${item.p90.toFixed(1)} / ${item.p90Wep.toFixed(1)}</td>
+    `;
+        }
+
 
         tableBody.appendChild(row);
     });
 }
 
 export function restorePityTable(savedPity) {
-    if (savedPity[0].banner === 'Character') {
-        toggleScroll(false);
-    } else if (savedPity[0].banner === 'Weapon') {
-        toggleScroll(true);
-    }
-
     savedPity.forEach(savedRow => {
         const row = document.querySelector(`${SELECTORS.PITY_TABLE} tr[data-banner="${savedRow.banner}"]`);
+        const pityTable = document.querySelector(`[id = pity-table]`);
+        const allTableElements = pityTable.querySelectorAll('th')
+        const SSRPityText = allTableElements[5];
+        if (savedRow.banner === 'Character') {
+            row.querySelector('[data-control="pity-5"]').max = 79;
+            SSRPityText.textContent = 'Pity';
+        } else {
+            row.querySelector('[data-control="pity-5"]').max = 7;
+            SSRPityText.textContent = 'Pity(Issues, 1 issue = 10 pulls)';
+        }
         if (row) {
             row.querySelector('[data-control="pity-4"]').value = savedRow.pity4;
             row.querySelector('[data-control="pity-5"]').value = savedRow.pity5;
         }
     });
-}
-
-function toggleScroll(enable) {
-    const SSR = document.querySelector('[data-control="pity-5"]');
-    const SR = document.querySelector('[data-control="pity-4"]');
-
-    if (!SSR._scrollHandler) {
-        SSR._scrollHandler = function (e) {
-            const options = [0, 10, 20, 30];
-            if (e.type === 'wheel') e.preventDefault();
-
-            let i = options.indexOf(parseInt(this.value));
-            if (i === -1) i = 0;
-
-            if (e.type === 'wheel') {
-                e.deltaY > 0 ? i++ : i--;
-            } else {
-                i++;
-            }
-
-            if (i >= options.length) i = (e.type === 'wheel') ? options.length - 1 : 0;
-            if (i < 0) i = 0;
-
-            this.value = options[i];
-            this.dispatchEvent(new Event('change', { bubbles: true }));
-        };
-    }
-
-    if (enable) {
-        SSR.readOnly = true;
-        SSR.addEventListener('wheel', SSR._scrollHandler, { passive: false });
-        SSR.addEventListener('click', SSR._scrollHandler);
-        SR.value = '0';
-        SR.readOnly = true;
-    } else {
-        SSR.readOnly = false;
-        SSR.removeEventListener('wheel', SSR._scrollHandler);
-        SSR.removeEventListener('click', SSR._scrollHandler);
-        SR.readOnly = false;
-    }
 }
 
 export function restoreConstellationTable(savedConstellation) {

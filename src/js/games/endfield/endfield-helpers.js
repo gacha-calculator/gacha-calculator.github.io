@@ -38,6 +38,7 @@ export function updateProbDistr(probDistr, probDistrRankUps, probDistrRankUpsDou
 export function updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, pullsCoef) {
     let rankUps = 0;
     let last = probDistr.length - 1;
+    let rankUpsLast = 0;
     for (let i = 0; i < last; i++) {
         if (probDistr !== null) {
             const rankUpscurrent = probDistrRankUps[i];
@@ -48,8 +49,12 @@ export function updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankU
 
             if (i + 1 === last) {
                 probDistr[i + 1] += rankUpsDouble;
+                rankUpsLast += rankUpscurrent + rankUpsSpark + rankUpsDouble;
             } else {
                 probDistr[i + 2] += rankUpsDouble;
+                if (i + 2 === last) {
+                    rankUpsLast += rankUpsDouble;
+                }
             }
 
             rankUps += rankUpscurrent + rankUpsDouble;
@@ -59,7 +64,46 @@ export function updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankU
         }
     }
     pullsCoef.rankUps = rankUps;
-    pullsCoef.pullsSum = 1 - probDistr[last];
+    pullsCoef.pullsSum = 1 - probDistr[last] + rankUpsLast;
+}
+
+export function updateProbDistrWeapon(probDistr, probDistrRankUps, array, arrayData) {
+    const resultBanner = arrayData.length - 1;
+    for (let i = 0; i < probDistrRankUps.length; i++) {
+        if (probDistr !== null) {
+            const rankUpscurrent = probDistrRankUps[i];
+            let newBanner;
+            for (let j = 1; j < arrayData.length - i; j++) {
+                if (arrayData[j + i].bannerCount !== arrayData[i].bannerCount) {
+                    newBanner = i + j;
+                    break;
+                }
+            }
+            for (let j = 0; j < rankUpscurrent.length; j++) {
+                const map = probDistrRankUps[i][j];
+                for (const [key, value] of map) {
+                    probDistr[i] -= value;
+                    if (key + i >= resultBanner) {
+                        array[resultBanner][0] += value;
+                        probDistr[resultBanner] += value;
+                        arrayData[resultBanner].minIndex = 10;
+                        arrayData[resultBanner].maxIndex = array[resultBanner].length - 1;
+                    } else if (key + i >= newBanner) {
+                        array[newBanner][0] += value;
+                        probDistr[newBanner] += value;
+                        arrayData[newBanner].minIndex = 10;
+                        arrayData[newBanner].maxIndex = array[newBanner].length - 1;
+                    } else {
+                        array[key + i][j] += value;
+                        probDistr[key + i] += value;
+                        arrayData[key + i].minIndex = 10;
+                        arrayData[key + i].maxIndex = array[key + i].length - 1;
+                    }
+                }
+                map.clear();
+            }
+        }
+    }
 }
 
 export function checkIsTarget(distribution, target, allPulls) {
@@ -458,9 +502,103 @@ export function findBoundsCheap(distribution, distributionSSRData, boundsIndices
         const distr = distribution[i];
         const data = distributionSSRData[i];
         for (let j = minIndex; j <= maxIndex; j++) {
-            if (distr === undefined) {
-                debugger;
+            const probJ = distr[j];
+            if (probJ > Prune) {
+                data.minIndex = j;
+                for (let k = maxIndex; k >= j; k--) {
+                    const probK = distr[k];
+                    if (probK > Prune) {
+                        data.maxIndex = k;
+                        break;
+                    } else if (probK > 0) {
+                        distr[k] = 0;
+                    }
+                }
+                break;
+            } else if (probJ > 0) {
+                distr[j] = 0;
             }
+        }
+        i++;
+    }
+    return false;
+}
+
+export function findBoundsWeapon(distribution, distributionSSRData, boundsIndices, probDistr, rankUps) {
+    const minItem = boundsIndices.minItem;
+    if (boundsIndices.maxItem + 2 !== distributionSSRData.length) {
+        boundsIndices.maxItem += 1;
+    }
+    const maxItem = boundsIndices.maxItem;
+    const oldData = distributionSSRData;
+    let minItemNotFound = true;
+    let i = minItem;
+    const Prune = 1e-8;
+    const iteration = 1;
+
+    while (minItemNotFound && i <= maxItem) {
+        let maxIndex = oldData[i].maxIndex + iteration;
+        if (distribution[i].length === 160) {
+            maxIndex += 80;
+        }
+        const minIndex = 0;
+
+        const distr = distribution[i];
+        const data = distributionSSRData[i];
+        for (let j = minIndex; j <= maxIndex; j++) {
+            const probJ = distr[j];
+            if (probJ > Prune) {
+                boundsIndices.minItem = i;
+                data.minIndex = j;
+                minItemNotFound = false;
+                for (let k = maxIndex; k >= j; k--) {
+                    const probK = distr[k];
+                    if (probK > Prune) {
+                        data.maxIndex = k;
+                        break;
+                    } else if (probK > 0) {
+                        distr[k] = 0;
+                    }
+                }
+                break;
+            } else if (probJ > 0) {
+                distr[j] = 0;
+            }
+        }
+        if (minItemNotFound) {
+            if (i === distribution.length - 2) {
+                let rankUpFound = false;
+                for (const rankUp of rankUps) {
+                    for (const element of rankUp) {
+                        if (element.size > 0) {
+                            rankUpFound = true;
+                            break;
+                        }
+                    }
+                    if (rankUpFound) {
+                        break;
+                    }
+                }
+                if (!rankUpFound) {
+                    return true;
+                }
+            }
+            distributionSSRData[i].minIndex = 0;
+            distributionSSRData[i].maxIndex = 0;
+        }
+        i++;
+    }
+
+    while (i <= maxItem) {
+        let maxIndex = oldData[i].maxIndex + iteration;
+        if (distribution[i].length === 160) {
+            maxIndex += 80;
+        }
+        const minIndex = 0;
+
+        const distr = distribution[i];
+        const data = distributionSSRData[i];
+        for (let j = minIndex; j <= maxIndex; j++) {
             const probJ = distr[j];
             if (probJ > Prune) {
                 data.minIndex = j;

@@ -68,6 +68,7 @@ export class zenlessPageController {
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(zenlessTourSteps);
+        this.tutorial.highlightExpandButton();
     }
 
     #setupEventListeners() {
@@ -104,6 +105,11 @@ export class zenlessPageController {
         if (this.startTourBtn) {
             this.startTourBtn.addEventListener('click', () => {
                 this.tutorial.startTour(zenlessTourSteps);
+            });
+        }
+        if (this.expandBtn) {
+            this.expandBtn.addEventListener('click', () => {
+                localStorage.setItem('expandSeen', 'true');
             });
         }
         initializeImporter(this.persistence, adaptFromRngMoe, this.validator, SELECTORS, this.tutorial);

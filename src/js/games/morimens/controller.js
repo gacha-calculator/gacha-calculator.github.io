@@ -79,6 +79,7 @@ export class morimensPageController {
         this.#setupEventListeners();
         this.#loadStateAndRunInitialCalculation();
         this.tutorial.showTutorialIfNeeded(morimensTourSteps);
+        this.tutorial.highlightExpandButton();
     }
 
     #setupEventListeners() {
@@ -115,6 +116,11 @@ export class morimensPageController {
         if (this.startTourBtn) {
             this.startTourBtn.addEventListener('click', () => {
                 this.tutorial.startTour(morimensTourSteps);
+            });
+        }
+        if (this.expandBtn) {
+            this.expandBtn.addEventListener('click', () => {
+                localStorage.setItem('expandSeen', 'true');
             });
         }
         const helpButtons = document.querySelectorAll('.help-btn');

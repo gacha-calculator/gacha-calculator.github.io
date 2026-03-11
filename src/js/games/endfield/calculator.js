@@ -7,9 +7,21 @@ const STATES_LIMITS = {
     SR: gachaConfig.pity.pitySRChar
 };
 
-export async function runEndfieldGachaCalc(inputConfig, target) {
+export async function runEndfieldGachaCalc(inputConfig, target, isCashback, signal) {
     const workerManager = new WorkerManager();
     const { ssrAggregateWorker, ssrPerItemWorker, ssrCheapWorker } = workerManager.getWorkers();
+    const workers = [ssrAggregateWorker, ssrPerItemWorker, ssrCheapWorker];
+
+    let abortHandler;
+    const abortPromise = new Promise((_, reject) => {
+        if (signal?.aborted) {
+            reject(new DOMException('Aborted', 'AbortError'));
+        }
+        abortHandler = () => {
+            reject(new DOMException('Aborted', 'AbortError'));
+        };
+        signal?.addEventListener('abort', abortHandler);
+    });
 
     const launchData = {
         type: 'Launch',
@@ -18,7 +30,8 @@ export async function runEndfieldGachaCalc(inputConfig, target) {
         ODDS_CHARACTER_SSR,
         ODDS_WEAPON_SSR,
         ODDS_SR,
-        target
+        target,
+        isCashback
     };
 
     const getAggregateWorkerResult = new Promise((resolve) => {
@@ -48,20 +61,29 @@ export async function runEndfieldGachaCalc(inputConfig, target) {
         ssrCheapWorker.postMessage(launchData);
     });
 
-    const [
-        { cashbackDataSSRAggregate },
-        { cashbackDataSSRPerItem, sparkDistr, perBannerData },
-        { chartData, cashbackDataSR: CharSR, bannerCounts }
-    ] = await Promise.all([getAggregateWorkerResult, getPerItemWorkerResult, getCheapWorkerResult]);
+    try {
+        const results = await Promise.race([
+            Promise.all([getAggregateWorkerResult, getPerItemWorkerResult, getCheapWorkerResult]),
+            abortPromise
+        ]);
 
-    const SSR = { cashbackDataSSRAggregate, cashbackDataSSRPerItem, sparkDistr, perBannerData, bannerCounts };
-    const cashbackData = {
-        SSR,
-        CharSR
-    };
+        const [
+            { cashbackDataSSRAggregate },
+            { cashbackDataSSRPerItem, sparkDistr, perBannerData },
+            { chartData, cashbackDataSR: CharSR, bannerCounts, probDistr }
+        ] = results;
 
-    return {
-        chartData,
-        cashbackData
-    };
+        const SSR = { cashbackDataSSRAggregate, cashbackDataSSRPerItem, sparkDistr, perBannerData, bannerCounts, isCashback, probDistr };
+        const cashbackData = { SSR, CharSR };
+
+        return { chartData, cashbackData };
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            workers.forEach(w => w.terminate());
+        }
+        throw error;
+    } finally {
+        signal?.removeEventListener('abort', abortHandler);
+        workers.forEach(w => w.terminate());
+    }
 }

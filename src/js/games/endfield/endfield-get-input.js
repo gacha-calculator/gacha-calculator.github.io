@@ -31,7 +31,7 @@ export function getPageConfiguration(CONSTELLATION_MAP = null, gachaConfig, SELE
         const value = parseInt(input.value) || 0;
         const values = [];
         if (rarity === 5) {
-            values.push(gachaConfig.poolStandardCharSSR + gachaConfig.poolStandardLimitedCharSSR - value); // add row thingy
+            values.push(gachaConfig.poolStandardCharSSR - value); // add row thingy
         } else {
             values.push(gachaConfig.poolCharSR - value);
         }
@@ -53,6 +53,13 @@ export function getPageConfiguration(CONSTELLATION_MAP = null, gachaConfig, SELE
         pity4.wep = getSafeValue(row.querySelector('[data-control="pity-4"]'));
     }
     const pull = parseInt(document.querySelector('[data-control="pulls"]').value);
+
+    const bannerInputs = document.querySelectorAll('input[data-control="standard-limited-counter"]');
+
+    const bannerValues = [];
+    bannerInputs.forEach(input => {
+        bannerValues.push(input.value);
+    });
 
     return {
         SSR: {

@@ -256,9 +256,9 @@ export function updateProbabilityTable(distribution, names, cashback) {
         for (const [key, value] of distribution[i].offRates) {
             currentProb += value.prob;
         }
-        currentProb = (currentProb * 100).toFixed(2);
+        let probString = (currentProb * 100).toFixed(2);
         if (currentProb > 0) {
-            probabilityData.push({ name: names[i], probability: currentProb, p10: cashback[i].LOWER_BOUND, mean: cashback[i].MEAN, p90: cashback[i].UPPER_BOUND, color: "#3498db" });
+            probabilityData.push({ name: names[i], probability: probString, p10: cashback[i].LOWER_BOUND, mean: cashback[i].MEAN, p90: cashback[i].UPPER_BOUND, color: "#3498db" });
         }
     }
     const tableBody = document.querySelector('#probability-table tbody');

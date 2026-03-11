@@ -8,6 +8,7 @@ let ODDS_CHARACTER_SSR;
 let ODDS_WEAPON_SSR;
 let ODDS_SR;
 let target;
+let isCashback;
 
 let isTarget = false;
 let isEmpty = false;
@@ -22,7 +23,8 @@ self.onmessage = function (e) {
                 ODDS_CHARACTER_SSR,
                 ODDS_WEAPON_SSR,
                 ODDS_SR,
-                target
+                target,
+                isCashback
             } = e.data);
             const RATE_UP_ODDS = 0.5;
             let { distributionSSR, distributionSSRData, sparkDistr } = makeDistributionArraysSSR(inputConfig, STATES_LIMITS);
@@ -31,6 +33,7 @@ self.onmessage = function (e) {
             const probDistrRankUpsDouble = new Float64Array(distributionSSR.length - 1);
             const probDistrRankUpsSpark = new Float64Array(distributionSSR.length - 1);
             probDistr[0] = 1;
+            isTarget = !isCashback;
             
             while (!isEmpty && !isTarget) {
                 rankUpSSR(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark);

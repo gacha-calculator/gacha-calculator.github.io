@@ -73,7 +73,6 @@ export class ChibiTutorial {
     showTutorialIfNeeded() {
         const hasSeenTutorial = localStorage.getItem('tutorialSeen');
 
-
         if (!hasSeenTutorial) {
             const tourBtn = document.getElementById('start-tour-btn');
 
@@ -84,6 +83,22 @@ export class ChibiTutorial {
                     tourBtn.classList.remove('attention-grabber');
                 }, 10000);
             }
+        }
+    }
+
+    highlightExpandButton() {
+        const seenExpand = localStorage.getItem('expandSeen');
+        const path = document.querySelector('svg path');
+
+        if (!seenExpand) {
+            if (path) {
+                path.classList.add('pulse-shape');
+                setTimeout(() => {
+                    path.classList.remove('pulse-shape');
+                }, 10000);
+            }
+        } else {
+            path.classList.remove('pulse-shape');
         }
     }
 

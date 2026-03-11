@@ -16,6 +16,7 @@ export function createPersistence(namespace, SELECTORS) {
         PULL_PLANS: `gacha_plans_${namespace}_v1`,
         BUTTONS: `gacha_buttons_${namespace}_v1`,
         PAGE_TYPE: `gacha_page_type_${namespace}_v1`,
+        IS_CASHBACK: `gacha_is_cashback_${namespace}_v1`,
     };
 
     return {
@@ -89,6 +90,19 @@ export function createPersistence(namespace, SELECTORS) {
         loadButtons() {
             return (
                 this._load(STORAGE_KEYS.BUTTONS)
+            );
+        },
+
+        saveIsCashback(isCashback) {
+            this._save(STORAGE_KEYS.IS_CASHBACK, {
+                _schema: SCHEMA_VERSIONS.IS_CASHBACK,
+                isCashback: isCashback
+            });
+        },
+
+        loadIsCashback() {
+            return (
+                this._load(STORAGE_KEYS.IS_CASHBACK)
             );
         },
 

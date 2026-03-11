@@ -31,7 +31,7 @@ export class CalculationHandler {
         this.chibi = chibi;
     }
 
-    async runCalculation() {
+    async runCalculation(isCashback, signal) {
         const target = this.getTarget();
         const inputConfig = this.getPageConfiguration(
             this.calculatorConfig.CONSTELLATION_MAP,
@@ -44,11 +44,11 @@ export class CalculationHandler {
             this.chibi.showError('Too many items! Even I can\'t calculate so quickly, maximum 99 items allowed.');
             return;
         }
-        const results = await this.calculatorFunction(inputConfig, target);
+        const results = await this.calculatorFunction(inputConfig, target, isCashback, signal);
         const converted = this.convertToChartData(results.chartData);
 
         this.updateChart(converted.data, converted.labels, chartLabels);
-        this.recalcInputs(converted.data);
+        this.recalcInputs(converted.data);  
 
         const context = {
             results,
