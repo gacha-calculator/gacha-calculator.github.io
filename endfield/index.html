@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZZZ Gacha Calculator</title>
+    <title>Arknights: Endfield Gacha Calculator</title>
     <meta name="description"
-        content="Calculate your ZZZ 5* pull rates with your pity taken into account and cashback estimated with Gacha Calculator to better plan your signals.">
-    <link rel="canonical" href="https://gacha-calculator.github.io/ZZZ/">
+        content="Calculate your Arknights: endfield 6* pull rates with your pity taken into account and cashback with arsenal tickets estimated with Gacha Calculator to better plan your Headhunt pulls.">
+    <link rel="canonical" href="https://gacha-calculator.github.io/endfield/">
     <!-- Favicon Links -->
     <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -25,15 +25,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script data-goatcounter="https://bubartem.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-  <script type="module" crossorigin src="/assets/zenless-DNr33aTQ.js"></script>
+  <script type="module" crossorigin src="/assets/endfield-KSUpSycn.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/recalc-inputs-ps5RIyFY.js">
   <link rel="modulepreload" crossorigin href="/assets/solvers-BoMYTpig.js">
-  <link rel="modulepreload" crossorigin href="/assets/data-validator-CDqwhqa3.js">
   <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-2t80nLI1.js">
-  <link rel="modulepreload" crossorigin href="/assets/worker-manager-D--l3qV0.js">
-  <link rel="modulepreload" crossorigin href="/assets/common-helpers-CPLJV1Gy.js">
-  <link rel="modulepreload" crossorigin href="/assets/make-distribution-arrays-Cl3ImG5G.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-Do3u6cFF.js">
   <link rel="stylesheet" crossorigin href="/assets/styles-C7CAeULI.css">
 </head>
 
@@ -66,8 +61,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/endfield/" class="nav-button" aria-label="Go to Arknights: Endfield"
-                        draggable="true">
+                    <a href="/endfield/" class="nav-button" aria-label="Go to Arknights: Endfield" draggable="true">
                         <div class="icon-container">
                             <img src="/images/arknights_endfield_icon.webp" class="nav-icon">
                         </div>
@@ -131,19 +125,17 @@
         </nav>
     </header>
 
-    <div class="background-container" role="img" aria-label="Background art" style="--bg-desktop: url('/images/zenless_bg.webp'); 
-            --bg-mobile:  url('/images/zenless_bg_small.webp');">
+    <div class="background-container" role="img" aria-label="Background art" style="--bg-desktop: url('/images/arknights_endfield_bg.webp'); 
+            --bg-mobile:  url('/images/arknights_endfield_bg_small.webp');">
         <div class="image-fade"></div>
     </div>
 
-    <!-- Main Content -->
     <main class="main-content">
         <section class="content-box" aria-label="Calculator interface">
             <div class="header-row">
-                <h1 class="main-title">Zenless Zone Zero Gacha Calculator</h1>
+                <h1 class="main-title">Arknights: Endfield Gacha Calculator</h1>
                 <button id="start-tour-btn" class="btn btn--tour">Quick Tutorial</button>
             </div>
-
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
@@ -160,13 +152,6 @@
                                 ?
                             </button>
                         </div>
-                        <div class="button-container">
-                            <button class="tab-link" data-tab-target="#rateup-panel">Rate-Ups</button>
-                            <button class="help-btn" data-help-key="rate-up-help"
-                                aria-label="Help for Entering Rate Up Data">
-                                ?
-                            </button>
-                        </div>
                     </div>
 
                     <div class="tab-content">
@@ -176,15 +161,13 @@
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th colspan="2">⭐⭐⭐⭐</th>
-                                            <th colspan="2">⭐⭐⭐⭐⭐</th>
+                                            <th colspan="1">⭐⭐⭐⭐⭐</th>
+                                            <th colspan="1">⭐⭐⭐⭐⭐⭐</th>
                                         </tr>
                                         <tr>
                                             <th></th>
                                             <th>Pity</th>
-                                            <th>Guarantee</th>
                                             <th>Pity</th>
-                                            <th>Guarantee</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -199,14 +182,7 @@
                                     <thead>
                                         <tr>
                                             <th>Rarity</th>
-                                            <th>None</th>
-                                            <th>m0</th>
-                                            <th>m1</th>
-                                            <th>m2</th>
-                                            <th>m3</th>
-                                            <th>m4</th>
-                                            <th>m5</th>
-                                            <th>m6</th>
+                                            <th>Owned/Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -219,34 +195,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                    </div>
-                    <div id="rateup-panel" class="tab-pane">
-                        <div class="table-container">
-                            <table id="rate-up-table">
-                                <thead>
-                                    <tr>
-                                        <th>Rate-Up Slot</th>
-                                        <th>Current Constellation</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Each row represents a rate-up character slot -->
-                                    <tr>
-                                        <td>Character Slot 1</td>
-                                        <td>
-                                            <!-- The select element is here, but it's empty. JS will populate it. -->
-                                            <select class="custom-select" data-control="rate-up-slot-1"></select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Character Slot 2</td>
-                                        <td>
-                                            <select class="custom-select" data-control="rate-up-slot-2"></select>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                     <div class="data-buttons">
@@ -278,15 +226,38 @@
                             </button>
                         </div>
                         <div class="row">
-                            <select class="rarity" onchange="updatePitySettings(this.value)">
-                                <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+                            <select class="type-selector" style="display: none;">
+                                <option value="char" data-icon="/images/Icon_Character.png">Character</option>
+                                <option value="wep" data-icon="/images/Icon_Claymore.jpg">Weapon</option>
                             </select>
+
+                            <div class="dropdown">
+                                <div class="dropdown__header">
+                                    <img src="/images/Icon_Character.png" class="type-icon">
+                                    <span class="type-text">Character</span>
+                                </div>
+                                <div class="dropdown__options">
+                                    <div class="dropdown__item" data-value="char">
+                                        <img src="/images/Icon_Character.png" class="type-icon">
+                                        <span>Character</span>
+                                    </div>
+                                    <div class="dropdown__item" data-value="wep">
+                                        <img src="/images/Icon_Claymore.jpg" class="type-icon">
+                                        <span>Weapon</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="rows-container"></div>
                     <button id="add-btn" class="btn btn--add">+</button>
                     <div class="calculate-section">
-                        <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
+                        <button class="btn btn--calculate_no_cashback" id="calculate-btn_no_cashback">Calculate without
+                            cashback</button>
+                        <div class="button-row">
+                            <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
+                            <button class="btn btn--calculate_stop" id="calculate-stop-btn">Stop</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -294,6 +265,9 @@
             <div class="chart-wrapper">
                 <div class="chart-container">
                     <canvas id="myChart"></canvas>
+                    <div id="chartLoadingOverlay" class="loading-overlay" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
             </div>
 
@@ -321,23 +295,25 @@
 
             <div class="table-container">
                 <div class="button-container">
-                    <table id="probability-table" class="probability-table">
-                        <thead>
-                            <tr>
-                                <th class="const-col">Target Item</th>
-                                <th class="prob-col">Probability</th>
-                                <th class="cashback-col"><span class="cashback-header">P10<br><span
-                                            class="cashback-sub">Cashback</span></span></th>
-                                <th class="cashback-col highlight"><span class="cashback-header">Mean<br><span
-                                            class="cashback-sub">Cashback</span></span></th>
-                                <th class="cashback-col"><span class="cashback-header">P90<br><span
-                                            class="cashback-sub">Cashback</span></span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Filled by JS -->
-                        </tbody>
-                    </table>
+                    <div class="probability-table-wrapper">
+                        <table id="probability-table" class="probability-table">
+                            <thead>
+                                <tr>
+                                    <th class="const-col">Target Item</th>
+                                    <th class="prob-col">Probability</th>
+                                    <th class="cashback-col"><span class="cashback-header">P10<br><span
+                                                class="cashback-sub">Cashback (Pulls/Arsenal Issues)</span></span></th>
+                                    <th class="cashback-col highlight"><span class="cashback-header">Mean<br><span
+                                                class="cashback-sub">Cashback (Pulls/Arsenal Issues)</span></span></th>
+                                    <th class="cashback-col"><span class="cashback-header">P90<br><span
+                                                class="cashback-sub">Cashback (Pulls/Arsenal Issues)</span></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filled by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                     <button class="help-btn" data-help-key="cashback-help" aria-label="Help for Exporting Pity Data">
                         ?
                     </button>
@@ -346,41 +322,25 @@
             <button id="toggle-buttons-btn" class="btn btn--hide-buttons">Hide Help Buttons</button>
         </section>
     </main>
-    <!-- Pity Row Template -->
     <template id="pity-row-template">
         <tr>
             <td class="banner-name"></td>
-            <!-- 4★ Section -->
             <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"></td>
-            <td><input type="checkbox" class="guarantee-4"></td>
-            <!-- 5★ Section -->
             <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"></td>
-            <td><input type="checkbox" class="guarantee-5"></td>
         </tr>
     </template>
     <template id="row-template">
         <div class="row">
+            <td>
+                <input type="number" data-control="standard-limited-counter" class="custom-input" value="0" min="0"
+                    max="2">
+                <span class="max">/ 2</span>
+            </td>
+
             <select class="type-selector" style="display: none;">
                 <option value="char" data-icon="/images/Icon_Character.png">Character</option>
                 <option value="wep" data-icon="/images/Icon_Claymore.jpg">Weapon</option>
             </select>
-
-            <div class="dropdown">
-                <div class="dropdown__header">
-                    <img src="/images/Icon_Character.png" class="type-icon">
-                    <span class="type-text">Character</span>
-                </div>
-                <div class="dropdown__options">
-                    <div class="dropdown__item" data-value="char">
-                        <img src="/images/Icon_Character.png" class="type-icon">
-                        <span>Character</span>
-                    </div>
-                    <div class="dropdown__item" data-value="wep">
-                        <img src="/images/Icon_Claymore.jpg" class="type-icon">
-                        <span>Weapon</span>
-                    </div>
-                </div>
-            </div>
 
             <div class="paths">
                 <select class="first-select"></select>
@@ -388,11 +348,9 @@
                 <select class="second-select"></select>
             </div>
 
-            <button class="btn btn--chainAdd">⛓</button>
             <button class="btn btn--delete">×</button>
         </div>
     </template>
-    <!-- Constellation Column Template -->
     <template id="const-column-template">
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
