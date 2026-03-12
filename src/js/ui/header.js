@@ -126,6 +126,7 @@ export function manageHeader() {
 function saveNavOrder() {
     const mainNav = document.querySelector('.nav-list');
     const expandedNav = document.querySelector('.nav-container--expanded .nav-list');
+    const version = 1;
 
     const mainOrder = Array.from(mainNav.children)
         .filter(li => li.querySelector('.nav-button')) // excludes Home li
@@ -134,12 +135,12 @@ function saveNavOrder() {
     const expandedOrder = Array.from(expandedNav.children)
         .map(li => li.querySelector('.nav-button').getAttribute('href'));
 
-    localStorage.setItem('navOrder', JSON.stringify({ main: mainOrder, expanded: expandedOrder }));
+    localStorage.setItem('navOrder', JSON.stringify({ version: version, main: mainOrder, expanded: expandedOrder }));
 }
 
 function loadNavOrder() {
     const saved = JSON.parse(localStorage.getItem('navOrder'));
-    if (!saved) return;
+    if (!saved || saved.version !== 1) return;
 
     const mainNav = document.querySelector('.nav-list');
     const expandedNav = document.querySelector('.nav-container--expanded .nav-list');
