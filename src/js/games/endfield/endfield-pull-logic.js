@@ -28,7 +28,7 @@ export function rankUpSSR(distributionSSR, distributionSSRData, ODDS_CHARACTER_S
         if (isCharacter) {
             if (distributionSSRData[wins].isFirst) {
                 if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
-                    handleSSRFirst(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps);
+                    handleSSRFirst(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble);
                 } else {
                     handleSSRFirstNextNew(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps);
                 }
@@ -66,7 +66,7 @@ export function rankUpSSRPerItem(distributionSSR, distributionSSRData, ODDS_CHAR
         if (isCharacter) {
             if (distributionSSRData[wins].isFirst) {
                 if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
-                    handleSSRFirst(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps); // next isn't new so it writes normally and no spark so no double
+                    handleSSRFirst(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble); // next isn't new so it writes normally and no spark so no double
                 } else {
                     handleSSRFirstNextNewPerItem(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, PITY_STATES, probDistrRankUps, perBannerData);
                 }
@@ -117,7 +117,7 @@ export function rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARAC
         if (isCharacter) {
             if (distributionSSRData[wins].isFirst) {
                 if (distributionSSRData[wins].bannerCount === distributionSSRData[wins + 1].bannerCount) {
-                    handleSSRFirstCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, probDistrRankUps, bufferSmall);
+                    handleSSRFirstCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, probDistrRankUps, probDistrRankUpsDouble, bufferSmall);
                 } else {
                     handleSSRFirstNextNewCheap(ODDS_CHARACTER_SSR, wins, distributionSSR, distributionSSRData, probDistrRankUps, bufferSmall);
                 }
@@ -587,15 +587,25 @@ function handleSSRNextNew(odds, inputIndex, array, arrayData, PITY_STATES, probD
     probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
 }
 
-function handleSSRFirst(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps) {
+function handleSSRFirst(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps, probDistrRankUpsDouble) {
     const SPARKS = 120;
     const STATES_PER_KEY = PITY_STATES * SPARKS;
     const STATES_PER_KEY_NORMAL = STATES_PER_KEY * 2;
     let rankUps = 0;
+    let rankUpsDouble = 0;
 
     const currentStates = array[inputIndex];
     const currentItemData = arrayData[inputIndex];
     const nextStates = array[inputIndex + 1];
+
+    let doubleNext;
+    const doubleNextData = arrayData[inputIndex + 2];
+    const areDoubleNextStatesNewBanner = doubleNextData.bannerCount !== currentItemData.bannerCount;
+    if (areDoubleNextStatesNewBanner) {
+        doubleNext = array[inputIndex + 1];
+    } else {
+        doubleNext = array[inputIndex + 2];
+    }
 
     let startingIndex = currentItemData.maxIndex;
     let finalIndex = currentItemData.minIndex;
@@ -623,12 +633,35 @@ function handleSSRFirst(odds, inputIndex, array, arrayData, PITY_STATES, probDis
     let nextStateBaseIdx = keyIndexNormal + 1;
 
     while (i >= finalIndex) {
-        const prob = currentStates[i];
+        let prob = currentStates[i];
         if (prob !== 0) {
             if (spark === 119) {
                 nextStates[guaranteeIndex] += prob;
                 rankUps += prob;
             } else {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let buffer = firstCalc;
+                    let doubleBuffer = 0;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const doubleCalc = buffer * baseOdds;
+                        const nextCalc = prob * baseOdds;
+                        doubleBuffer += doubleCalc;
+                        buffer += nextCalc - doubleCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = buffer * 0.5;
+                    const doubleWL = doubleBuffer * 0.25;
+                    nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    nextStates[i + STATES_PER_KEY + 1] += doubleWL + doubleWL;
+                    currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                    currentStates[i + STATES_PER_KEY + STATES_PER_KEY + 1] += doubleWL;
+                    doubleNext[i + 1] += doubleWL;
+                    rankUps += bufferWL + doubleWL + doubleWL;
+                    rankUpsDouble += doubleWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[nextStateBaseIdx + spark] += probSSRWinLoss;
                 currentStates[i + currentStateWinOffset] += probSSRWinLoss;
@@ -671,7 +704,54 @@ function handleSSRFirst(odds, inputIndex, array, arrayData, PITY_STATES, probDis
             }
             i -= 1;
 
-            for (let s = 118; s >= 0; s--) {
+            for (let s = 118; s >= 31; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[nextStateBaseIdx + s] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+
+            let prob = currentStates[i];
+            if (prob !== 0) {
+                const baseOdds = odds[0];
+                const firstCalc = prob * baseOdds;
+                let buffer = firstCalc;
+                let doubleBuffer = 0;
+                prob -= firstCalc;
+                for (let j = 0; j < 9; j++) {
+                    const doubleCalc = buffer * baseOdds;
+                    const nextCalc = prob * baseOdds;
+                    doubleBuffer += doubleCalc;
+                    buffer += nextCalc - doubleCalc;
+                    prob -= nextCalc;
+                }
+                const bufferWL = buffer * 0.5;
+                const doubleWL = doubleBuffer * 0.25;
+                nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                nextStates[i + STATES_PER_KEY + 1] += doubleWL + doubleWL;
+                currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                currentStates[i + STATES_PER_KEY + STATES_PER_KEY + 1] += doubleWL;
+                doubleNext[i + 1] += doubleWL;
+                rankUps += bufferWL + doubleWL + doubleWL;
+                rankUpsDouble += doubleWL;
+
+                let s = 30;
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[nextStateBaseIdx + s] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 29; s >= 0; s--) {
                 const prob = currentStates[i];
                 if (prob !== 0) {
                     const probSSRWinLoss = prob * wlOdds;
@@ -715,8 +795,31 @@ function handleSSRFirst(odds, inputIndex, array, arrayData, PITY_STATES, probDis
         i -= 1;
 
         while (i >= finalIndex) {
-            const prob = currentStates[i];
+            let prob = currentStates[i];
             if (prob !== 0) {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let buffer = firstCalc;
+                    let doubleBuffer = 0;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const doubleCalc = buffer * baseOdds;
+                        const nextCalc = prob * baseOdds;
+                        doubleBuffer += doubleCalc;
+                        buffer += nextCalc - doubleCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = buffer * 0.5;
+                    const doubleWL = doubleBuffer * 0.25;
+                    nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    nextStates[i + STATES_PER_KEY + 1] += doubleWL + doubleWL;
+                    currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                    currentStates[i + STATES_PER_KEY + STATES_PER_KEY + 1] += doubleWL;
+                    doubleNext[i + 1] += doubleWL;
+                    rankUps += bufferWL + doubleWL + doubleWL;
+                    rankUpsDouble += doubleWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[nextStateBaseIdx + spark] += probSSRWinLoss;
                 currentStates[i + currentStateWinOffset] += probSSRWinLoss;
@@ -730,6 +833,11 @@ function handleSSRFirst(odds, inputIndex, array, arrayData, PITY_STATES, probDis
     }
 
     probDistrRankUps[inputIndex] += rankUps;
+    if (areDoubleNextStatesNewBanner) {
+        probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    } else {
+        probDistrRankUps[inputIndex] += rankUpsDouble;
+    }
 }
 
 function handleSSRFirstNextNew(odds, inputIndex, array, arrayData, PITY_STATES, probDistrRankUps) {
@@ -764,12 +872,27 @@ function handleSSRFirstNextNew(odds, inputIndex, array, arrayData, PITY_STATES, 
     let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
 
     while (i >= finalIndex) {
-        const prob = currentStates[i];
+        let prob = currentStates[i];
         if (prob !== 0) {
             if (spark === 119) {
                 nextStates[keyIndex] += prob;
                 rankUps += prob;
             } else {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let buffer = firstCalc;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const nextCalc = prob * baseOdds;
+                        buffer += nextCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = buffer * 0.5;
+                    nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                    rankUps += bufferWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[keyIndex] += probSSRWinLoss;
                 currentStates[i + currentStateWinOffset] += probSSRWinLoss;
@@ -810,7 +933,45 @@ function handleSSRFirstNextNew(odds, inputIndex, array, arrayData, PITY_STATES, 
             }
             i -= 1;
 
-            for (let s = 118; s >= 0; s--) {
+            for (let s = 118; s >= 31; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[keyIndex] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+
+            let prob = currentStates[i];
+            if (prob !== 0) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                const baseOdds = odds[0];
+                const firstCalc = prob * baseOdds;
+                let buffer = firstCalc;
+                prob -= firstCalc;
+                for (let j = 0; j < 9; j++) {
+                    const nextCalc = prob * baseOdds;
+                    buffer += nextCalc;
+                    prob -= nextCalc;
+                }
+                const bufferWL = buffer * 0.5;
+                nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                rankUps += bufferWL;
+
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[keyIndex] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 29; s >= 0; s--) {
                 const prob = currentStates[i];
                 if (prob !== 0) {
                     const probSSRWinLoss = prob * wlOdds;
@@ -827,7 +988,6 @@ function handleSSRFirstNextNew(odds, inputIndex, array, arrayData, PITY_STATES, 
 
     if (i >= finalIndex) {
         spark = 119;
-
         if (pity === 0) {
             pity = PITY_STATES - 1;
             pityIndex = pity * SPARKS;
@@ -853,8 +1013,23 @@ function handleSSRFirstNextNew(odds, inputIndex, array, arrayData, PITY_STATES, 
         i -= 1;
 
         while (i >= finalIndex) {
-            const prob = currentStates[i];
+            let prob = currentStates[i];
             if (prob !== 0) {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let buffer = firstCalc;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const nextCalc = prob * baseOdds;
+                        buffer += nextCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = buffer * 0.5;
+                    nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                    rankUps += bufferWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[keyIndex] += probSSRWinLoss;
                 currentStates[i + currentStateWinOffset] += probSSRWinLoss;
@@ -1265,13 +1440,28 @@ function handleSSRFirstNextNewPerItem(odds, inputIndex, array, arrayData, PITY_S
     let currentStateWinOffset = STATES_PER_KEY - pityIndex + 1;
 
     while (i >= finalIndex) {
-        const prob = currentStates[i];
+        let prob = currentStates[i];
         if (prob !== 0) {
             if (spark === 119) {
                 nextStates[0] += prob;
                 rankUps += prob;
                 rankUpsPerKey += prob;
             } else {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let buffer = firstCalc;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const nextCalc = prob * baseOdds;
+                        buffer += nextCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = buffer * 0.5;
+                    nextStates[pityIndex + 31] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                    rankUps += bufferWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[0] += probSSRWinLoss;
                 currentStates[i + currentStateWinOffset] += probSSRWinLoss;
@@ -1316,7 +1506,47 @@ function handleSSRFirstNextNewPerItem(odds, inputIndex, array, arrayData, PITY_S
             }
             i -= 1;
 
-            for (let s = 118; s >= 0; s--) {
+            for (let s = 118; s >= 31; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[0] += probSSRWinLoss;
+                    currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    rankUpsPerKey += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+
+            let prob = currentStates[i];
+            if (prob !== 0) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                const baseOdds = odds[0];
+                const firstCalc = prob * baseOdds;
+                let buffer = firstCalc;
+                prob -= firstCalc;
+                for (let j = 0; j < 9; j++) {
+                    const nextCalc = prob * baseOdds;
+                    buffer += nextCalc;
+                    prob -= nextCalc;
+                }
+                const bufferWL = buffer * 0.5;
+                nextStates[pityIndex + 31] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                rankUps += bufferWL;
+
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                currentStates[i + currentStateWinOffset] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                rankUpsPerKey += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 29; s >= 0; s--) {
                 const prob = currentStates[i];
                 if (prob !== 0) {
                     const probSSRWinLoss = prob * wlOdds;
@@ -1334,7 +1564,6 @@ function handleSSRFirstNextNewPerItem(odds, inputIndex, array, arrayData, PITY_S
 
     if (i >= finalIndex) {
         spark = 119;
-
         if (pity === 0) {
             perBannerData[currentBanner][key] += rankUpsPerKey;
             rankUpsPerKey = 0;
@@ -1363,8 +1592,23 @@ function handleSSRFirstNextNewPerItem(odds, inputIndex, array, arrayData, PITY_S
         i -= 1;
 
         while (i >= finalIndex) {
-            const prob = currentStates[i];
+            let prob = currentStates[i];
             if (prob !== 0) {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let buffer = firstCalc;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const nextCalc = prob * baseOdds;
+                        buffer += nextCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = buffer * 0.5;
+                    nextStates[pityIndex + 31] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    currentStates[i + STATES_PER_KEY + 1] += bufferWL;
+                    rankUps += bufferWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[0] += probSSRWinLoss;
                 currentStates[i + currentStateWinOffset] += probSSRWinLoss;
@@ -1717,13 +1961,23 @@ function handleSSRNextNewCheap(odds, inputIndex, array, arrayData, probDistrRank
     probDistrRankUpsSpark[inputIndex] += rankUpsSparks;
 }
 
-function handleSSRFirstCheap(odds, inputIndex, array, arrayData, probDistrRankUps, buffer) {
+function handleSSRFirstCheap(odds, inputIndex, array, arrayData, probDistrRankUps, probDistrRankUpsDouble, buffer) {
     const SPARKS = 120;
     let rankUps = 0;
+    let rankUpsDouble = 0;
 
     const currentStates = array[inputIndex];
     const currentItemData = arrayData[inputIndex];
     const nextStates = array[inputIndex + 1];
+
+    let doubleNext;
+    const doubleNextData = arrayData[inputIndex + 2];
+    const areDoubleNextStatesNewBanner = doubleNextData.bannerCount !== currentItemData.bannerCount;
+    if (areDoubleNextStatesNewBanner) {
+        doubleNext = array[inputIndex + 1];
+    } else {
+        doubleNext = array[inputIndex + 2];
+    }
 
     let startingIndex = currentItemData.maxIndex;
     let finalIndex = currentItemData.minIndex;
@@ -1743,12 +1997,33 @@ function handleSSRFirstCheap(odds, inputIndex, array, arrayData, probDistrRankUp
     let lOdds = 1 - currentOdd;
 
     while (i >= finalIndex) {
-        const prob = currentStates[i];
+        let prob = currentStates[i];
         if (prob !== 0) {
             if (spark === 119) {
                 nextStates[SPARKS] += prob;
                 rankUps += prob;
             } else {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let bufferUrgent = firstCalc;
+                    let doubleBuffer = 0;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const doubleCalc = bufferUrgent * baseOdds;
+                        const nextCalc = prob * baseOdds;
+                        doubleBuffer += doubleCalc;
+                        bufferUrgent += nextCalc - doubleCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = bufferUrgent * 0.5;
+                    const doubleWL = doubleBuffer * 0.25;
+                    nextStates[i + 1] += bufferWL + doubleWL + doubleWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    prob += bufferWL + doubleWL;
+                    doubleNext[i + 1] += doubleWL;
+                    rankUps += bufferWL + doubleWL + doubleWL;
+                    rankUpsDouble += doubleWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[spark + 1] += probSSRWinLoss;
                 buffer[spark + 1] += probSSRWinLoss;
@@ -1780,7 +2055,52 @@ function handleSSRFirstCheap(odds, inputIndex, array, arrayData, probDistrRankUp
             }
             i -= 1;
 
-            for (let s = 118; s >= 0; s--) {
+            for (let s = 118; s >= 31; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[s + 1] += probSSRWinLoss;
+                    buffer[s + 1] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+
+            let prob = currentStates[i];
+            if (prob !== 0) {
+                const baseOdds = odds[0];
+                let firstCalc = prob * baseOdds;
+                let bufferUrgent = firstCalc;
+                let doubleBuffer = 0;
+                prob -= firstCalc;
+                for (let j = 0; j < 9; j++) {
+                    const doubleCalc = bufferUrgent * baseOdds;
+                    const nextCalc = prob * baseOdds;
+                    doubleBuffer += doubleCalc;
+                    bufferUrgent += nextCalc - doubleCalc;
+                    prob -= nextCalc;
+                }
+                const bufferWL = bufferUrgent * 0.5;
+                const doubleWL = doubleBuffer * 0.25;
+                nextStates[i + 1] += bufferWL + doubleWL + doubleWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                prob += bufferWL + doubleWL;
+                doubleNext[i + 1] += doubleWL;
+                rankUps += bufferWL + doubleWL + doubleWL;
+                rankUpsDouble += doubleWL;
+
+                let s = 30;
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[s + 1] += probSSRWinLoss;
+                buffer[s + 1] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 29; s >= 0; s--) {
                 const prob = currentStates[i];
                 if (prob !== 0) {
                     const probSSRWinLoss = prob * wlOdds;
@@ -1813,8 +2133,29 @@ function handleSSRFirstCheap(odds, inputIndex, array, arrayData, probDistrRankUp
         i -= 1;
 
         while (i >= finalIndex) {
-            const prob = currentStates[i];
+            let prob = currentStates[i];
             if (prob !== 0) {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let bufferUrgent = firstCalc;
+                    let doubleBuffer = 0;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const doubleCalc = bufferUrgent * baseOdds;
+                        const nextCalc = currentStates[i] * baseOdds;
+                        doubleBuffer += doubleCalc;
+                        bufferUrgent += nextCalc - doubleCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = bufferUrgent * 0.5;
+                    const doubleWL = doubleBuffer * 0.25;
+                    nextStates[i + 1] += bufferWL + doubleWL + doubleWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    prob += bufferWL + doubleWL;
+                    doubleNext[i + 1] += doubleWL;
+                    rankUps += bufferWL + doubleWL + doubleWL;
+                    rankUpsDouble += doubleWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[spark + 1] += probSSRWinLoss;
                 buffer[spark + 1] += probSSRWinLoss;
@@ -1833,6 +2174,11 @@ function handleSSRFirstCheap(odds, inputIndex, array, arrayData, probDistrRankUp
     buffer.fill(0);
 
     probDistrRankUps[inputIndex] += rankUps;
+    if (areDoubleNextStatesNewBanner) {
+        probDistrRankUpsDouble[inputIndex] += rankUpsDouble;
+    } else {
+        probDistrRankUps[inputIndex] += rankUpsDouble;
+    }
 }
 
 function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDistrRankUps, buffer) {
@@ -1861,12 +2207,27 @@ function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDist
     let lOdds = 1 - currentOdd;
 
     while (i >= finalIndex) {
-        const prob = currentStates[i];
+        let prob = currentStates[i];
         if (prob !== 0) {
             if (spark === 119) {
                 nextStates[0] += prob;
                 rankUps += prob;
             } else {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let bufferUrgent = firstCalc;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const nextCalc = prob * baseOdds;
+                        bufferUrgent += nextCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = bufferUrgent * 0.5;
+                    nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    prob += bufferWL;
+                    rankUps += bufferWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[0] += probSSRWinLoss;
                 buffer[spark + 1] += probSSRWinLoss;
@@ -1898,7 +2259,46 @@ function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDist
             }
             i -= 1;
 
-            for (let s = 118; s >= 0; s--) {
+            for (let s = 118; s >= 31; s--) {
+                const prob = currentStates[i];
+                if (prob !== 0) {
+                    const probSSRWinLoss = prob * wlOdds;
+                    nextStates[0] += probSSRWinLoss;
+                    buffer[s + 1] += probSSRWinLoss;
+                    currentStates[i + 121] += prob * lOdds;
+                    rankUps += probSSRWinLoss;
+                    currentStates[i] = 0;
+                }
+                i -= 1;
+            }
+
+            let prob = currentStates[i];
+            if (prob !== 0) {
+                const baseOdds = odds[0];
+                const firstCalc = prob * baseOdds;
+                let bufferUrgent = firstCalc;
+                prob -= firstCalc;
+                for (let j = 0; j < 9; j++) {
+                    const nextCalc = prob * baseOdds;
+                    bufferUrgent += nextCalc;
+                    prob -= nextCalc;
+                }
+                const bufferWL = bufferUrgent * 0.5;
+                nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                prob += bufferWL;
+                rankUps += bufferWL;
+
+                let s = 30;
+                const probSSRWinLoss = prob * wlOdds;
+                nextStates[0] += probSSRWinLoss;
+                buffer[s + 1] += probSSRWinLoss;
+                currentStates[i + 121] += prob * lOdds;
+                rankUps += probSSRWinLoss;
+                currentStates[i] = 0;
+            }
+            i -= 1;
+
+            for (let s = 29; s >= 0; s--) {
                 const prob = currentStates[i];
                 if (prob !== 0) {
                     const probSSRWinLoss = prob * wlOdds;
@@ -1931,8 +2331,23 @@ function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDist
         i -= 1;
 
         while (i >= finalIndex) {
-            const prob = currentStates[i];
+            let prob = currentStates[i];
             if (prob !== 0) {
+                if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, but have to iterate spark to avoid double counting, slight inaccuracy to avoid big performance losses
+                    const baseOdds = odds[0];
+                    const firstCalc = prob * baseOdds;
+                    let bufferUrgent = firstCalc;
+                    prob -= firstCalc;
+                    for (let j = 0; j < 9; j++) {
+                        const nextCalc = prob * baseOdds;
+                        bufferUrgent += nextCalc;
+                        prob -= nextCalc;
+                    }
+                    const bufferWL = bufferUrgent * 0.5;
+                    nextStates[i + 1] += bufferWL; // wrong, but 1 spark shouldn't affect much and saves much trouble
+                    prob += bufferWL;
+                    rankUps += bufferWL;
+                }
                 const probSSRWinLoss = prob * wlOdds;
                 nextStates[0] += probSSRWinLoss;
                 buffer[spark + 1] += probSSRWinLoss;

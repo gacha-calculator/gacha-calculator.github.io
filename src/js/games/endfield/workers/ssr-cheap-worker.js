@@ -50,6 +50,7 @@ self.onmessage = function (e) {
                         bannerCounts.push(element.bannerCount);
                     }
                 }
+                let pulls = 0;
 
                 while (!isEmpty) {
                     rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, buffer, smallBuffer, weaponRankUpMap);
@@ -63,19 +64,26 @@ self.onmessage = function (e) {
                         isTarget = checkIsTarget(probDistr, target, chartData.length);
                         if (isTarget) {
                             finalProbDistr = [...probDistr];
+                            pulls = chartData.length + 1;
                         }
                     }
                     chartData.push([...probDistr]);
                 }
 
+                if (!isTarget) {
+                    finalProbDistr = [...probDistr];
+                    pulls = chartData.length;
+                }
+
                 const cashbackDataSR = consolidateSRDistributionForCashback(distributionSR);
-                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr });
+                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr, pulls: pulls });
             } else {
                 const probDistr = new Float64Array(distributionSSR.length);
                 probDistr[0] = 1;
                 const bannerCounts = [];
                 let finalProbDistr;
                 let issueCount = 0;
+                let pulls = 0;
 
                 while (!isEmpty) {
                     rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, boundsIndices, weaponRankUpMap);
@@ -87,6 +95,7 @@ self.onmessage = function (e) {
                             isTarget = checkIsTarget(probDistr, target, chartData.length);
                             if (isTarget) {
                                 finalProbDistr = [...probDistr];
+                                pulls = chartData.length + 1;
                             }
                         }
                         chartData.push([...probDistr]);
@@ -94,8 +103,13 @@ self.onmessage = function (e) {
                     isEmpty = findBoundsWeapon(distributionSSR, distributionSSRData, boundsIndices, probDistr, weaponRankUpMap);
                 }
 
+                if (!isTarget) {
+                    finalProbDistr = [...probDistr];
+                    pulls = chartData.length;
+                }
+
                 const cashbackDataSR = consolidateSRDistributionForCashback(distributionSR);
-                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr });
+                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr, pulls: pulls });
             }
 
             break;
