@@ -35,7 +35,7 @@ export function updateProbDistr(probDistr, probDistrRankUps, probDistrRankUpsDou
     }
 }
 
-export function updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, pullsCoef) {
+export function updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, pullsCoef, probDistrRankUpsPast, probDistrRankUpsDoublePast, urgentPullDistr, chartData) {
     let rankUps = 0;
     let last = probDistr.length - 1;
     let rankUpsLast = 0;
@@ -65,6 +65,28 @@ export function updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankU
     }
     pullsCoef.rankUps = rankUps;
     pullsCoef.pullsSum = 1 - probDistr[last] + rankUpsLast;
+    pullsCoef.urgentPulls = urgentPullDistr[0];
+    
+    const chartLen = chartData.length;
+    if (urgentPullDistr[0] > 0 && chartLen > 0) {probDistrRankUpsPast, probDistrRankUpsDoublePast
+        const pastProbDistr = chartData[chartLen - 1];
+        for (let i = 0; i < last; i++) {
+            const rankUpscurrent = probDistrRankUpsPast[i];
+            const rankUpsDouble = probDistrRankUpsDoublePast[i];
+            pastProbDistr[i] -= rankUpscurrent + rankUpsDouble;
+            pastProbDistr[i + 1] += rankUpscurrent;
+
+            if (i + 1 === last) {
+                pastProbDistr[i + 1] += rankUpsDouble;
+            } else {
+                pastProbDistr[i + 2] += rankUpsDouble;
+            }
+
+            probDistrRankUpsPast[i] = 0;
+            probDistrRankUpsDoublePast[i] = 0;
+        }
+        urgentPullDistr[0] = 0;
+    }
 }
 
 export function updateProbDistrWeapon(probDistr, probDistrRankUps, array, arrayData) {
@@ -621,12 +643,14 @@ export function findBoundsWeapon(distribution, distributionSSRData, boundsIndice
     return false;
 }
 
-export function normalizePullsCoef(pullsCoef) {
+export function normalizePullsCoef(pullsCoef, lastPullsSum) {
     const NORMALIZATION_THRESHOLD = 1e-5;
     let pullsSum = pullsCoef.pullsSum;
     const diff = 1 - pullsSum;
     if (diff > NORMALIZATION_THRESHOLD) {
         pullsCoef.pullsSum /= pullsSum;
         pullsCoef.rankUps /= pullsSum;
+        pullsCoef.urgentPulls /= lastPullsSum[0];
     }
+    lastPullsSum[0] = pullsSum;
 }

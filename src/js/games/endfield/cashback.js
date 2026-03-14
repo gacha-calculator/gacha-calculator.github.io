@@ -10,7 +10,7 @@ export function cashback(inputConfig, gachaConfig, SSRCashbackData, probabilitie
         SSRCashbackData.cashbackDataSSRAggregate = normalizeDistribution(SSRCashbackData.cashbackDataSSRAggregate);
         SSRCashbackData.cashbackDataSSRPerItem = normalizeDistribution(SSRCashbackData.cashbackDataSSRPerItem);
         const { allCombos: SSRCashback, allCombosWeapon: SSRWeaponCashback } = cashbackSSR(SSRCashbackData, inputConfig.SSR.consCountStandard, inputConfig.SSR.cashbackRoadmap, gachaConfig, inputConfig.SSR.consCountLimitedStandard);
-        const { charCashback: SRCashback, wepCashback: SRAndRCashbackWeapon } = cashbackSR(probabilitiesCharSR, gachaConfig, inputConfig, SSRCashbackData.pulls);
+        const { charCashback: SRCashback, wepCashback: SRAndRCashbackWeapon } = cashbackSR(probabilitiesCharSR, gachaConfig, inputConfig, SSRCashbackData.pulls, SSRCashbackData.urgentPulls);
 
         finalCashback.char = SSRCashback;
         for (let i = 0; i < finalCashback.char.length; i++) {
@@ -121,21 +121,21 @@ function cashbackSSR(probabilitiesSSR, standardCons, cashbackRoadmap, gachaConfi
     return { allCombos, allCombosWeapon };
 }
 
-function cashbackSR(probabilitiesCharSR, gachaConfig, inputConfig, pulls) {
+function cashbackSR(probabilitiesCharSR, gachaConfig, inputConfig, pulls, urgentPulls) {
     let maxCharsSRCount = 0;
     for (const [key, value] of probabilitiesCharSR) {
         maxCharsSRCount = Math.max(maxCharsSRCount, key);
     }
-    const { charCashback, wepCashback } = processCharacterBannerSR(probabilitiesCharSR, maxCharsSRCount, gachaConfig, inputConfig, pulls);
+    const { charCashback, wepCashback } = processCharacterBannerSR(probabilitiesCharSR, maxCharsSRCount, gachaConfig, inputConfig, pulls, urgentPulls);
 
     return { charCashback, wepCashback };
 }
 
-function processCharacterBannerSR(probabilitiesCharSR, maxCharsSRCount, gachaConfig, inputConfig, pulls) {
+function processCharacterBannerSR(probabilitiesCharSR, maxCharsSRCount, gachaConfig, inputConfig, pulls, urgentPulls) {
     const charsSRSolver = new IterativeSolver(inputConfig.SR.consCount, gachaConfig.poolCharSR, gachaConfig.configSR);
     const charsSRCharCashback = charsSRSolver.runSteps(maxCharsSRCount);
 
-    return aggregateCashbackFromSR(probabilitiesCharSR, charsSRCharCashback, pulls);
+    return aggregateCashbackFromSR(probabilitiesCharSR, charsSRCharCashback, pulls, urgentPulls);
 }
 
 function normalizeCashbackCombo(distribution) {

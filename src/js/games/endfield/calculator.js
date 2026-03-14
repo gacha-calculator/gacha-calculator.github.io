@@ -70,10 +70,10 @@ export async function runEndfieldGachaCalc(inputConfig, target, isCashback, sign
         const [
             { cashbackDataSSRAggregate },
             { cashbackDataSSRPerItem, sparkDistr, perBannerData },
-            { chartData, cashbackDataSR: CharSR, bannerCounts, probDistr, pulls }
+            { chartData, cashbackDataSR: CharSR, bannerCounts, probDistr, pulls, urgentPulls }
         ] = results;
 
-        const SSR = { cashbackDataSSRAggregate, cashbackDataSSRPerItem, sparkDistr, perBannerData, bannerCounts, isCashback, probDistr, pulls };
+        const SSR = { cashbackDataSSRAggregate, cashbackDataSSRPerItem, sparkDistr, perBannerData, bannerCounts, isCashback, probDistr, pulls, urgentPulls };
         const cashbackData = { SSR, CharSR };
 
         return { chartData, cashbackData };

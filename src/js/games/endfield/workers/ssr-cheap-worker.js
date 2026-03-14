@@ -14,7 +14,7 @@ let isTarget = false;
 let isEmpty = false;
 let chartData = [];
 let boundsIndices = { maxItem: 0, minItem: 0 };
-let pullsCoef = { rankUpFail: 0, pullsSum: 1, rankUps: 0 };
+let pullsCoef = { rankUpFail: 0, pullsSum: 1, rankUps: 0, urgentPulls: 0 };
 
 self.onmessage = function (e) {
     switch (e.data?.type) {
@@ -38,6 +38,10 @@ self.onmessage = function (e) {
                 const probDistrRankUps = new Float64Array(distributionSSR.length - 1);
                 const probDistrRankUpsDouble = new Float64Array(distributionSSR.length - 1);
                 const probDistrRankUpsSpark = new Float64Array(distributionSSR.length - 1);
+                const probDistrRankUpsPast = new Float64Array(distributionSSR.length - 1);
+                const probDistrRankUpsDoublePast = new Float64Array(distributionSSR.length - 1);
+                const urgentPullDistr = [0];
+                const lastPullsSum = [0];
                 probDistr[0] = 1;
 
                 const buffer = new Float64Array(240);
@@ -51,14 +55,16 @@ self.onmessage = function (e) {
                     }
                 }
                 let pulls = 0;
+                let urgentPullsSum = 0;
 
                 while (!isEmpty) {
-                    rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, buffer, smallBuffer, weaponRankUpMap);
-                    updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, pullsCoef);
-                    normalizePullsCoef(pullsCoef);
+                    rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, probDistrRankUpsPast, probDistrRankUpsDoublePast, urgentPullDistr, buffer, smallBuffer, weaponRankUpMap);
+                    updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, pullsCoef, probDistrRankUpsPast, probDistrRankUpsDoublePast, urgentPullDistr, chartData);
+                    normalizePullsCoef(pullsCoef, lastPullsSum);
                     isEmpty = findBoundsCheap(distributionSSR, distributionSSRData, boundsIndices, probDistr);
                     if (!isTarget) {
                         if (isCashback) {
+                            urgentPullsSum += pullsCoef.urgentPulls;
                             rankUpSR(distributionSR, pullsCoef, ODDS_SR);
                         }
                         isTarget = checkIsTarget(probDistr, target, chartData.length);
@@ -76,7 +82,7 @@ self.onmessage = function (e) {
                 }
 
                 const cashbackDataSR = consolidateSRDistributionForCashback(distributionSR);
-                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr, pulls: pulls });
+                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr, pulls: pulls, urgentPulls: urgentPullsSum });
             } else {
                 const probDistr = new Float64Array(distributionSSR.length);
                 probDistr[0] = 1;

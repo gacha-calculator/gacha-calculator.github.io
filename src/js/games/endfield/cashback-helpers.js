@@ -306,7 +306,7 @@ export function calculateComboCashbackSSRWeapon(combo, rateUpCashback, offRateCh
     return comboCashback;
 }
 
-export function aggregateCashbackFromSR(distribution, cashbackValues, pull) {
+export function aggregateCashbackFromSR(distribution, cashbackValues, pull, urgentPulls) {
     const data = [];
     const dataWeapon = [];
     const wepCashbackSR = 200 / 1980;
@@ -314,7 +314,7 @@ export function aggregateCashbackFromSR(distribution, cashbackValues, pull) {
     for (const [key, value] of distribution) {
         const prob = value.prob;
         data.push({ prob: prob, mean: cashbackValues[key].mean, variance: cashbackValues[key].variance });
-        dataWeapon.push({ prob: prob, mean: key * wepCashbackSR + (pull - key) * wepCashbackR }); // ideally take ssr into account, but it's fairly negligible for the amount of work required
+        dataWeapon.push({ prob: prob, mean: key * wepCashbackSR + (pull + urgentPulls * 10 - key) * wepCashbackR }); // ideally take ssr into account, but it's fairly negligible for the amount of work required
     }
 
     let overallMean = 0;
