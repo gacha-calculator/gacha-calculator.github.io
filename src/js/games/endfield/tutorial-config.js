@@ -21,13 +21,13 @@ export const endfieldTourSteps = [
         id: 'pity-input-step',
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#pity-panel"]',
-        text: '<p>First, input your current pity and guarantees here. You can import data from wuwatracker.com directly(press ? near respective elements to learn more)</p>',
+        text: '<p>First, input your current pity and guarantees here.</p>',
         position: 'right'
     },
     {
         id: 'pull-plan-step',
         element: '.pull-plan-section',
-        text: '<p>Next, build your pull plan here. Add all the characters and weapons in the order you plan to obtain them.</p>',
+        text: '<p>Next, build your pull plan here. Add all the characters/weapons in the order you plan to obtain them.</p>',
         position: 'bottom'
     },
     {
@@ -41,7 +41,20 @@ export const endfieldTourSteps = [
     {
         id: 'calculate-button-step',
         element: '#calculate-btn',
-        text: '<p>Once your plan and target are set, click <strong>Calculate</strong> and I will calculate everything for you.</p>',
+        text: '<p>Once your plan and target are set, click <strong>Calculate</strong> and I will calculate everything for you, including cashback.</p>',
+        position: 'right',
+        size: 'small'
+    },
+    {
+        id: 'calculate-button-step',
+        element: '#calculate-btn_no_cashback',
+        text: '<p>Does the same as calculate, but without cashback, may be preferred if normal calculate is too slow or cashback isn\'t needed.</p>',
+        position: 'right'
+    },
+    {
+        id: 'calculate-button-step',
+        element: '#calculate-stop-btn',
+        text: '<p>If calculation takes too long, you can press stop to end it and choose another plan/try calculating without cashback.</p>',
         position: 'right',
         size: 'small'
     },
@@ -54,21 +67,13 @@ export const endfieldTourSteps = [
         id: 'constellation-input-step',
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#constellation-panel"]',
-        text: '<p>Input how many Standard 5* and non-standard 4* characters you have at each constellation level. This information is necessary for accurate cashback predictions, you can skip it if you don\'t need it.</p>',
+        text: '<p>Input how many Standard 6* and non-standard 5* characters you have at each constellation level. This information is necessary for accurate cashback predictions, you can skip it if you don\'t need it.</p>',
         position: 'right',
         size: 'big'
     },
     {
-        id: 'rate-ups-step',
-        element: '.tab-panel-card',
-        clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
-        text: '<p>If you know the rate-up 4-star characters, you can input their constellations on your account. This improves cashback accuracy and reduces unnecessary computation.</p>',
-        position: 'right',
-        size: 'huge'
-    },
-    {
         element: '#probability-table',
-        text: '<p>And down here, you can see a detailed table with cashback estimates, for the given amount of pulls, it\'s only accurate if you inputed your data correctly.</p>',
+        text: '<p>And down here, you can see a detailed table with cashback estimates(both pulls cashback and arsenal issues for the weapon banner), for the given amount of pulls, it\'s only accurate if you inputed your data correctly.</p>',
         position: 'top'
     }
 ];
@@ -81,7 +86,7 @@ export const helpContentMap = {
 
     'import-help': {
         element: '.tab-panel-card',
-        text: '<p>You can import your data directly from <a href="https://wuwatracker.com/" target="_blank" rel="noopener noreferrer" class="soft-link">wuwatracker.com/</a>. Click the "Import Data" button and paste the exported JSON data.</p>',
+        text: '<p>Click the "Import Data" button and paste the exported JSON data.</p>',
         position: 'right'
     },
     'export-help': {
@@ -93,26 +98,19 @@ export const helpContentMap = {
     'pity-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#pity-panel"]',
-        text: '<p>You can input your current pity and guarantees here. You can import data from wuwatracker.com directly.</p>',
+        text: '<p>You can input your current pity here.</p>',
         position: 'right'
     },
     'constelation-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#constellation-panel"]',
-        text: '<p>Input how many Standard 5* and non-standard 4* characters you have at each constellation level. This information is necessary for accurate cashback predictions.</p>',
+        text: '<p>Input how many Standard 6* and 5* characters you have at each constellation level. This information is necessary for accurate cashback predictions.</p>',
         position: 'right',
         size: 'big'
     },
-    'rate-up-help': {
-        element: '.tab-panel-card',
-        clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
-        text: '<p>If you know the featured 4*, you can then check what constellation it has on your account. This improves cashback accuracy and reduces unnecessary computation.</p>',
-        position: 'right',
-        size: 'huge'
-    },
     'pull-plan-help': {
         element: '.pull-plan-section',
-        text: '<p>Build your pull plan here. Add all the characters and weapons in order you want to get them.</p>',
+        text: '<p>Build your pull plan here. Add all the characters/weapons in order you want to get them. In endfield you can lose 50/50 to last 2 rate-up characters, x/2 input stands for it.</p>',
         position: 'bottom'
     },
     'target-help': {
@@ -124,7 +122,7 @@ export const helpContentMap = {
     },
     'cashback-help': {
         element: '#probability-table',
-        text: '<p>Expected cashback for each 5* target reached with their respective probabilities, percentiles give you a reasonable range by cutting off extreme results(10% from each side).</p>',
+        text: '<p>Expected cashback for each 6* target reached with their respective probabilities, percentiles give you a reasonable range by cutting off extreme results(10% from each side).</p>',
         size: 'big',
         chibiSide: 'left',
         position: 'top'
