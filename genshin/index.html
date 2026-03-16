@@ -25,13 +25,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script data-goatcounter="https://bubartem.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-  <script type="module" crossorigin src="/assets/genshin-B9rLlPax.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/recalc-inputs-CpLmVP82.js">
+  <script type="module" crossorigin src="/assets/genshin-VhyMiEfK.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/recalc-inputs-8nR20inY.js">
   <link rel="modulepreload" crossorigin href="/assets/solvers-BoMYTpig.js">
-  <link rel="modulepreload" crossorigin href="/assets/data-validator-CrK-qL2v.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-2t80nLI1.js">
-  <link rel="modulepreload" crossorigin href="/assets/worker-manager-XwKvGzk7.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-Do3u6cFF.js">
+  <link rel="modulepreload" crossorigin href="/assets/data-validator-8oniTxUN.js">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-CghBZ_yA.js">
+  <link rel="modulepreload" crossorigin href="/assets/worker-manager-DVe0rMn2.js">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-DgCDvmam.js">
   <link rel="stylesheet" crossorigin href="/assets/styles-C7CAeULI.css">
 </head>
 
@@ -282,7 +282,12 @@
                     <div class="rows-container"></div>
                     <button id="add-btn" class="btn btn--add">+</button>
                     <div class="calculate-section">
-                        <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
+                        <button class="btn btn--calculate_no_cashback" id="calculate-btn_no_cashback">Calculate without
+                            cashback</button>
+                        <div class="button-row">
+                            <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
+                            <button class="btn btn--calculate_stop" id="calculate-stop-btn">Stop</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -290,6 +295,9 @@
             <div class="chart-wrapper">
                 <div class="chart-container">
                     <canvas id="myChart"></canvas>
+                    <div id="chartLoadingOverlay" class="loading-overlay" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
             </div>
 
