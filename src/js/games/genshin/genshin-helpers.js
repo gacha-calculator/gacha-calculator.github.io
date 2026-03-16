@@ -243,10 +243,18 @@ export function checkIsTarget(distribution, target, allPulls) {
         const lastIndex = distribution.length - 1;
         const winDistr = distribution[lastIndex];
         let probabilitySum = 0;
-        for (let i = 0; i < winDistr.length; i++) {
-            for (const map of winDistr[i].states) {
-                for (const [key, value] of map) {
-                    probabilitySum += value.prob;
+        if (isNaN(winDistr[0].states[0])) {
+            for (let i = 0; i < winDistr.length; i++) {
+                for (const map of winDistr[i].states) {
+                    for (const [key, value] of map) {
+                        probabilitySum += value.prob;
+                    }
+                }
+            }
+        } else {
+            for (let i = 0; i < winDistr.length; i++) {
+                for (const prob of winDistr[i].states) {
+                    probabilitySum += prob;
                 }
             }
         }

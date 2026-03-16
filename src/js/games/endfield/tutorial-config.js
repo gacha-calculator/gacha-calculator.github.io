@@ -74,7 +74,8 @@ export const endfieldTourSteps = [
     {
         element: '#probability-table',
         text: '<p>And down here, you can see a detailed table with cashback estimates(both pulls cashback and arsenal issues for the weapon banner), for the given amount of pulls, it\'s only accurate if you inputed your data correctly.</p>',
-        position: 'top'
+        position: 'top',
+        size: 'big'
     }
 ];
 

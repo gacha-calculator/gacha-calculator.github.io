@@ -91,6 +91,8 @@ export class morimensPageController {
                 if (this.isCalculating) {
                     return;
                 }
+                const overlay = document.getElementById('chartLoadingOverlay');
+                overlay.style.display = 'flex';
 
                 if (window.goatcounter) {
                     window.goatcounter.count({
@@ -103,10 +105,12 @@ export class morimensPageController {
                 this.calculateBtn.disabled = true;
 
                 try {
+                    await new Promise(resolve => setTimeout(resolve, 0));
                     await this.calculationHandler.runCalculation(this.parts.updateTableFn);
                 } finally {
                     this.isCalculating = false;
                     this.calculateBtn.disabled = false;
+                    overlay.style.display = 'none';
                 }
             });
         }

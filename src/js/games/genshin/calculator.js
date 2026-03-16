@@ -2,7 +2,7 @@ import { gachaCalculator } from '../../calculator/base-calculator.js';
 import { gachaConfig } from './config.js';
 import { GENSHIN_ADAPTERS } from './adapters.js';
 
-export function runGenshinGachaCalc(inputConfig, target) {
+export function runGenshinGachaCalc(inputConfig, target, isCashback, signal) {
     const calculator = new gachaCalculator(gachaConfig, GENSHIN_ADAPTERS);
-    return calculator.runGachaCalculation(inputConfig, target);
+    return calculator.runGachaCalculation(inputConfig, target, isCashback, signal);
 }

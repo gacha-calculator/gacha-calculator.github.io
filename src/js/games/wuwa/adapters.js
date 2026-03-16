@@ -1,10 +1,10 @@
-import { consolidateDistributionForCashback, consolidateProbabilitiesCheap, consolidateProbabilities, simplifyDistribution, normalizeCheap, checkIsEmpty } from './wuwa-helpers.js';
+import { consolidateDistributionForCashback, consolidateProbabilitiesCheap, consolidateProbabilities, simplifyDistribution, normalizeCheap, checkIsEmpty, checkIsTarget } from './wuwa-helpers.js';
 import { makeDistributionArraysSSR, makeDistributionArraysSR, sortPitySSR } from '../../games/common/make-distribution-arrays.js';
 import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig } from './config.js';
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
 import { rankUpSSRCheap } from './wuwa-pull-logic.js';
 
-const moduleType = {pullLogic: 'wuwa', helpers: 'wuwa'};
+const moduleType = { pullLogic: 'wuwa', helpers: 'wuwa' };
 
 const SSR_CHAR_PITY = gachaConfig.pity.pitySSRChar;
 const SSR_WEP_PITY = gachaConfig.pity.pitySSRWep;
@@ -52,6 +52,7 @@ export const WUWA_ADAPTERS = {
         consolidateProbabilities: consolidateProbabilities,
         simplifyDistribution: simplifyDistribution,
         normalizeCheap: normalizeCheap,
-        checkIsEmpty: checkIsEmpty
+        checkIsEmpty: checkIsEmpty,
+        checkIsTarget: checkIsTarget
     }
 };

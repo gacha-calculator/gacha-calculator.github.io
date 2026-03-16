@@ -1,4 +1,4 @@
-import { consolidateDistributionForCashback, consolidateProbabilitiesCheap, consolidateProbabilities, simplifyDistribution, normalizeCheap, checkIsEmpty } from './genshin-helpers.js';
+import { consolidateDistributionForCashback, consolidateProbabilitiesCheap, consolidateProbabilities, simplifyDistribution, normalizeCheap, checkIsEmpty, checkIsTarget } from './genshin-helpers.js';
 import { makeDistributionArraysSSR, makeDistributionArraysSR, sortPitySSR } from './genshin-distribution-arrays.js';
 import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig } from './config.js';
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
@@ -53,6 +53,7 @@ export const GENSHIN_ADAPTERS = {
         consolidateProbabilities: consolidateProbabilities,
         simplifyDistribution: simplifyDistribution,
         normalizeCheap: normalizeCheap,
-        checkIsEmpty: checkIsEmpty
+        checkIsEmpty: checkIsEmpty,
+        checkIsTarget: checkIsTarget
     }
 };

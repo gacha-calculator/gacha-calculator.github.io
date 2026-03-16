@@ -140,9 +140,15 @@ export function checkIsTarget(distribution, target, allPulls) {
     if (target.type === 'probability') {
         const lastIndex = distribution.length - 1;
         let probabilitySum = 0;
-        for (const map of distribution[lastIndex].states) {
-            for (const [key, value] of map) {
-                probabilitySum += value.prob;
+        if (isNaN(distribution[0].states[0])) {
+            for (const map of distribution[lastIndex].states) {
+                for (const [key, value] of map) {
+                    probabilitySum += value.prob;
+                }
+            }
+        } else {
+            for (const prob of distribution[lastIndex].states) {
+                probabilitySum += prob;
             }
         }
         if (probabilitySum > target.value) {
@@ -162,7 +168,6 @@ export function checkIsTarget(distribution, target, allPulls) {
 
 export function consolidateDistributionForCashback(distribution) {
     const result = [];
-
 
     for (let i = 0; i < distribution.length; i++) {
         const maps = distribution[i].states;

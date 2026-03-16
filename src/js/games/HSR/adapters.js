@@ -1,4 +1,4 @@
-import { consolidateProbabilities, checkIsEmpty, consolidateDistributionForCashback, simplifyDistribution, normalizeCheap, consolidateProbabilitiesCheap } from '../common/common-helpers.js';
+import { consolidateProbabilities, checkIsEmpty, consolidateDistributionForCashback, simplifyDistribution, normalizeCheap, consolidateProbabilitiesCheap, checkIsTarget } from '../common/common-helpers.js';
 import { makeDistributionArraysSSR, makeDistributionArraysSR, sortPitySSR } from '../common/make-distribution-arrays.js';
 import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig, RATE_UP_ODDS } from './config.js';
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
@@ -53,6 +53,7 @@ export const HSR_ADAPTERS = {
         consolidateProbabilities: consolidateProbabilities,
         simplifyDistribution: simplifyDistribution,
         normalizeCheap: normalizeCheap,
-        checkIsEmpty: checkIsEmpty
+        checkIsEmpty: checkIsEmpty,
+        checkIsTarget: checkIsTarget
     }
 };

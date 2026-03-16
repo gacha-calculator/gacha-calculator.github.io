@@ -18,6 +18,7 @@ import { CONSTELLATION_OPTIONS, CUSTOM_CHARS_5_STAR_STANDARD } from './config.js
 import { ChibiTutorial } from '../../ui/chibi-tutorial.js';
 import { chibiHtmlFragment, HSRTourSteps, helpContentMap } from './tutorial-config.js';
 
+let abortController = null;
 export class HSRPageController {
     constructor(parts) {
         this.parts = parts;
@@ -54,9 +55,12 @@ export class HSRPageController {
         this.calculationHandler = new CalculationHandler(config);
 
         this.calculateBtn = document.getElementById('calculate-btn');
+        this.calculateBtnNoCashback = document.getElementById('calculate-btn_no_cashback');
+        this.stopBtn = document.getElementById('calculate-stop-btn');
         this.exportBtn = document.getElementById('export-btn');
         this.startTourBtn = document.getElementById('start-tour-btn');
         this.toggleButtonsBtn = document.getElementById('toggle-buttons-btn');
+        this.expandBtn = document.getElementById('expand-button');
     }
 
     initialize() {
@@ -82,6 +86,8 @@ export class HSRPageController {
                 if (this.isCalculating || !this.#runValidation()) {
                     return;
                 }
+                const overlay = document.getElementById('chartLoadingOverlay');
+                overlay.style.display = 'flex';
 
                 if (window.goatcounter) {
                     window.goatcounter.count({
@@ -90,16 +96,61 @@ export class HSRPageController {
                     });
                 }
 
+                abortController = new AbortController();
+                const signal = abortController.signal;
+                
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
+                this.calculateBtnNoCashback.disabled = true;
+                const isCashback = true;
 
                 try {
-                    await this.calculationHandler.runCalculation();
+                    await this.calculationHandler.runCalculation(isCashback, signal);
+                    this.persistence.saveIsCashback(isCashback);
                 } finally {
                     this.isCalculating = false;
                     this.calculateBtn.disabled = false;
+                    this.calculateBtnNoCashback.disabled = false;
+                    overlay.style.display = 'none';
                 }
             });
+        } if (this.calculateBtnNoCashback) {
+            this.calculateBtnNoCashback.addEventListener('click', async () => {
+                if (this.isCalculating || !this.#runValidation()) {
+                    return;
+                }
+                const overlay = document.getElementById('chartLoadingOverlay');
+                overlay.style.display = 'flex';
+
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/hsr-calculation-initiated',
+                        title: 'HSR Calculation Initiated'
+                    });
+                }
+
+                abortController = new AbortController();
+                const signal = abortController.signal;
+
+                this.isCalculating = true;
+                this.calculateBtn.disabled = true;
+                this.calculateBtnNoCashback.disabled = true;
+                const isCashback = false;
+
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                    await this.calculationHandler.runCalculation(isCashback, signal);
+                    this.persistence.saveIsCashback(isCashback);
+                } finally {
+                    this.isCalculating = false;
+                    this.calculateBtn.disabled = false;
+                    this.calculateBtnNoCashback.disabled = false;
+                    overlay.style.display = 'none';
+                }
+            });
+        }
+        if (this.stopBtn) {
+            this.stopBtn.addEventListener('click', () => stopCalculation());
         }
         if (this.exportBtn) {
             this.exportBtn.addEventListener('click', () => exportDataAsJson(this.persistence));
@@ -181,7 +232,16 @@ export class HSRPageController {
 
     #loadStateAndRunInitialCalculation() {
         const savedInput = this.persistence.loadCalculation();
+        let isCashback;
+        if (this.persistence.loadIsCashback()) {
+            const result = this.persistence.loadIsCashback();
+            isCashback = result.isCashback;
+        } else {
+            isCashback = true;
+        }
         const pullPlanData = savedInput ? savedInput.input : null;
+        abortController = new AbortController();
+        const signal = abortController.signal;
 
         if (savedInput) {
             initializePullPlanManager(this.parts.gachaConfig.paths, pullPlanData);
@@ -192,6 +252,20 @@ export class HSRPageController {
             initializeTarget(DEFAULTS);
             setUpInputPersist();
         }
-        this.calculationHandler.runCalculation();
+        this.isCalculating = true;
+        this.calculateBtn.disabled = true;
+        this.calculateBtnNoCashback.disabled = true;
+
+        this.calculationHandler.runCalculation(isCashback, signal);
+
+        this.isCalculating = false;
+        this.calculateBtn.disabled = false;
+        this.calculateBtnNoCashback.disabled = false;
+    }
+}
+
+function stopCalculation() {
+    if (abortController) {
+        abortController.abort();
     }
 }

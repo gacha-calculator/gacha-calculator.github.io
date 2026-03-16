@@ -1,10 +1,10 @@
-import { consolidateDistributionForCashback, consolidateProbabilitiesCheap, consolidateProbabilities, simplifyDistribution, normalizeCheap, checkIsEmpty } from '../common/common-helpers.js';
+import { consolidateDistributionForCashback, consolidateProbabilitiesCheap, consolidateProbabilities, simplifyDistribution, normalizeCheap, checkIsEmpty, checkIsTarget } from '../common/common-helpers.js';
 import { makeDistributionArraysSSR, makeDistributionArraysSR, sortPitySSR } from '../common/make-distribution-arrays.js';
 import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig, RATE_UP_ODDS } from './config.js';
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
 import { rankUpSSRCheap } from '../common/common-pull-logic.js';
 
-const moduleType = {pullLogic: 'common', helpers: 'common'};
+const moduleType = { pullLogic: 'common', helpers: 'common' };
 
 const SSR_CHAR_PITY = gachaConfig.pity.pitySSRChar;
 const SSR_WEP_PITY = gachaConfig.pity.pitySSRWep;
@@ -53,6 +53,7 @@ export const GFL2_ADAPTERS = {
         consolidateProbabilities: consolidateProbabilities,
         simplifyDistribution: simplifyDistribution,
         normalizeCheap: normalizeCheap,
-        checkIsEmpty: checkIsEmpty
+        checkIsEmpty: checkIsEmpty,
+        checkIsTarget: checkIsTarget
     }
 };

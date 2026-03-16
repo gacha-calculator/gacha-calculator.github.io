@@ -24,13 +24,14 @@ export class gachaCalculator {
                 consolidateProbabilitiesCheap: () => { throw new Error('consolidateProbabilitiesCheap not implemented'); },
                 simplifyDistribution: () => { throw new Error('simplifyDistribution not implemented'); },
                 normalizeCheap: () => { throw new Error('normalizeCheap not implemented'); },
-                checkIsEmpty: () => { throw new Error('checkIsEmpty not implemented'); }
+                checkIsEmpty: () => { throw new Error('checkIsEmpty not implemented'); },
+                checkIsTarget: () => { throw new Error('checkIsTarget not implemented'); }
             },
             ...adapters
         };
     }
 
-    async runGachaCalculation(inputConfig, target) {
+    async runGachaCalculation(inputConfig, target, isCashback, signal) {
         this.adapters.contexts.contextSSR.target = target;
         let allPullsDistributionSSR = [];
         let pastLossPerBannerType = {};
@@ -42,29 +43,15 @@ export class gachaCalculator {
         this.adapters.contexts.contextSSR.pities = pity;
         let { distributionSSR } = this.adapters.distributionArrays.makeSSR(inputConfig, pity);
         let { distributionCharSR, distributionWepSR } = this.adapters.distributionArrays.makeSR(inputConfig);
-        try {
-            await initializeWorkers(ssrWorker, srWorker, this.adapters.contexts, distributionSSR, { distributionCharSR, distributionWepSR }, pity);
-        } catch (error) {
-            console.error('Failed to initialize workers:', error);
-        }
 
-        let ssrData = await runSSRIteration(ssrWorker);
-        if (ssrData.type === 'IterationComplete') {
-            pastLossPerBannerType = ssrData.lossData;
-        } else {
-            pastLossPerBannerType = ssrData.lossData;
-            isTarget = ssrData.isTarget;
-            isEmpty = ssrData.isEmpty;
-            allPullsDistributionSSR = ssrData.allPullsDistributionSSR;
-            distributionSSR = ssrData.distributionSSR;
-        }
 
-        while (!isEmpty && !isTarget) {
-            normalizePullsPerBanner(pastLossPerBannerType);
-            [ssrData] = await Promise.all([
-                runSSRIteration(ssrWorker),
-                runSRIteration(srWorker, pastLossPerBannerType)
-            ]);
+        if (isCashback) {
+            try {
+                await initializeWorkers(ssrWorker, srWorker, this.adapters.contexts, distributionSSR, { distributionCharSR, distributionWepSR }, pity);
+            } catch (error) {
+                console.error('Failed to initialize workers:', error);
+            }
+            let ssrData = await runSSRIteration(ssrWorker);
             if (ssrData.type === 'IterationComplete') {
                 pastLossPerBannerType = ssrData.lossData;
             } else {
@@ -74,32 +61,73 @@ export class gachaCalculator {
                 allPullsDistributionSSR = ssrData.allPullsDistributionSSR;
                 distributionSSR = ssrData.distributionSSR;
             }
-        }
-        normalizePullsPerBanner(pastLossPerBannerType);
-        let srData = await runFinalSRIteration(srWorker, pastLossPerBannerType);
-        this.adapters.workerManager.terminateWorkers();
+            while (!isEmpty && !isTarget) {
+                if (signal?.aborted) {
+                    this.adapters.workerManager.terminateWorkers();
+                    throw new DOMException('Aborted', 'AbortError');
+                }
+                normalizePullsPerBanner(pastLossPerBannerType);
+                [ssrData] = await Promise.all([
+                    runSSRIteration(ssrWorker),
+                    runSRIteration(srWorker, pastLossPerBannerType)
+                ]);
+                if (ssrData.type === 'IterationComplete') {
+                    pastLossPerBannerType = ssrData.lossData;
+                } else {
+                    pastLossPerBannerType = ssrData.lossData;
+                    isTarget = ssrData.isTarget;
+                    isEmpty = ssrData.isEmpty;
+                    allPullsDistributionSSR = ssrData.allPullsDistributionSSR;
+                    distributionSSR = ssrData.distributionSSR;
+                }
+            }
+            normalizePullsPerBanner(pastLossPerBannerType);
+            let srData = await runFinalSRIteration(srWorker, pastLossPerBannerType);
+            this.adapters.workerManager.terminateWorkers();
 
-        distributionCharSR = srData.distributionCharSR;
-        distributionWepSR = srData.distributionWepSR;
+            distributionCharSR = srData.distributionCharSR;
+            distributionWepSR = srData.distributionWepSR;
+        }
 
         const cashbackData = {
             SSR: this.adapters.helpers.consolidateDistributionForCashback(distributionSSR),
             CharSR: this.adapters.helpers.consolidateDistributionForCashback(distributionCharSR),
-            WepSR: this.adapters.helpers.consolidateDistributionForCashback(distributionWepSR)
+            WepSR: this.adapters.helpers.consolidateDistributionForCashback(distributionWepSR),
+            isCashback: isCashback
         }
         this.adapters.helpers.simplifyDistribution(distributionSSR);
-        isEmpty = this.adapters.helpers.checkIsEmpty(distributionSSR, isTarget);
+        isEmpty = this.adapters.helpers.checkIsEmpty(distributionSSR, isTarget || !isCashback);
         distributionCharSR = null;
         distributionWepSR = null;
+        let cashbackPullsDistrFound = false;
+        let cashbackPullsDistr;
+        if (isCashback) {
+            cashbackPullsDistrFound = true;
+            cashbackPullsDistr = allPullsDistributionSSR[allPullsDistributionSSR.length - 1];
+        }
 
         while (!isEmpty) {
-            if (isTarget) {
+            if (signal?.aborted) {
+                throw new DOMException('Aborted', 'AbortError');
+            }
+            if (!isCashback) {
+                if (isTarget && !cashbackPullsDistrFound) {
+                    cashbackPullsDistrFound = true;
+                    cashbackPullsDistr = allPullsDistributionSSR[allPullsDistributionSSR.length - 1];
+                }
                 this.adapters.pullLogic.rankUpSSRCheap(distributionSSR, pity);
                 this.adapters.helpers.normalizeCheap(distributionSSR);
                 allPullsDistributionSSR.push(this.adapters.helpers.consolidateProbabilitiesCheap(distributionSSR));
-                isEmpty = this.adapters.helpers.checkIsEmpty(distributionSSR, isTarget);
+                isEmpty = this.adapters.helpers.checkIsEmpty(distributionSSR, isTarget || !isCashback);
+                isTarget = this.adapters.helpers.checkIsTarget(distributionSSR, target, allPullsDistributionSSR.length);
+            } else if (isTarget) {
+                this.adapters.pullLogic.rankUpSSRCheap(distributionSSR, pity);
+                this.adapters.helpers.normalizeCheap(distributionSSR);
+                allPullsDistributionSSR.push(this.adapters.helpers.consolidateProbabilitiesCheap(distributionSSR));
+                isEmpty = this.adapters.helpers.checkIsEmpty(distributionSSR, isTarget || !isCashback);
             }
         }
+        cashbackData.cashbackPullsDistr = cashbackPullsDistr;
         const chartData = allPullsDistributionSSR;
         return {
             chartData,

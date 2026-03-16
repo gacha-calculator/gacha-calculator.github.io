@@ -12,7 +12,7 @@ import { makeDistributionArraysSSR, sortPity, makeDistributionArraysSR } from '.
 import { ODDS_SSR, ODDS_SR, gachaConfig } from './config.js';
 import { consolidateSRBanners, normalizePullsPerBanner } from './R1999-helpers.js'
 
-export function runR1999GachaCalc(inputConfig, target) {
+export async function runR1999GachaCalc(inputConfig, target, isCashback, signal) {
     let allPullsDistributionSSR = [];
     let pullsPerBanner = {};
     let isTarget = false;
@@ -25,51 +25,82 @@ export function runR1999GachaCalc(inputConfig, target) {
 
     let iterationCount = 0;
     const PRUNE_EVERY_N = 10;
-    while (!isEmpty && !isTarget) {
-        pullsPerBanner = rankUpSSR(distributionSSR, ODDS_SSR, gachaConfig.pity.pitySSR);
-        normalizePullsPerBanner(pullsPerBanner)
-        rankUpSR(distributionSR, ODDS_SR, pullsPerBanner);
-        iterationCount++;
-        if (iterationCount === PRUNE_EVERY_N) {
+    if (isCashback) {
+        while (!isEmpty && !isTarget) {
+            if (signal?.aborted) {
+                throw new DOMException('Aborted', 'AbortError');
+            }
+            pullsPerBanner = rankUpSSR(distributionSSR, ODDS_SSR, gachaConfig.pity.pitySSR);
+            normalizePullsPerBanner(pullsPerBanner)
+            rankUpSR(distributionSR, ODDS_SR, pullsPerBanner);
+            iterationCount++;
+            if (iterationCount === PRUNE_EVERY_N) {
+                pruneAndNormalize(distributionSSR);
+                for (let banner of distributionSR) {
+                    pruneAndNormalize(banner);
+                }
+                iterationCount = 0;
+            }
+            allPullsDistributionSSR.push(consolidateProbabilities(distributionSSR));
+            isTarget = checkIsTarget(distributionSSR, target, allPullsDistributionSSR.length);
+            if (!isTarget) {
+                isEmpty = checkIsEmpty(distributionSSR, isTarget);
+            }
+        }
+        if (!iterationCount === PRUNE_EVERY_N) {
             pruneAndNormalize(distributionSSR);
             for (let banner of distributionSR) {
                 pruneAndNormalize(banner);
             }
-            iterationCount = 0;
-        }
-        allPullsDistributionSSR.push(consolidateProbabilities(distributionSSR));
-        isTarget = checkIsTarget(distributionSSR, target, allPullsDistributionSSR.length);
-        if (!isTarget) {
-            isEmpty = checkIsEmpty(distributionSSR, isTarget);
         }
     }
 
-    if (!iterationCount === PRUNE_EVERY_N) {
-        pruneAndNormalize(distributionSSR);
-        for (let banner of distributionSR) {
-            pruneAndNormalize(banner);
-        }
-    }
     distributionSR = consolidateSRBanners(distributionSR);
     const cashbackData = {
         SSR: consolidateDistributionForCashback(distributionSSR),
         SR: consolidateDistributionForCashback(distributionSR),
+        isCashback: isCashback
     }
 
     simplifyDistribution(distributionSSR);
     distributionSR = null;
+    let cashbackPullsDistrFound = false;
+    let cashbackPullsDistr;
+    if (isCashback) {
+        cashbackPullsDistrFound = true;
+        cashbackPullsDistr = allPullsDistributionSSR[allPullsDistributionSSR.length - 1];
+    }
 
     while (!isEmpty) {
-        if (isTarget) {
+        if (signal?.aborted) {
+            throw new DOMException('Aborted', 'AbortError');
+        }
+        if (!isCashback) {
+            if (isTarget && !cashbackPullsDistrFound) {
+                cashbackPullsDistrFound = true;
+                cashbackPullsDistr = allPullsDistributionSSR[allPullsDistributionSSR.length - 1];
+            }
             iterationCount++;
             rankUpSSRCheap(distributionSSR, ODDS_SSR, gachaConfig.pity.pitySSR);
             if (iterationCount === PRUNE_EVERY_N) {
                 normalizeCheap(distributionSSR);
             }
             allPullsDistributionSSR.push(consolidateProbabilitiesCheap(distributionSSR));
-            isEmpty = checkIsEmpty(distributionSSR, isTarget);
+            isEmpty = checkIsEmpty(distributionSSR, isTarget || !isCashback);
+            isTarget = checkIsTarget(distributionSSR, target, allPullsDistributionSSR.length);
+        } else if (isTarget) {
+            if (isTarget) {
+                iterationCount++;
+                rankUpSSRCheap(distributionSSR, ODDS_SSR, gachaConfig.pity.pitySSR);
+                if (iterationCount === PRUNE_EVERY_N) {
+                    normalizeCheap(distributionSSR);
+                }
+                allPullsDistributionSSR.push(consolidateProbabilitiesCheap(distributionSSR));
+                isEmpty = checkIsEmpty(distributionSSR, isTarget || !isCashback);
+            }
         }
     }
+    cashbackData.cashbackPullsDistr = cashbackPullsDistr;
     const chartData = allPullsDistributionSSR;
 
     return {

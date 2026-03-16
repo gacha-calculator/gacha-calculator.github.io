@@ -49,7 +49,7 @@ export function rankUpSSRCheap(distributionSSR, ODDS_SSR, pityChar) {
         const currentArray = distributionSSR[wins];
         const winIndex = 0;
         if (!currentArray.isEmpty) {
-            handleSSRCheap(ODDS_SSR, wins, distributionSSR, pityChar, currentArray.type, winIndex);
+            handleSSRCheap(ODDS_SSR, wins, distributionSSR, pityChar, winIndex);
         }
     }
 }

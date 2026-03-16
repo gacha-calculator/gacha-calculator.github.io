@@ -1,10 +1,10 @@
-import { consolidateProbabilities, checkIsEmpty, consolidateDistributionForCashback, simplifyDistribution, normalizeCheap, consolidateProbabilitiesCheap } from '../common/common-helpers.js';
+import { consolidateProbabilities, checkIsEmpty, consolidateDistributionForCashback, simplifyDistribution, normalizeCheap, consolidateProbabilitiesCheap, checkIsTarget } from '../common/common-helpers.js';
 import { makeDistributionArraysSSR, makeDistributionArraysSR, sortPitySSR } from '../common/make-distribution-arrays.js';
 import { ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, ODDS_SR, gachaConfig } from './config.js';
 import { WorkerManager } from '../../calculator/common/workers/worker-manager.js';
 import { rankUpSSRCheap } from './zenless-pull-logic.js';
 
-const moduleType = {pullLogic: 'zenless', helpers: 'common'};
+const moduleType = { pullLogic: 'zenless', helpers: 'common' };
 
 const SSR_CHAR_PITY = gachaConfig.pity.pitySSRChar;
 const SSR_WEP_PITY = gachaConfig.pity.pitySSRWep;
@@ -18,7 +18,7 @@ const STATES_LIMITS = {
 
 export const ZZZ_ADAPTERS = {
     distributionArrays: {
-        makeSSR: (inputConfig, pity) => {   
+        makeSSR: (inputConfig, pity) => {
             return makeDistributionArraysSSR(inputConfig, pity, STATES_LIMITS);
         },
         makeSR: (inputConfig) => {
@@ -52,6 +52,7 @@ export const ZZZ_ADAPTERS = {
         consolidateProbabilities: consolidateProbabilities,
         simplifyDistribution: simplifyDistribution,
         normalizeCheap: normalizeCheap,
-        checkIsEmpty: checkIsEmpty
+        checkIsEmpty: checkIsEmpty,
+        checkIsTarget: checkIsTarget
     }
 };

@@ -125,7 +125,8 @@ function initializeConstellationTable(config) {
     });
 }
 
-export function updateProbabilityTable(distribution, names, cashback) {
+export function updateProbabilityTable(data, names, cashback) {
+    let distribution = data.SSR
     const probabilityData = [];
     for (let i = 0; i < distribution.probDistr.length; i++) {
         let currentProb = distribution.probDistr[i];

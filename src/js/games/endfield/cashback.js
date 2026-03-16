@@ -4,7 +4,10 @@ import { IterativeSolver } from '../../calculator/common/cashback/solvers.js';
 
 const PROBABILITY_THRESHOLD = 1e-8;
 
-export function cashback(inputConfig, gachaConfig, SSRCashbackData, probabilitiesCharSR) {
+export function cashback(inputConfig, gachaConfig, cashbackData) {
+    const SSRCashbackData = cashbackData.SSR;
+    const probabilitiesCharSR = cashbackData.CharSR;
+    
     const finalCashback = {};
     if (SSRCashbackData.isCashback) {
         SSRCashbackData.cashbackDataSSRAggregate = normalizeDistribution(SSRCashbackData.cashbackDataSSRAggregate);

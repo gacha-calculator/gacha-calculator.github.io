@@ -249,13 +249,11 @@ function errorAnimation(inputElement) {
     }, 500);
 }
 
-export function updateProbabilityTable(distribution, names, cashback) {
+export function updateProbabilityTable(data, names, cashback) {
+    let distribution = data.SSR;
     const probabilityData = [];
     for (let i = 0; i < distribution.length; i++) {
-        let currentProb = 0;
-        for (const [key, value] of distribution[i].offRates) {
-            currentProb += value.prob;
-        }
+        let currentProb = data.cashbackPullsDistr[i];
         let probString = (currentProb * 100).toFixed(2);
         if (currentProb > 0) {
             probabilityData.push({ name: names[i], probability: probString, p10: cashback[i].LOWER_BOUND, mean: cashback[i].MEAN, p90: cashback[i].UPPER_BOUND, color: "#3498db" });
@@ -268,7 +266,22 @@ export function updateProbabilityTable(distribution, names, cashback) {
     probabilityData.forEach(item => {
         const row = document.createElement('tr');
         const widthPercent = item.probability;
-        row.innerHTML = `
+        if (item.p10 === 'N/A') {
+            row.innerHTML = `
+      <td>${item.name}</td>
+      <td>
+        <div class="progress-container">
+          <div class="progress-bar" style="width:${widthPercent}%;background:${item.color}">
+            <div class="progress-label">${item.probability}%</div>
+          </div>
+        </div>
+      </td>
+      <td class="cashback-value">${item.p10}</td>
+      <td class="cashback-value highlight">${item.mean}</td>
+      <td class="cashback-value">${item.p90}</td>
+    `;
+        } else {
+            row.innerHTML = `
       <td>${item.name}</td>
       <td>
         <div class="progress-container">
@@ -281,6 +294,7 @@ export function updateProbabilityTable(distribution, names, cashback) {
       <td class="cashback-value highlight">${item.mean.toFixed(1)}</td>
       <td class="cashback-value">${item.p90.toFixed(1)}</td>
     `;
+        }
 
         tableBody.appendChild(row);
     });

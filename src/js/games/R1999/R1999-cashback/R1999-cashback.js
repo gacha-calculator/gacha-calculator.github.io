@@ -3,20 +3,33 @@ import { IterativeSolver } from "../../../calculator/common/cashback/solvers.js"
 
 const PROBABILITY_THRESHOLD = 1e-8;
 
-export function cashback(inputConfig, gachaConfig, probabilitiesSSR, probabilitiesSR, knownCharSRCombos, CONSTELLATION_MAP) {
+export function cashback(inputConfig, gachaConfig, cashbackData, knownCharSRCombos, CONSTELLATION_MAP) {
+    let probabilitiesSSR = cashbackData.SSR;
+    const probabilitiesSR = cashbackData.SR;
+
     probabilitiesSSR = normalizeDistribution(probabilitiesSSR);
     knownCharSRCombos = processKnownPicks(inputConfig.SR.consCount, knownCharSRCombos, CONSTELLATION_MAP);
-    const charSRCombos = getCombinationsWithKnownValues(inputConfig.SR.consCount, gachaConfig.rateUpCharacterSR, knownCharSRCombos);
-    calculateProbabilityWithKnownValues(charSRCombos, inputConfig.SR.consCount, knownCharSRCombos);
-    const SSRCashback = cashbackSSR(probabilitiesSSR, gachaConfig.poolStandardCharSSR, inputConfig.SSR.consCountStandard, inputConfig.SSR.cashbackRoadmap, gachaConfig);
-    const SRCashback = cashbackSR(charSRCombos, probabilitiesSR, gachaConfig, inputConfig);
 
-    const finalCashback = SSRCashback;
-    for (let i = 0; i < finalCashback.length; i++) {
-        finalCashback[i].mean += SRCashback.mean;
-        finalCashback[i].variance += SRCashback.variance;
-        finalCashback[i] = chebyshevInequiality(finalCashback[i]);
+    let finalCashback;
+    if (cashbackData.isCashback) {
+        const charSRCombos = getCombinationsWithKnownValues(inputConfig.SR.consCount, gachaConfig.rateUpCharacterSR, knownCharSRCombos);
+        calculateProbabilityWithKnownValues(charSRCombos, inputConfig.SR.consCount, knownCharSRCombos);
+        const SSRCashback = cashbackSSR(probabilitiesSSR, gachaConfig.poolStandardCharSSR, inputConfig.SSR.consCountStandard, inputConfig.SSR.cashbackRoadmap, gachaConfig);
+        const SRCashback = cashbackSR(charSRCombos, probabilitiesSR, gachaConfig, inputConfig);
+
+        finalCashback = SSRCashback;
+        for (let i = 0; i < finalCashback.length; i++) {
+            finalCashback[i].mean += SRCashback.mean;
+            finalCashback[i].variance += SRCashback.variance;
+            finalCashback[i] = chebyshevInequiality(finalCashback[i]);
+        }
+    } else {
+        finalCashback = new Array(probabilitiesSSR.length).fill({});
+        finalCashback[0].MEAN = 'N/A';
+        finalCashback[0].LOWER_BOUND = 'N/A';
+        finalCashback[0].UPPER_BOUND = 'N/A';
     }
+
 
     return finalCashback;
 }

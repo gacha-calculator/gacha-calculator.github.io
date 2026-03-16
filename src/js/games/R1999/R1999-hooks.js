@@ -7,13 +7,12 @@ export function createCashbackHook(dependencies) {
         const CASH_BACK = cashbackCalculator(
             inputConfig,
             gachaConfig,
-            results.cashbackData.SSR,
-            results.cashbackData.SR,
+            results.cashbackData,
             inputConfig.SR.rateUps,
             CONSTELLATION_MAP
         );
 
-        uiUpdater(results.cashbackData.SSR, chartLabels, CASH_BACK);
+        uiUpdater(results.cashbackData, chartLabels, CASH_BACK);
     };
 }
 
