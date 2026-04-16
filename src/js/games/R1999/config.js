@@ -4,8 +4,8 @@ export const ODDS_SR = 0.085;
 export const gachaConfig = {
     maxCharacterConstelation: 5,
     rateUpCharacterSR: 2,
-    poolStandardCharSSR: 40,
-    poolCharSR: 23,
+    poolStandardCharSSR: 46,
+    poolCharSR: 24,
     configSR: {
         maxType: 6,
         regularPoints: 0.3,
@@ -49,7 +49,7 @@ export const CONSTELLATION_MAP = {
 };
 
 export const UPDATE_HISTORY = ['1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6',
-    '2.7', 'AC', '2.8', '3.0', '3.1', '3.2', '3.3'
+    '2.7', 'AC', '2.8', '3.0', '3.1', '3.2', '3.3', '3.4'
 ]
 
 export const BANNER_HISTORY = {
@@ -90,8 +90,8 @@ export const BANNER_HISTORY = {
     'The Mourner\'s Eulogy': {char: 'Charon', release: '3.0'},
     'The Midnight Flutist': {char: 'Rubuska', release: '3.1'},
     'The Land\'s Iron Stitch': {char: 'Corvus', release: '3.1'},
-    'On Fate\'s Cue': {char: 'Beryl', release: '3.2'},
     'The Brilliace Within': {char: 'Brume', release: '3.2'},
-    'On Fate\'s Cue': {char: 'Igor', release: '3.3'},
-    'The Brilliace Within': {char: 'Marsha', release: '3.3'}
+    'The Oath Unyielding': {char: 'Marsha', release: '3.3'},
+    'Witness of Iron and Blood': {char: 'Igor', release: '3.3'},
+    'Soaring Aspirations': {char: 'Igor', release: '3.4'},
 }
