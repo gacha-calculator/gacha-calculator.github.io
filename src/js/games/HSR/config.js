@@ -74,7 +74,10 @@ export const CUSTOM_CHARS_5_STAR_STANDARD = [
     { value: '1209', text: 'Yanqing' },
     { value: '1102', text: 'Seele' },
     { value: '1205', text: 'Blade' },
-    { value: '1208', text: 'Fu Xuan' }
+    { value: '1208', text: 'Fu Xuan' },
+    { value: '1221', text: 'Yunli' },
+    { value: '1302', text: 'Argenti' },
+    { value: '1006', text: 'Silver Wolf' },
 ];
 
 export const CHARS_5_STAR_STANDARD = new Set(['1003', '1004', '1101', '1104', '1107', '1209', '1211']);
