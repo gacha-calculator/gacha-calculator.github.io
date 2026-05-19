@@ -9,7 +9,7 @@ export const gachaConfig = {
     rateUpCharacterSR: 3,           // 4* characters on banner are not included in the general pool
     rateUpWeaponSR: 5,              // 4* weapon on banner
     poolStandardCharSSR: 8,         // Standard 5* character pool size
-    poolCharSR: 45,                 // Limited 4* character pool size
+    poolCharSR: 46,                 // Limited 4* character pool size
     configSR: {
         maxType: 7,
         regularPoints: 0.4,
@@ -75,7 +75,7 @@ export const CHARS_4_STAR = new Set([
     'freminet', 'gaming', 'gorou', 'iansan', 'ifa', 'kachina', 'kaveh', 'kirara',
     'kujou_sara', 'kuki_shinobu', 'lan_yan', 'layla', 'lynette', 'jahoda', 'mika', 'ningguang', 'noelle',
     'ororon', 'razor', 'rosaria', 'sayu', 'sethos', 'shikanoin_heizou', 'sucrose',
-    'thoma', 'xiangling', 'xingqiu', 'xinyan', 'yanfei', 'yaoyao', 'yun_jin', 'illuga'
+    'thoma', 'xiangling', 'xingqiu', 'xinyan', 'yanfei', 'yaoyao', 'yun_jin', 'illuga', 'prune'
 ]);
 
 // --- Weapons ---
