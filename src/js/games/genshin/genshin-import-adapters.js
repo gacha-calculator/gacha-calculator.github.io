@@ -29,17 +29,17 @@ export function adaptFromPaimonMoe(importedData) {
 function calculateCapRad(rateUpHistory) {
     let capRad = 1;
     for (let i = rateUpHistory.length - 1; i >= 0; i--) {
-        let rateUp = rateUpHistory[i]; // 0 won, 1 standard, 2 rateupLost
+        let rateUp = rateUpHistory[i]; // 0 lost, 1 won, 2 guarantee
 
         if (rateUp === undefined) {
             return ' ';
-        } else if (rateUp === 0) {
+        } else if (rateUp === 1) {
             if (capRad === 3) {
                 capRad = 1;
-            } else {
+            } else if (capRad > 0) {
                 capRad--;
             }
-        } else if (rateUp === 2) {
+        } else if (rateUp === 0) {
             capRad++;
         }
     }
