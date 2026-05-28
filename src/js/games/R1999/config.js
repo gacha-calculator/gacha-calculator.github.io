@@ -4,8 +4,8 @@ export const ODDS_SR = 0.085;
 export const gachaConfig = {
     maxCharacterConstelation: 5,
     rateUpCharacterSR: 2,
-    poolStandardCharSSR: 50,
-    poolCharSR: 28,
+    poolStandardCharSSR: 49,
+    poolCharSR: 24,
     configSR: {
         maxType: 6,
         regularPoints: 0.3,
