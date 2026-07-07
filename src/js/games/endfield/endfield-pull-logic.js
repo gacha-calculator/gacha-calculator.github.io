@@ -2535,6 +2535,7 @@ function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDist
                 if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, then we manually do the current pull for these states which they missed, avoids double counting, while preserving efficiency
                     const baseOdds = odds[0];
                     const firstCalc = prob * baseOdds;
+                    let bufferUrgent = firstCalc;
                     urgentPulls += prob;
                     prob -= firstCalc;
                     for (let j = 0; j < 9; j++) {
@@ -2601,6 +2602,7 @@ function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDist
             if (prob !== 0) {
                 const baseOdds = odds[0];
                 const firstCalc = prob * baseOdds;
+                let bufferUrgent = firstCalc;
                 urgentPulls += prob;
                 prob -= firstCalc;
                 for (let j = 0; j < 9; j++) {
@@ -2667,6 +2669,7 @@ function handleSSRFirstNextNewCheap(odds, inputIndex, array, arrayData, probDist
                 if (spark === 30) { // actual spark 31, ie before spark 31 we do urgent recruitment, which is the correct way, then we manually do the current pull for these states which they missed, avoids double counting, while preserving efficiency
                     const baseOdds = odds[0];
                     const firstCalc = prob * baseOdds;
+                    let bufferUrgent = firstCalc;
                     urgentPulls += prob;
                     prob -= firstCalc;
                     for (let j = 0; j < 9; j++) {
