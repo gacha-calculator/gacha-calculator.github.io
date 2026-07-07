@@ -73,9 +73,6 @@ self.onmessage = function (e) {
                             pulls = chartData.length + 1;
                         }
                     }
-                    if (chartData.length === 28) {
-                        debugger;
-                    }
                     chartData.push([...probDistr]);
                 }
 
