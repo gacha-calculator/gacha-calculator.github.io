@@ -1,4 +1,4 @@
-import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, CHARS_4_STAR } from "./config.js";
+import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, CUSTOM_CHARS_5_STAR_STANDARD, CHARS_4_STAR } from "./config.js";
 
 export function adaptFromRngMoe(importedData, persistence) {
     if (!importedData.data || !importedData.data.profiles) {
@@ -8,7 +8,20 @@ export function adaptFromRngMoe(importedData, persistence) {
     const pities = data.gachaTypes;
     const pulls = data.items;
 
-    const standardData = persistence._load('zzz-constellations');
+    let standardData = persistence._load('zzz-constellations');
+    if (standardData === null) { // pretty stupid that I do it here and don't just ensure this happens on fresh page
+        standardData = {};
+        standardData.constValues = {};
+        for (let i = 0; i < CUSTOM_CHARS_5_STAR_STANDARD.length; i++) {
+            let char = CUSTOM_CHARS_5_STAR_STANDARD[i].value;
+            standardData.constValues[char] = 'none';
+        }
+        standardData.selectedChars = [];
+        for (let i = 0; i < 6; i++) {
+            let char = CUSTOM_CHARS_5_STAR_STANDARD[i].value;
+            standardData.selectedChars.push(char);
+        }
+    }
 
     const charPity = calculatePityFromPulls(pulls, 'character', pities);
     const wepPity = calculatePityFromPulls(pulls, 'weapon', pities);
@@ -18,7 +31,7 @@ export function adaptFromRngMoe(importedData, persistence) {
         { banner: 'weapon', ...wepPity }
     ];
 
-    const finalConstellationData = aggregateConstellationCounts(pulls, data.itemAppend, standardData);
+    const finalConstellationData = aggregateConstellationCounts(pulls, data.itemAppend, standardData, persistence);
 
     return {
         pity: finalPityData,
@@ -66,7 +79,7 @@ function calculatePityFromPulls(pulls, bannerType, pities) {
     };
 }
 
-function aggregateConstellationCounts(pulls, extraCons, standardData) {
+function aggregateConstellationCounts(pulls, extraCons, standardData, persistence) {
     const fourStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
     const fiveStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
 
@@ -115,6 +128,8 @@ function aggregateConstellationCounts(pulls, extraCons, standardData) {
         }
     }
 
+    updateStandardCons(fiveStarMap, standardData, persistence);
+
     for (const [key, value] of fiveStarMap) {
         if (activeStandard.has(key)) {
             const maxCons = fiveStarCounts.length - 1;
@@ -141,4 +156,40 @@ function aggregateConstellationCounts(pulls, extraCons, standardData) {
         0: fiveStarCounts.map(String),
         1: fourStarCounts.map(String)
     };
+}
+
+function getKeyByValue(value) {
+    return Object.keys(CONSTELLATION_MAP).find(key => CONSTELLATION_MAP[key] === value);
+}
+
+function updateStandardCons(fiveStarMap, standardData, persistence) {
+    Object.keys(standardData.constValues).forEach(key => {
+        standardData.constValues[key] = 'none';
+    });
+
+    for (const [key, value] of fiveStarMap) {
+        if (key in standardData.constValues) {
+            standardData.constValues[key] = getKeyByValue(value);
+        }
+    }
+    const standardsSelects = document.querySelectorAll('select[data-control^="standard-slot-"]');
+    const standardTable = document.getElementById('custom-standards-panel');
+    const constSelects = standardTable.querySelectorAll('select[data-control^="rate-up-slot-"]');
+    updateDisplayedConst(standardData, constSelects);
+    updateConstValues(standardsSelects, constSelects, standardData.constValues);
+
+    persistence._save('zzz-constellations', standardData);
+}
+
+function updateDisplayedConst(standardData, constSelects) {
+    for (let i = 0; i < constSelects.length; i++) {
+        constSelects[i].value = standardData.constValues[standardData.selectedChars[i]];
+    }
+}
+
+function updateConstValues(standardsSelects, constSelects, constValues) {
+    for (let i = 0; i < standardsSelects.length; i++) {
+        let currentStandard = standardsSelects[i].value;
+        constValues[currentStandard] = constSelects[i].value
+    }
 }

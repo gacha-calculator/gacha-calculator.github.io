@@ -43,11 +43,12 @@ export function initializeStandardTable(CUSTOM_CHARS_5_STAR_STANDARD, CONSTELLAT
             const newOption = ALL_OPTIONS.find(opt => opt.value === newValue);
             if (newOption) {
                 currentSelections[i] = { ...newOption }; // clone to avoid reference issues
+                standardData = persistence._load('hsr-constellations');
                 updateSelectedChars(standardsSelects, standardData.selectedChars);
                 persistence._save('hsr-constellations', standardData);
-                updateAllSelects();
                 updateDisplayedConst(constSelects, standardData);
                 updateConstellationTable(standardsSelects, standardData.constValues);
+                updateAllSelects();
             }
         });
     });
@@ -78,7 +79,7 @@ export function initializeStandardTable(CUSTOM_CHARS_5_STAR_STANDARD, CONSTELLAT
 function findCurrentSelection(ALL_OPTIONS, standardData) {
     const currentSelections = [];
     for (const option of ALL_OPTIONS) {
-        if(standardData.selectedChars.includes(option.value)) {
+        if (standardData.selectedChars.includes(option.value)) {
             currentSelections.push(option);
         }
     }

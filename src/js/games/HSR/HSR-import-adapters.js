@@ -154,7 +154,7 @@ function aggregateConstellationCounts(lines, standardData, persistence) {
         }
     });
 
-    //updateStandardCons(fiveStarMap, standardData, persistence);
+    updateStandardCons(fiveStarMap, standardData, persistence);
 
     for (const value of fourStarMap.values()) {
         const maxCons = fourStarCounts.length - 1;
@@ -196,6 +196,10 @@ function aggregateConstellationCounts(lines, standardData, persistence) {
     };
 }
 
+function getKeyByValue(value) {
+    return Object.keys(CONSTELLATION_MAP).find(key => CONSTELLATION_MAP[key] === value);
+}
+
 function updateStandardCons(fiveStarMap, standardData, persistence) {
     Object.keys(standardData.constValues).forEach(key => {
         standardData.constValues[key] = 'none';
@@ -203,37 +207,18 @@ function updateStandardCons(fiveStarMap, standardData, persistence) {
 
     for (const [key, value] of fiveStarMap) {
         if (key in standardData.constValues) {
-            standardData.constValues[key] = String(value);
+            standardData.constValues[key] = getKeyByValue(value);
         }
     }
-
-    const currentSelections = findCurrentSelection(CUSTOM_CHARS_5_STAR_STANDARD, standardData);
-
-    const table = document.getElementById('custom-standards-table'); // set according to data
+    updateDisplayedConst(standardData);
 
     persistence._save('hsr-constellations', standardData);
 }
 
-
-function findCurrentSelection(ALL_OPTIONS, standardData) {
-    const currentSelections = [];
-    for (const option of ALL_OPTIONS) {
-        if (standardData.selectedChars.includes(option.value)) {
-            currentSelections.push(option);
-        }
+function updateDisplayedConst(standardData) {
+    const standardTable = document.getElementById('custom-standards-panel');
+    const constSelects = standardTable.querySelectorAll('select[data-control^="rate-up-slot-"]');
+    for (let i = 0; i < constSelects.length; i++) {
+        constSelects[i].value = standardData.constValues[standardData.selectedChars[i]];
     }
-    return currentSelections;
-}
-
-function updateAllSelects() {
-    const takenValues = new Set(currentSelections.map(c => c.value));
-    standardsSelects.forEach((select, i) => {
-        const currentValue = standardData.selectedChars[i];
-        const optionsHTML = ALL_OPTIONS
-            .filter(opt => !takenValues.has(opt.value) || opt.value === currentValue)
-            .map(opt => `<option value="${opt.value}">${opt.text}</option>`)
-            .join('');
-        select.innerHTML = optionsHTML;
-        select.value = currentValue;
-    });
 }

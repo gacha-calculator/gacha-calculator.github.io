@@ -151,6 +151,14 @@
                             </button>
                         </div>
                         <div class="button-container">
+                            <button class="tab-link" data-tab-target="#custom-standards-panel">Standard
+                                Characters</button>
+                            <button class="help-btn" data-help-key="standard-help"
+                                aria-label="Help for Entering Custom Standard Characters">
+                                ?
+                            </button>
+                        </div>
+                        <div class="button-container">
                             <button class="tab-link" data-tab-target="#rateup-panel">Rate-Ups</button>
                             <button class="help-btn" data-help-key="rate-up-help"
                                 aria-label="Help for Entering Rate Up Data">
@@ -209,6 +217,44 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                    <div id="custom-standards-panel" class="tab-pane">
+                        <div class="table-container">
+                            <table id="custom-standards-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rate-Up Slot</th>
+                                        <th>Current Constellation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><select class="custom-select" data-control="standard-slot-1"></select></td>
+                                        <td><select class="custom-select" data-control="rate-up-slot-1"></select></td>
+                                    </tr>
+                                    <tr>
+                                        <td><select class="custom-select" data-control="standard-slot-2"></select></td>
+                                        <td><select class="custom-select" data-control="rate-up-slot-2"></select></td>
+                                    </tr>
+                                    <tr>
+                                        <td><select class="custom-select" data-control="standard-slot-3"></select></td>
+                                        <td><select class="custom-select" data-control="rate-up-slot-3"></select></td>
+                                    </tr>
+                                    <tr>
+                                        <td><select class="custom-select" data-control="standard-slot-4"></select></td>
+                                        <td><select class="custom-select" data-control="rate-up-slot-4"></select></td>
+                                    </tr>
+                                    <tr>
+                                        <td><select class="custom-select" data-control="standard-slot-5"></select></td>
+                                        <td><select class="custom-select" data-control="rate-up-slot-5"></select></td>
+                                    </tr>
+                                    <tr>
+                                        <td><select class="custom-select" data-control="standard-slot-6"></select></td>
+                                        <td><select class="custom-select" data-control="rate-up-slot-6"></select></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div id="rateup-panel" class="tab-pane">
