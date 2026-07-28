@@ -103,6 +103,13 @@ export const helpContentMap = {
         position: 'right',
         size: 'big'
     },
+    'standard-help': {
+        element: '.tab-panel-card',
+        clickTab: '.tab-link[data-tab-target="#custom-standards-panel"]',
+        text: '<p>Input which extra characters you swapped with Standard chars and their constellation level. This information is necessary for accurate cashback predictions.</p>',
+        position: 'right',
+        size: 'big'
+    },
     'rate-up-help': {
         element: '.tab-panel-card',
         clickTab: '.tab-link[data-tab-target="#rateup-panel"]',
