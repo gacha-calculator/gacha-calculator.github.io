@@ -154,7 +154,7 @@ function aggregateConstellationCounts(lines, standardData, persistence) {
         }
     });
 
-    updateStandardCons(fiveStarMap, standardData, persistence);
+    //updateStandardCons(fiveStarMap, standardData, persistence);
 
     for (const value of fourStarMap.values()) {
         const maxCons = fourStarCounts.length - 1;
