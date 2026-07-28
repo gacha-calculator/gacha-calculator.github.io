@@ -1,12 +1,14 @@
-import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD } from "./config.js";
+import { gachaConfig, CONSTELLATION_MAP, CHARS_5_STAR_STANDARD, CHARS_4_STAR } from "./config.js";
 
-export function adaptFromRngMoe(importedData) {
+export function adaptFromRngMoe(importedData, persistence) {
     if (!importedData.data || !importedData.data.profiles) {
-        throw new Error("Imported data is missing key wuwatracker.com properties.");
+        throw new Error("Imported data is missing key rng.moe properties.");
     }
     const data = importedData.data.profiles[1].stores[0];
     const pities = data.gachaTypes;
     const pulls = data.items;
+
+    const standardData = persistence._load('zzz-constellations');
 
     const charPity = calculatePityFromPulls(pulls, 'character', pities);
     const wepPity = calculatePityFromPulls(pulls, 'weapon', pities);
@@ -16,7 +18,7 @@ export function adaptFromRngMoe(importedData) {
         { banner: 'weapon', ...wepPity }
     ];
 
-    const finalConstellationData = aggregateConstellationCounts(pulls, data.itemAppend);
+    const finalConstellationData = aggregateConstellationCounts(pulls, data.itemAppend, standardData);
 
     return {
         pity: finalPityData,
@@ -64,12 +66,17 @@ function calculatePityFromPulls(pulls, bannerType, pities) {
     };
 }
 
-function aggregateConstellationCounts(pulls, extraCons) {
+function aggregateConstellationCounts(pulls, extraCons, standardData) {
     const fourStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
     const fiveStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
 
     const fourStarMap = new Map();
     const fiveStarMap = new Map();
+
+    let activeStandard = CHARS_5_STAR_STANDARD;
+    if (standardData != null && standardData != undefined) {
+        activeStandard = new Set(standardData.selectedChars); // all CUSTOM_CHARS_5_STAR_STANDARD
+    }
 
     for (const pull of Object.values(pulls)) {
         for (const data of pull) {
@@ -92,7 +99,11 @@ function aggregateConstellationCounts(pulls, extraCons) {
 
     for (const [id, amount] of Object.entries(extraCons)) {
         const numId = Number(id);
-        fourStarMap.set(numId, (fourStarMap.get(numId) || 0) + amount);
+        if (CHARS_4_STAR.has(numId)) {
+            fourStarMap.set(numId, (fourStarMap.get(numId) || 0) + amount);
+        } else if (CHARS_5_STAR_STANDARD.has(numId)) {
+            fiveStarMap.set(numId, (fiveStarMap.get(numId) || 0) + amount);
+        }
     }
 
     for (const value of fourStarMap.values()) {
@@ -104,12 +115,16 @@ function aggregateConstellationCounts(pulls, extraCons) {
         }
     }
 
-    for (const value of fiveStarMap.values()) {
-        const maxCons = fiveStarCounts.length - 1;
-        if (value >= maxCons) {
-            fiveStarCounts[maxCons]++;
-        } else {
-            fiveStarCounts[value]++;
+    for (const [key, value] of fiveStarMap) {
+        if (activeStandard.has(key)) {
+            const maxCons = fiveStarCounts.length - 1;
+            if (value >= maxCons) {
+                fiveStarCounts[maxCons]++;
+                activeStandard[key] = maxCons;
+            } else {
+                fiveStarCounts[value]++;
+                activeStandard[key] = value;
+            }
         }
     }
 

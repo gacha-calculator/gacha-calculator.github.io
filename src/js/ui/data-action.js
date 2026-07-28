@@ -29,7 +29,7 @@ async function handleFileSelect(event, persistence, adapterFN, validator, SELECT
             if (parsedData.exportFormat === 'GachaCalculatorData') {
                 standardData = parsedData;
             } else if (adapterFN) {
-                standardData = adapterFN(parsedData);
+                standardData = adapterFN(parsedData, persistence);
             }
         } else if (file.type === 'text/csv') { // only hsr so far
             standardData = adapterFN(fileContent, persistence);

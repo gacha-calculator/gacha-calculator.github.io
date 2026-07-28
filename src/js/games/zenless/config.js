@@ -59,4 +59,17 @@ export const CONSTELLATION_MAP = {
     'm6': 7
 };
 
+export const CUSTOM_CHARS_5_STAR_STANDARD = [
+    { value: '1021', text: 'Nekomata' },
+    { value: '1041', text: 'Soldier 11' },
+    { value: '1101', text: 'Koleda' },
+    { value: '1141', text: 'Lycaon' },
+    { value: '1181', text: 'Grace' },
+    { value: '1211', text: 'Rina' },
+    { value: '1221', text: 'Yanagi' },
+    { value: '1071', text: 'Caesar' },
+    { value: '1241', text: 'Zhu Yuan' },
+];
+
 export const CHARS_5_STAR_STANDARD = new Set([1021, 1041, 1101, 1141, 1181, 1211]);
+export const CHARS_4_STAR = new Set([1011, 1031, 1061, 1081, 1111, 1121, 1131, 1151, 1271, 1281, 1351, 1421, 1441]);

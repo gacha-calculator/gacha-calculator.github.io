@@ -8,7 +8,20 @@ export function adaptFromStarRailStation(importedData, persistence) {
         throw new Error("Imported data is missing key starrailstation.com properties.");
     }
 
-    const standardData = persistence._load('hsr-constellations');
+    let standardData = persistence._load('hsr-constellations');
+    if (standardData === null) { // pretty stupid that I do it here and don't just ensure this happens on fresh page
+        standardData = {};
+        standardData.constValues = {};
+        for (let i = 0; i < CUSTOM_CHARS_5_STAR_STANDARD.length; i++) {
+            let char = CUSTOM_CHARS_5_STAR_STANDARD[i].value;
+            standardData.constValues[char] = 'none';
+        }
+        standardData.selectedChars = [];
+        for (let i = 0; i < 7; i++) {
+            let char = CUSTOM_CHARS_5_STAR_STANDARD[i].value;
+            standardData.selectedChars.push(char);
+        }
+    }
 
     const charPity = calculatePityFromPulls(lines, 'character', standardData);
     const wepPity = calculatePityFromPulls(lines, 'weapon');
@@ -18,7 +31,7 @@ export function adaptFromStarRailStation(importedData, persistence) {
         { banner: 'weapon', ...wepPity }
     ];
 
-    const finalConstellationData = aggregateConstellationCounts(lines, standardData);
+    const finalConstellationData = aggregateConstellationCounts(lines, standardData, persistence);
 
     return {
         pity: finalPityData,
@@ -113,7 +126,7 @@ function isGuarantee(itemId, rarity, bannerType, bannerId, standardData) {
     return isGuarantee;
 }
 
-function aggregateConstellationCounts(lines, standardData) {
+function aggregateConstellationCounts(lines, standardData, persistence) {
     const fourStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
     const fiveStarCounts = new Array(Object.keys(CONSTELLATION_MAP).length).fill(0);
 
@@ -141,6 +154,8 @@ function aggregateConstellationCounts(lines, standardData) {
         }
     });
 
+    updateStandardCons(fiveStarMap, standardData, persistence);
+
     for (const value of fourStarMap.values()) {
         const maxCons = fourStarCounts.length - 1;
         if (value >= maxCons) {
@@ -162,9 +177,10 @@ function aggregateConstellationCounts(lines, standardData) {
             }
         }
     }
+
     const totalPossibleFourStars = gachaConfig.poolCharSR;
     const totalPossibleFiveStars = gachaConfig.poolStandardCharSSR;
-    
+
     // Calculate the difference and place it at index 0 ('none').
     const notOwnedFourStars = totalPossibleFourStars - fourStarMap.size;
     const notOwnedFiveStars = totalPossibleFiveStars - fiveStarMap.size;
@@ -178,4 +194,46 @@ function aggregateConstellationCounts(lines, standardData) {
         0: fiveStarCounts.map(String),
         1: fourStarCounts.map(String)
     };
+}
+
+function updateStandardCons(fiveStarMap, standardData, persistence) {
+    Object.keys(standardData.constValues).forEach(key => {
+        standardData.constValues[key] = 'none';
+    });
+
+    for (const [key, value] of fiveStarMap) {
+        if (key in standardData.constValues) {
+            standardData.constValues[key] = String(value);
+        }
+    }
+
+    const currentSelections = findCurrentSelection(CUSTOM_CHARS_5_STAR_STANDARD, standardData);
+
+    const table = document.getElementById('custom-standards-table'); // set according to data
+
+    persistence._save('hsr-constellations', standardData);
+}
+
+
+function findCurrentSelection(ALL_OPTIONS, standardData) {
+    const currentSelections = [];
+    for (const option of ALL_OPTIONS) {
+        if (standardData.selectedChars.includes(option.value)) {
+            currentSelections.push(option);
+        }
+    }
+    return currentSelections;
+}
+
+function updateAllSelects() {
+    const takenValues = new Set(currentSelections.map(c => c.value));
+    standardsSelects.forEach((select, i) => {
+        const currentValue = standardData.selectedChars[i];
+        const optionsHTML = ALL_OPTIONS
+            .filter(opt => !takenValues.has(opt.value) || opt.value === currentValue)
+            .map(opt => `<option value="${opt.value}">${opt.text}</option>`)
+            .join('');
+        select.innerHTML = optionsHTML;
+        select.value = currentValue;
+    });
 }
