@@ -9,20 +9,20 @@ export function recalcInputs(distribution) {
 }
 
 function findTargetPull(distribution, prob) {
-    if (prob === 100) {
-        prob = 99.9;
-    }
-    let lastElement = distribution.length - 1;
-    let pullNotFound = true;
+    // if (prob === 100) {
+    //     prob = 99.9;
+    // }
+    // let lastElement = distribution.length - 1;
+    // let pullNotFound = true;
     let pull = 0;
-    let y = 0;
-    while (pullNotFound) {
-        if (distribution[lastElement][y] > (prob / 100)) {
-            pull = y;
-            pullNotFound = false;
-        }
-        y++;
-    }
+    // let y = 0;
+    // while (pullNotFound) {
+    //     if (distribution[lastElement][y] > (prob / 100)) {
+    //         pull = y;
+    //         pullNotFound = false;
+    //     }
+    //     y++;
+    // }
     return pull;
 }
 

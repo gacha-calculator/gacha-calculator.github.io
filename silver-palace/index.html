@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GFL2 Gacha Calculator</title>
+    <title>Silver Palace Gacha Calculator</title>
     <meta name="description"
-        content="Calculate your GFL2 5-star pull rates with your pity taken into account and cashback estimated with Gacha Calculator to better plan your wishes.">
-    <link rel="canonical" href="https://gacha-calculator.github.io/GFL2/">
+        content="Calculate your Silver palace 5-star pull rates with your pity taken into account and cashback estimated with Gacha Calculator to better plan your Judgement Shots pulls.">
+
     <!-- Favicon Links -->
     <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -28,7 +28,7 @@
     <script data-goatcounter="https://bubartem.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 
-<body>
+<body data-page="silver-palace">
     <header class="header">
         <nav class="nav-container" aria-label="Game selection">
             <ul class="nav-list">
@@ -121,17 +121,18 @@
         </nav>
     </header>
 
-    <div class="background-container" role="img" aria-label="Background art" style="--bg-desktop: url('/images/GFL2_bg.jpg'); 
-            --bg-mobile:  url('/images/GFL2_bg_small.jpg');">
+    <div class="background-container" role="img" aria-label="Background art" style="--bg-desktop: url('/images/reverse_bg.webp'); 
+            --bg-mobile:  url('/images/reverse_bg_small.webp');">
         <div class="image-fade"></div>
     </div>
 
     <main class="main-content">
         <section class="content-box" aria-label="Calculator interface">
             <div class="header-row">
-                <h1 class="main-title">Girl's Frontline 2: Exilium Gacha Calculator</h1>
+                <h1 class="main-title">Silver Palace Gacha Calculator (WIP) (CBT2)</h1>
                 <button id="start-tour-btn" class="btn btn--tour">Quick Tutorial</button>
             </div>
+
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
@@ -165,7 +166,7 @@
                                         <tr>
                                             <th></th>
                                             <th colspan="2">⭐⭐⭐⭐</th>
-                                            <th colspan="2">⭐⭐⭐⭐⭐</th>
+                                            <th colspan="3">⭐⭐⭐⭐⭐</th>
                                         </tr>
                                         <tr>
                                             <th></th>
@@ -188,13 +189,13 @@
                                         <tr>
                                             <th>Rarity</th>
                                             <th>None</th>
-                                            <th>v0</th>
-                                            <th>v1</th>
-                                            <th>v2</th>
-                                            <th>v3</th>
-                                            <th>v4</th>
-                                            <th>v5</th>
-                                            <th>v6</th>
+                                            <th>p0</th>
+                                            <th>p1</th>
+                                            <th>p2</th>
+                                            <th>p3</th>
+                                            <th>p4</th>
+                                            <th>p5</th>
+                                            <th>p6</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -264,9 +265,26 @@
                             </button>
                         </div>
                         <div class="row">
-                            <select class="rarity" onchange="updatePitySettings(this.value)">
-                                <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+                            <select class="type-selector" style="display: none;">
+                                <option value="char" data-icon="/images/Icon_Character.png">Character</option>
+                                <option value="wep" data-icon="/images/Icon_Claymore.jpg">Weapon</option>
                             </select>
+                        </div>
+                        <div class="dropdown">
+                            <div class="dropdown__header">
+                                <img src="/images/Icon_Character.png" class="type-icon">
+                                <span class="type-text">Character</span>
+                            </div>
+                            <div class="dropdown__options">
+                                <div class="dropdown__item" data-value="char">
+                                    <img src="/images/Icon_Character.png" class="type-icon">
+                                    <span>Character</span>
+                                </div>
+                                <div class="dropdown__item" data-value="wep">
+                                    <img src="/images/Icon_Claymore.jpg" class="type-icon">
+                                    <span>Weapon</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="rows-container"></div>
@@ -338,7 +356,7 @@
                 </div>
             </div>
             <button id="toggle-buttons-btn" class="btn btn--hide-buttons">Hide Help Buttons</button>
-            
+
             <h2>Feedback:</h2>
             <p>Leave suggestions(games/features) or report a bug here:
                 <a href="https://forms.gle/WWf6rESYDqNEDmjU8" class="soft-link">https://forms.gle/WWf6rESYDqNEDmjU8</a>
@@ -348,40 +366,22 @@
             </p>
         </section>
     </main>
-    <script type="module" src="/src/js/games/GFL2/main.js"></script>
+    <script type="module" src="/src/js/games/silver-palace/main.js"></script>
+
     <template id="pity-row-template">
         <tr>
             <td class="banner-name"></td>
-            <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"></td>
-            <td><input type="checkbox" class="guarantee-4"></td>
-            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max='76'></td>
+            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="80"></td>
             <td><input type="checkbox" class="guarantee-5"></td>
+            <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="10"></td>
+            <td><input type="checkbox" class="guarantee-4"></td>
         </tr>
     </template>
     <template id="row-template">
         <div class="row">
             <select class="type-selector" style="display: none;">
                 <option value="char" data-icon="/images/Icon_Character.png">Character</option>
-                <option value="wep" data-icon="/images/Icon_Claymore.jpg">Weapon</option>
             </select>
-
-            <div class="dropdown">
-                <div class="dropdown__header">
-                    <img src="/images/Icon_Character.png" class="type-icon">
-                    <span class="type-text">Character</span>
-                </div>
-                <div class="dropdown__options">
-                    <div class="dropdown__item" data-value="char">
-                        <img src="/images/Icon_Character.png" class="type-icon">
-                        <span>Character</span>
-                    </div>
-                    <div class="dropdown__item" data-value="wep">
-                        <img src="/images/Icon_Claymore.jpg" class="type-icon">
-                        <span>Weapon</span>
-                    </div>
-                </div>
-            </div>
-
             <div class="paths">
                 <select class="first-select"></select>
                 <span class="arrow">→</span>

@@ -7,7 +7,7 @@ export const gachaConfig = {
     rateUpCharacterSR: 3,           // 4* characters on banner are not included in the general pool
     rateUpWeaponSR: 3,              // 4* weapon on banner
     poolStandardCharSSR: 7,         // Standard 5* character pool size
-    poolCharSR: 23,                 // Limited 4* character pool size
+    poolCharSR: 22,                 // Limited 4* character pool size
     configSR: {
         maxType: 7,
         regularPoints: 0.4,

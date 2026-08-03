@@ -1,0 +1,128 @@
+import { findBoundsCheap, findBoundsWeapon, updateProbDistrCheap, updateProbDistrWeapon, checkIsTarget, consolidateSRDistributionForCashback, normalizePullsCoef } from "../silver-palace-helpers";
+import { makeDistributionArraysSSRCheap, makeDistributionArraysSR } from '../silver-palace-make-distribution-arrays.js';
+import { rankUpSSRCheap, rankUpSR } from "../silver-palace-pull-logic";
+
+let inputConfig;
+let STATES_LIMITS;
+let ODDS_CHARACTER_SSR;
+let ODDS_WEAPON_SSR;
+let ODDS_SR;
+let target;
+let isCashback;
+
+let isTarget = false;
+let isEmpty = false;
+let chartData = [];
+let boundsIndices = { maxItem: 0, minItem: 0 };
+let pullsCoef = { rankUpFail: 0, pullsSum: 1, rankUps: 0, urgentPulls: 0 };
+
+self.onmessage = function (e) {
+    switch (e.data?.type) {
+        case 'Launch':
+            ({
+                inputConfig,
+                STATES_LIMITS,
+                ODDS_CHARACTER_SSR,
+                ODDS_WEAPON_SSR,
+                ODDS_SR,
+                target,
+                isCashback
+            } = e.data);
+            const RATE_UP_ODDS = 0.5;
+            let { distributionSSR, distributionSSRData, weaponRankUpMap } = makeDistributionArraysSSRCheap(inputConfig, STATES_LIMITS);
+            let distributionSR = makeDistributionArraysSR(inputConfig, STATES_LIMITS);
+            const type = inputConfig.SSR.pullPlan[0].type;
+
+            if (type === 'char') {
+                const probDistr = new Float64Array(distributionSSR.length - 1);
+                const probDistrRankUps = new Float64Array(distributionSSR.length - 1);
+                const probDistrRankUpsDouble = new Float64Array(distributionSSR.length - 1);
+                const probDistrRankUpsSpark = new Float64Array(distributionSSR.length - 1);
+                const probDistrRankUpsPast = new Float64Array(distributionSSR.length - 1);
+                const probDistrRankUpsDoublePast = new Float64Array(distributionSSR.length - 1);
+                const urgentPullDistr = [0];
+                const lastPullsSum = [0];
+                probDistr[0] = 1;
+
+                const buffer = new Float64Array(240);
+                const smallBuffer = new Float64Array(120);
+
+                const bannerCounts = [];
+                let finalProbDistr;
+                for (const element of distributionSSRData) {
+                    if (element !== null) {
+                        bannerCounts.push(element.bannerCount);
+                    }
+                }
+                let pulls = 0;
+                let urgentPullsSum = 0;
+
+                while (!isEmpty) {
+                    rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, boundsIndices, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, probDistrRankUpsPast, probDistrRankUpsDoublePast, urgentPullDistr, buffer, smallBuffer, weaponRankUpMap);
+                    updateProbDistrCheap(probDistr, probDistrRankUps, probDistrRankUpsDouble, probDistrRankUpsSpark, pullsCoef, probDistrRankUpsPast, probDistrRankUpsDoublePast, urgentPullDistr, chartData);
+                    normalizePullsCoef(pullsCoef, lastPullsSum);
+                    isEmpty = findBoundsCheap(distributionSSR, distributionSSRData, boundsIndices, probDistr);
+                    if (!isTarget) {
+                        if (isCashback) {
+                            urgentPullsSum += pullsCoef.urgentPulls;
+                            rankUpSR(distributionSR, pullsCoef, ODDS_SR);
+                        }
+                        isTarget = checkIsTarget(probDistr, target, chartData.length);
+                        if (isTarget) {
+                            finalProbDistr = [...probDistr];
+                            pulls = chartData.length + 1;
+                        }
+                    }
+                    chartData.push([...probDistr]);
+                }
+
+                if (!isTarget) {
+                    finalProbDistr = [...probDistr];
+                    pulls = chartData.length;
+                }
+
+                const cashbackDataSR = consolidateSRDistributionForCashback(distributionSR);
+                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr, pulls: pulls, urgentPulls: urgentPullsSum });
+            } else {
+                const probDistr = new Float64Array(distributionSSR.length);
+                probDistr[0] = 1;
+                const bannerCounts = [];
+                let finalProbDistr;
+                let issueCount = 0;
+                let pulls = 0;
+
+                while (!isEmpty) {
+                    rankUpSSRCheap(distributionSSR, distributionSSRData, ODDS_CHARACTER_SSR, ODDS_WEAPON_SSR, RATE_UP_ODDS, boundsIndices, weaponRankUpMap);
+                    issueCount++;
+                    if (issueCount === 10) {
+                        updateProbDistrWeapon(probDistr, weaponRankUpMap, distributionSSR, distributionSSRData);
+                        issueCount = 0;
+                        if (!isTarget) {
+                            isTarget = checkIsTarget(probDistr, target, chartData.length);
+                            if (isTarget) {
+                                finalProbDistr = [...probDistr];
+                                pulls = chartData.length + 1;
+                            }
+                        }
+                        chartData.push([...probDistr]);
+                    }
+                    isEmpty = findBoundsWeapon(distributionSSR, distributionSSRData, boundsIndices, probDistr, weaponRankUpMap);
+                }
+
+                if (!isTarget) {
+                    finalProbDistr = [...probDistr];
+                    pulls = chartData.length;
+                }
+
+                const cashbackDataSR = consolidateSRDistributionForCashback(distributionSR);
+                self.postMessage({ type: 'Finished', cashbackDataSR: cashbackDataSR, chartData: chartData, bannerCounts: bannerCounts, probDistr: finalProbDistr, pulls: pulls });
+            }
+
+            break;
+        default:
+            console.warn('Unknown type:', e.data?.type);
+    }
+};
+self.onerror = function (error) {
+    console.error('Worker error:', error);
+};
