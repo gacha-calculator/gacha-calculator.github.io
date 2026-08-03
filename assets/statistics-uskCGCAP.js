@@ -1,0 +1,1 @@
+function s(t,o){if(!Number.isInteger(t)||t<0)throw new Error("Number of trials (n) must be a non-negative integer.");let e=0,r=0,n=[],i=1;for(;e<=t;)r=i*Math.pow(o,e)*Math.pow(1-o,t-e),n.push(r),e++,i=i*(t+1-e)/e;return n}export{s as b};
