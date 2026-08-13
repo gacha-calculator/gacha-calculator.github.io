@@ -5,7 +5,7 @@ export const gachaConfig = {
     maxCharacterConstelation: 5,
     rateUpCharacterSR: 2,
     poolStandardCharSSR: 49,
-    poolCharSR: 24,
+    poolCharSR: 25,
     configSR: {
         maxType: 6,
         regularPoints: 0.3,
@@ -49,7 +49,7 @@ export const CONSTELLATION_MAP = {
 };
 
 export const UPDATE_HISTORY = ['1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6',
-    '2.7', 'AC', '2.8', '3.0', '3.1', '3.2', '3.3', '3.4', '3.5', '3.6', 'PD'
+    '2.7', 'AC', '2.8', '3.0', '3.1', '3.2', '3.3', '3.4', '3.5', '3.6', 'PD', '3.7'
 ]
 
 export const BANNER_HISTORY = {
@@ -97,4 +97,5 @@ export const BANNER_HISTORY = {
     'The Strange Attractor': {char: 'Lorentz Butterfly', release: '3.5'},
     'Conduit of the Unseen': {char: 'Ramona', release: '3.5'},
     'Deciphering Reality': {char: 'Enigma', release: '3.6'},
+    'Deciphering Reality': {char: 'Ms. Stranger', release: '3.7'},
 }
