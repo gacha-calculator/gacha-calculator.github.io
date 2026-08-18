@@ -1422,7 +1422,7 @@ table td:first-child {
     }
 
     .btn--add {
-        height: 100%;
+        height: 34px;
         background: var(--color-primary);
     }
 
