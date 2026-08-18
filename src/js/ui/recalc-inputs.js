@@ -15,6 +15,8 @@ function findTargetPull(distribution, prob) {
     let lastElement = distribution.length - 1;
     let pullNotFound = true;
     let y = 0;
+    let pull = 0;
+    
     while (pullNotFound) {
         if (distribution[lastElement][y] > (prob / 100)) {
             pull = y;
