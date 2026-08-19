@@ -100,7 +100,13 @@ function initializePityTable(pityConfig) {
         }
 
         row.dataset.banner = bannerType;
-        row.querySelector('.banner-name').textContent = bannerType;
+        if (bannerType === 'character') {
+            row.querySelector('.banner-name').textContent = 'Character';
+        } else if (bannerType === 'weapon') {
+            row.querySelector('.banner-name').textContent = 'Weapon';
+        } else {
+            row.querySelector('.banner-name').textContent = bannerType;
+        }
         row.querySelector('[data-control="pity-5"]').value = config.pity5;
 
         pityTbody.appendChild(row);

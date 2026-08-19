@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="/stylesheet" />
+        rel="stylesheet" />
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -89,7 +89,7 @@
                     </div>
                 </li>
             </ul>
-            <nav class="nav-container--expanded" id="expandedMenu">
+            <div id="expandedMenu" class="nav-container--expanded" hidden>
                 <ul class="nav-list">
                     <li>
                         <a href="/GFL2/" class="nav-button"
@@ -117,7 +117,7 @@
                         </a>
                     </li>
                 </ul>
-            </nav>
+        </nav>
         </nav>
     </header>
 
@@ -217,7 +217,7 @@
                         <div class="button-container">
                             <h2>Pull Plan</h2>
                             <button class="help-btn" data-help-key="pull-plan-help"
-                                aria-label="Help for Entering Pity Data">
+                                aria-label="Help for pull plan">
                                 ?
                             </button>
                         </div>
@@ -283,7 +283,7 @@
                         </div>
                         <span class="control-text mode-label" data-target="pulls">pulls</span>
                     </div>
-                    <button class="help-btn" data-help-key="target-help" aria-label="Help for Exporting Pity Data">
+                    <button class="help-btn" data-help-key="target-help" aria-label="Help for Target Probability and Pulls">
                         ?
                     </button>
                 </div>
@@ -310,7 +310,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <button class="help-btn" data-help-key="cashback-help" aria-label="Help for Exporting Pity Data">
+                    <button class="help-btn" data-help-key="cashback-help" aria-label="Help for cashback data">
                         ?
                     </button>
                 </div>
@@ -326,6 +326,19 @@
             </p>
         </section>
     </main>
+
+    <footer>
+        <div class="footer">
+            <section class="content-box" aria-label="Footer">
+                <small>
+                    gacha-calculator.github.io is an unofficial, fan project.<br>
+                    All game assets, names, and trademarks are the property of their respective owners.<br>
+                    This site is not affiliated with or endorsed by any game publisher.
+                </small>
+            </section>
+        </div>
+    </footer>
+
     <script type="module" src="/src/js/games/endfield/main.js"></script>
     <template id="pity-row-template">
         <tr>
@@ -360,16 +373,5 @@
         <td><input type="number" class="custom-input" value="0"></td>
     </template>
 </body>
-<footer>
-    <main class="footer">
-        <section class="content-box" aria-label="Footer">
-            <small>
-                gacha-calculator.github.io is an unofficial, fan project.<br>
-                All game assets, names, and trademarks are the property of their respective owners.<br>
-                This site is not affiliated with or endorsed by any game publisher.
-            </small>
-        </section>
-    </main>
-</footer>
 
 </html>
