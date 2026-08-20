@@ -89,13 +89,6 @@ export class HSRPageController {
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
 
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/hsr-calculation-initiated',
-                        title: 'HSR Calculation Initiated'
-                    });
-                }
-
                 abortController = new AbortController();
                 const signal = abortController.signal;
                 
@@ -121,13 +114,6 @@ export class HSRPageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/hsr-calculation-initiated',
-                        title: 'HSR Calculation Initiated'
-                    });
-                }
 
                 abortController = new AbortController();
                 const signal = abortController.signal;

@@ -66,7 +66,7 @@ function initializePityTable(pityConfig, INITIAL_CONFIG, SELECTORS) {
             <input type="number" data-control="capRad" class="custom-input" min="0" max="3" 
                    value="${config.caprad ?? 0}">
                             <button class="help-btn" data-help-key="caprad-help"
-                                aria-label="Help for Importing Pity Data">
+                                aria-label="Capturing Radience input">
                                 ?
                             </button>
                         </div>`;
@@ -75,7 +75,7 @@ function initializePityTable(pityConfig, INITIAL_CONFIG, SELECTORS) {
             <input type="number" data-control="epPath" class="custom-input" min="0" max="1" 
                    value="${config.epPath ?? 0}">
                             <button class="help-btn" data-help-key="eppath-help"
-                                aria-label="Help for Importing Pity Data">
+                                aria-label="Epitomic Path input">
                                 ?
                             </button>
                         </div>`;

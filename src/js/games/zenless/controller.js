@@ -89,13 +89,6 @@ export class zenlessPageController {
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
 
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/ZZZ-calculation-initiated',
-                        title: 'ZZZ Calculation Initiated'
-                    });
-                }
-
                 abortController = new AbortController();
                 const signal = abortController.signal;
 
@@ -122,13 +115,6 @@ export class zenlessPageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/ZZZ-calculation-initiated',
-                        title: 'ZZZ Calculation Initiated'
-                    });
-                }
 
                 abortController = new AbortController();
                 const signal = abortController.signal;

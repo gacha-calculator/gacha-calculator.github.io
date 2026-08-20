@@ -20,6 +20,13 @@ export function adaptFromKornblume(importedData) {
     const STANDARD_CHARS = findStandards();
     const finalConstellationData = aggregateConstellationCounts(pulls.data, STANDARD_CHARS);
 
+    if (window.goatcounter) {
+        window.goatcounter.count({
+            path: '/R1999-import-initiated',
+            title: 'R1999 Import Initiated'
+        });
+    }
+
     return {
         pity: finalPityData,
         constellation: finalConstellationData,

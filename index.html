@@ -153,7 +153,7 @@
                 <li>
                     <a href="/genshin/" class="nav-button" aria-label="Go to Genshin Impact Calculator">
                         <div class="icon-container">
-                            <img src="/images/genshin_icon.jpeg" class="nav-icon">
+                            <img src="/images/genshin_icon.jpeg" class="nav-icon" alt="">
                         </div>
                         <span>Genshin Impact</span>
                     </a>
@@ -161,7 +161,7 @@
                 <li>
                     <a href="/HSR/" class="nav-button" aria-label="Go to Honkai Star Rail Calculator">
                         <div class="icon-container">
-                            <img src="/images/honkai_icon.webp" class="nav-icon">
+                            <img src="/images/honkai_icon.webp" class="nav-icon" alt="">
                         </div>
                         <span>Honkai Star Rail</span>
                     </a>
@@ -169,7 +169,7 @@
                 <li>
                     <a href="/ZZZ/" class="nav-button" aria-label="Go to Zenless Zone Zero Calculator">
                         <div class="icon-container">
-                            <img src="/images/zenless_icon.jpeg" class="nav-icon">
+                            <img src="/images/zenless_icon.jpeg" class="nav-icon" alt="">
                         </div>
                         <span>Zenless Zone Zero</span>
                     </a>
@@ -177,7 +177,7 @@
                 <li>
                     <a href="/endfield/" class="nav-button" aria-label="Go to Arknights: Endfield" draggable="true">
                         <div class="icon-container">
-                            <img src="/images/arknights_endfield_icon.webp" class="nav-icon">
+                            <img src="/images/arknights_endfield_icon.webp" class="nav-icon" alt="">
                         </div>
                         <span>Arknights: Endfield</span>
                     </a>
@@ -185,7 +185,7 @@
                 <li>
                     <a href="/wuwa/" class="nav-button" aria-label="Go to Wuthering Waves Calculator">
                         <div class="icon-container">
-                            <img src="/images/wuwa_icon.jpg" class="nav-icon">
+                            <img src="/images/wuwa_icon.jpg" class="nav-icon" alt="">
                         </div>
                         <span>Wuthering Waves</span>
                     </a>
@@ -194,11 +194,12 @@
                     <div class="home-button-group">
                         <a href="/" class="nav-button--home" aria-label="Go to Home Page">
                             <div class="icon-container">
-                                <img src="/images/home_icon.jpg" class="nav-icon">
+                                <img src="/images/home_icon.jpg" class="nav-icon" alt="">
                             </div>
                             <span>Home</span>
                         </a>
-                        <div class="expand-button" id="expand-button" aria-label="Expand Game Selection">
+                        <div class="expand-button" id="expand-button" role="button" tabindex="0"
+                            aria-label="Expand Game Selection">
                             <svg id="Flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
                                 <path class="pulse-shape" style="fill:#232338; stroke:#948acf; stroke-width: 3px"
                                     d="M236.77344,211.97656a23.75471,23.75471,0,0,1-20.79688,12.01563H40.02344a23.9925,23.9925,0,0,1-20.76563-36.02344L107.23437,35.97656h-.00781a24.00413,24.00413,0,0,1,41.54688,0l87.96875,151.99219A23.744,23.744,0,0,1,236.77344,211.97656Z" />
@@ -213,7 +214,7 @@
                         <a href="/GFL2/" class="nav-button"
                             aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator" draggable="true">
                             <div class="icon-container">
-                                <img src="/images/gfl2_icon.jpg" class="nav-icon">
+                                <img src="/images/gfl2_icon.jpg" class="nav-icon" alt="">
                             </div>
                             <span>Girls Frontline 2: Exilium</span>
                         </a>
@@ -221,7 +222,7 @@
                     <li>
                         <a href="/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
                             <div class="icon-container">
-                                <img src="/images/reverse_icon.webp" class="nav-icon">
+                                <img src="/images/reverse_icon.webp" class="nav-icon" alt="">
                             </div>
                             <span>Reverse 1999</span>
                         </a>
@@ -229,17 +230,17 @@
                     <li>
                         <a href="/morimens/" class="nav-button" aria-label="Go to Morimens Calculator" draggable="true">
                             <div class="icon-container">
-                                <img src="/images/morimens_icon.jpg" class="nav-icon">
+                                <img src="/images/morimens_icon.jpg" class="nav-icon" alt="">
                             </div>
                             <span>Morimens</span>
                         </a>
                     </li>
                 </ul>
-        </nav>
+            </div>
         </nav>
     </header>
 
-    <div class="background-container" role="img" aria-label="Background art" style="--bg-desktop: url('/images/home_bg.webp'); 
+    <div class="background-container" aria-hidden="true" style="--bg-desktop: url('/images/home_bg.webp'); 
             --bg-mobile:  url('/images/home_bg_small.webp');">
         <div class="image-fade"></div>
     </div>
@@ -283,13 +284,13 @@
 
     <footer>
         <div class="footer">
-            <section class="content-box" aria-label="Footer">
+            <div class="content-box" aria-label="Footer">
                 <small>
                     gacha-calculator.github.io is an unofficial, fan project.<br>
                     All game assets, names, and trademarks are the property of their respective owners.<br>
                     This site is not affiliated with or endorsed by any game publisher.
                 </small>
-            </section>
+            </div>
         </div>
     </footer>
 

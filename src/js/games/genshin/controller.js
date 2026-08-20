@@ -87,13 +87,6 @@ export class GenshinPageController {
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
 
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/genshin-calculation-initiated',
-                        title: 'Genshin Calculation Initiated'
-                    });
-                }
-
                 abortController = new AbortController();
                 const signal = abortController.signal;
                 
@@ -120,13 +113,6 @@ export class GenshinPageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/genshin-calculation-initiated',
-                        title: 'Genshin Calculation Initiated'
-                    });
-                }
 
                 abortController = new AbortController();
                 const signal = abortController.signal;

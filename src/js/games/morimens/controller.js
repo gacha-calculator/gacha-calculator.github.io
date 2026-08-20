@@ -93,14 +93,7 @@ export class morimensPageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/morimens-calculation-initiated',
-                        title: 'Morimens Calculation Initiated'
-                    });
-                }
-
+                
                 this.isCalculating = true;
                 this.calculateBtn.disabled = true;
 

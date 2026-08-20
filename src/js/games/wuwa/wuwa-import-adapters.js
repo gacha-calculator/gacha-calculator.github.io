@@ -12,7 +12,7 @@ export function adaptFromWuwaTracker(importedData) {
     if (!importedData.playerId || !importedData.pulls) {
         throw new Error("Imported data is missing key wuwatracker.com properties.");
     }
-    
+
     const playerId = importedData.playerId;
     const timeZone = timeZoneMap[playerId[0]];
     const BANNER_HISTORY_COPY = BANNER_HISTORY;
@@ -27,6 +27,14 @@ export function adaptFromWuwaTracker(importedData) {
     ];
 
     const finalConstellationData = aggregateConstellationCounts(importedData.pulls);
+
+    if (window.goatcounter) {
+        window.goatcounter.count({
+            path: '/wuwa-import-initiated',
+            title: 'Wuwa Import Initiated'
+        });
+    }
+
 
     return {
         pity: finalPityData,

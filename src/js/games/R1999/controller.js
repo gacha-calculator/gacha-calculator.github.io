@@ -89,13 +89,6 @@ export class R1999PageController {
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
 
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/R1999-calculation-initiated',
-                        title: 'R1999 Calculation Initiated'
-                    });
-                }
-
                 abortController = new AbortController();
                 const signal = abortController.signal;
 
@@ -122,14 +115,7 @@ export class R1999PageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/R1999-calculation-initiated',
-                        title: 'R1999 Calculation Initiated'
-                    });
-                }
-
+                
                 abortController = new AbortController();
                 const signal = abortController.signal;
 

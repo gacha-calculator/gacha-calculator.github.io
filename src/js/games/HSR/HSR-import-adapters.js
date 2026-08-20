@@ -33,6 +33,13 @@ export function adaptFromStarRailStation(importedData, persistence) {
 
     const finalConstellationData = aggregateConstellationCounts(lines, standardData, persistence);
 
+    if (window.goatcounter) {
+        window.goatcounter.count({
+            path: '/HSR-import-initiated',
+            title: 'HSR Import Initiated'
+        });
+    }
+
     return {
         pity: finalPityData,
         constellation: finalConstellationData

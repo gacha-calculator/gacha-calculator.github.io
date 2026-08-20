@@ -24,7 +24,7 @@
         rel="stylesheet" />
 
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script data-goatcounter="https://bubartem.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 
@@ -35,7 +35,7 @@
                 <li>
                     <a href="/genshin/" class="nav-button" aria-label="Go to Genshin Impact Calculator">
                         <div class="icon-container">
-                            <img src="/images/genshin_icon.jpeg" class="nav-icon">
+                            <img src="/images/genshin_icon.jpeg" class="nav-icon" alt="">
                         </div>
                         <span>Genshin Impact</span>
                     </a>
@@ -43,7 +43,7 @@
                 <li>
                     <a href="/HSR/" class="nav-button" aria-label="Go to Honkai Star Rail Calculator">
                         <div class="icon-container">
-                            <img src="/images/honkai_icon.webp" class="nav-icon">
+                            <img src="/images/honkai_icon.webp" class="nav-icon" alt="">
                         </div>
                         <span>Honkai Star Rail</span>
                     </a>
@@ -51,7 +51,7 @@
                 <li>
                     <a href="/ZZZ/" class="nav-button" aria-label="Go to Zenless Zone Zero Calculator">
                         <div class="icon-container">
-                            <img src="/images/zenless_icon.jpeg" class="nav-icon">
+                            <img src="/images/zenless_icon.jpeg" class="nav-icon" alt="">
                         </div>
                         <span>Zenless Zone Zero</span>
                     </a>
@@ -59,7 +59,7 @@
                 <li>
                     <a href="/endfield/" class="nav-button" aria-label="Go to Arknights: Endfield" draggable="true">
                         <div class="icon-container">
-                            <img src="/images/arknights_endfield_icon.webp" class="nav-icon">
+                            <img src="/images/arknights_endfield_icon.webp" class="nav-icon" alt="">
                         </div>
                         <span>Arknights: Endfield</span>
                     </a>
@@ -67,7 +67,7 @@
                 <li>
                     <a href="/wuwa/" class="nav-button" aria-label="Go to Wuthering Waves Calculator">
                         <div class="icon-container">
-                            <img src="/images/wuwa_icon.jpg" class="nav-icon">
+                            <img src="/images/wuwa_icon.jpg" class="nav-icon" alt="">
                         </div>
                         <span>Wuthering Waves</span>
                     </a>
@@ -76,11 +76,12 @@
                     <div class="home-button-group">
                         <a href="/" class="nav-button--home" aria-label="Go to Home Page">
                             <div class="icon-container">
-                                <img src="/images/home_icon.jpg" class="nav-icon">
+                                <img src="/images/home_icon.jpg" class="nav-icon" alt="">
                             </div>
                             <span>Home</span>
                         </a>
-                        <div class="expand-button" id="expand-button" aria-label="Expand Game Selection">
+                        <div class="expand-button" id="expand-button" role="button" tabindex="0"
+                            aria-label="Expand Game Selection">
                             <svg id="Flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
                                 <path class="pulse-shape" style="fill:#232338; stroke:#948acf; stroke-width: 3px"
                                     d="M236.77344,211.97656a23.75471,23.75471,0,0,1-20.79688,12.01563H40.02344a23.9925,23.9925,0,0,1-20.76563-36.02344L107.23437,35.97656h-.00781a24.00413,24.00413,0,0,1,41.54688,0l87.96875,151.99219A23.744,23.744,0,0,1,236.77344,211.97656Z" />
@@ -95,7 +96,7 @@
                         <a href="/GFL2/" class="nav-button"
                             aria-label="Go to Girlzu Furontuline Tsu: Exilium Calculator" draggable="true">
                             <div class="icon-container">
-                                <img src="/images/gfl2_icon.jpg" class="nav-icon">
+                                <img src="/images/gfl2_icon.jpg" class="nav-icon" alt="">
                             </div>
                             <span>Girls Frontline 2: Exilium</span>
                         </a>
@@ -103,7 +104,7 @@
                     <li>
                         <a href="/R1999/" class="nav-button" aria-label="Go to Reverse 1999 Calculator">
                             <div class="icon-container">
-                                <img src="/images/reverse_icon.webp" class="nav-icon">
+                                <img src="/images/reverse_icon.webp" class="nav-icon" alt="">
                             </div>
                             <span>Reverse 1999</span>
                         </a>
@@ -111,17 +112,17 @@
                     <li>
                         <a href="/morimens/" class="nav-button" aria-label="Go to Morimens Calculator" draggable="true">
                             <div class="icon-container">
-                                <img src="/images/morimens_icon.jpg" class="nav-icon">
+                                <img src="/images/morimens_icon.jpg" class="nav-icon" alt="">
                             </div>
                             <span>Morimens</span>
                         </a>
                     </li>
                 </ul>
-        </nav>
+            </div>
         </nav>
     </header>
 
-    <div class="background-container" role="img" aria-label="Background art" style="--bg-desktop: url('/images/arknights_endfield_bg.webp'); 
+    <div class="background-container" aria-hidden="true" style="--bg-desktop: url('/images/arknights_endfield_bg.webp'); 
             --bg-mobile:  url('/images/arknights_endfield_bg_small.webp');">
         <div class="image-fade"></div>
     </div>
@@ -130,19 +131,20 @@
         <section class="content-box" aria-label="Calculator interface">
             <div class="header-row">
                 <h1 class="main-title">Arknights: Endfield Gacha Calculator</h1>
-                <button id="start-tour-btn" class="btn btn--tour">Quick Tutorial</button>
+                <button id="start-tour-btn" class="btn btn--tour" type="button">Quick Tutorial</button>
             </div>
             <div class="calculator-container">
                 <div class="tab-panel-card">
                     <div class="tab-nav">
                         <div class="button-container">
-                            <button class="tab-link active" data-tab-target="#pity-panel">Pity</button>
+                            <button class="tab-link active" data-tab-target="#pity-panel" role="tab" aria-controls="pity-panel" aria-selected="true">Pity</button>
                             <button class="help-btn" data-help-key="pity-help" aria-label="Help for Entering Pity Data">
                                 ?
                             </button>
                         </div>
                         <div class="button-container">
-                            <button class="tab-link" data-tab-target="#constellation-panel">Owned Characters</button>
+                            <button class="tab-link" data-tab-target="#constellation-panel" role="tab" aria-controls="constellation-panel">Owned
+                                Characters</button>
                             <button class="help-btn" data-help-key="constelation-help"
                                 aria-label="Help for Entering Constellation Data">
                                 ?
@@ -151,7 +153,7 @@
                     </div>
 
                     <div class="tab-content">
-                        <div id="pity-panel" class="tab-pane active">
+                        <div id="pity-panel" class="tab-pane active" role="tabpanel">
                             <div class="table-container">
                                 <table id="pity-table">
                                     <thead>
@@ -172,7 +174,7 @@
                             </div>
                         </div>
 
-                        <div id="constellation-panel" class="tab-pane">
+                        <div id="constellation-panel" class="tab-pane" role="tabpanel">
                             <div class="table-container">
                                 <table id="constellation-table">
                                     <thead>
@@ -216,8 +218,7 @@
                     <div id="pull-plan">
                         <div class="button-container">
                             <h2>Pull Plan</h2>
-                            <button class="help-btn" data-help-key="pull-plan-help"
-                                aria-label="Help for pull plan">
+                            <button class="help-btn" data-help-key="pull-plan-help" aria-label="Help for pull plan">
                                 ?
                             </button>
                         </div>
@@ -229,16 +230,16 @@
 
                             <div class="dropdown">
                                 <div class="dropdown__header">
-                                    <img src="/images/Icon_Character.png" class="type-icon">
+                                    <img src="/images/Icon_Character.png" class="type-icon" alt="Char">
                                     <span class="type-text">Character</span>
                                 </div>
                                 <div class="dropdown__options">
                                     <div class="dropdown__item" data-value="char">
-                                        <img src="/images/Icon_Character.png" class="type-icon">
+                                        <img src="/images/Icon_Character.png" class="type-icon" alt="Char">
                                         <span>Character</span>
                                     </div>
                                     <div class="dropdown__item" data-value="wep">
-                                        <img src="/images/Icon_Claymore.jpg" class="type-icon">
+                                        <img src="/images/Icon_Claymore.jpg" class="type-icon" alt="Wep">
                                         <span>Weapon</span>
                                     </div>
                                 </div>
@@ -246,13 +247,14 @@
                         </div>
                     </div>
                     <div class="rows-container"></div>
-                    <button id="add-btn" class="btn btn--add">+</button>
+                    <button id="add-btn" class="btn btn--add" type="button">+</button>
                     <div class="calculate-section">
-                        <button class="btn btn--calculate_no_cashback" id="calculate-btn_no_cashback">Calculate without
+                        <button class="btn btn--calculate_no_cashback" id="calculate-btn_no_cashback"
+                            type="button">Calculate without
                             cashback</button>
                         <div class="button-row">
-                            <button class="btn btn--calculate" id="calculate-btn">Calculate</button>
-                            <button class="btn btn--calculate_stop" id="calculate-stop-btn">Stop</button>
+                            <button class="btn btn--calculate" id="calculate-btn" type="button">Calculate</button>
+                            <button class="btn btn--calculate_stop" id="calculate-stop-btn" type="button">Stop</button>
                         </div>
                     </div>
                 </div>
@@ -273,17 +275,20 @@
                     <div class="header-controls">
                         <span class="control-text">for</span>
                         <div class="input-lock-container">
-                            <input type="number" data-control="probability" class="custom-input" min="0" max="100">
+                            <input type="number" data-control="probability" class="custom-input" min="0" max="100"
+                                aria-label="Your Target Probability">
                         </div>
                         <span class="control-text">%</span>
                         <span class="control-text mode-label" data-target="probability">probability</span>
                         <span class="control-text">or</span>
                         <div class="input-lock-container">
-                            <input type="number" data-control="pulls" class="custom-input" min="1" max="9999">
+                            <input type="number" data-control="pulls" class="custom-input" min="1" max="9999"
+                                aria-label="Your Pull Budget">
                         </div>
                         <span class="control-text mode-label" data-target="pulls">pulls</span>
                     </div>
-                    <button class="help-btn" data-help-key="target-help" aria-label="Help for Target Probability and Pulls">
+                    <button class="help-btn" data-help-key="target-help"
+                        aria-label="Help for Target Probability and Pulls">
                         ?
                     </button>
                 </div>
@@ -315,27 +320,29 @@
                     </button>
                 </div>
             </div>
-            <button id="toggle-buttons-btn" class="btn btn--hide-buttons">Hide Help Buttons</button>
+            <button id="toggle-buttons-btn" class="btn toggle--hide-buttons">Toggle Help Buttons</button>
 
             <h2>Feedback:</h2>
             <p>Leave suggestions(games/features) or report a bug here:
-                <a href="https://forms.gle/WWf6rESYDqNEDmjU8" class="soft-link">https://forms.gle/WWf6rESYDqNEDmjU8</a>
+                <a href="https://forms.gle/WWf6rESYDqNEDmjU8" class="soft-link" target="_blank"
+                    rel="noopener noreferrer">https://forms.gle/WWf6rESYDqNEDmjU8</a>
             </p>
             <p>Or use the discord server:
-                <a href="https://discord.gg/gK9ahpJWCN" class="soft-link">https://discord.gg/gK9ahpJWCN</a>
+                <a href="https://discord.gg/gK9ahpJWCN" class="soft-link" target="_blank"
+                    rel="noopener noreferrer">https://discord.gg/gK9ahpJWCN</a>
             </p>
         </section>
     </main>
 
     <footer>
         <div class="footer">
-            <section class="content-box" aria-label="Footer">
+            <div class="content-box" aria-label="Footer">
                 <small>
                     gacha-calculator.github.io is an unofficial, fan project.<br>
                     All game assets, names, and trademarks are the property of their respective owners.<br>
                     This site is not affiliated with or endorsed by any game publisher.
                 </small>
-            </section>
+            </div>
         </div>
     </footer>
 
@@ -343,8 +350,10 @@
     <template id="pity-row-template">
         <tr>
             <td class="banner-name"></td>
-            <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"></td>
-            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"></td>
+            <td><input type="number" data-control="pity-4" class="custom-input" min="0" max="9"
+                    aria-label="4-star pity count"></td>
+            <td><input type="number" data-control="pity-5" class="custom-input" min="0" max="89"
+                    aria-label="5-star pity count"></td>
         </tr>
     </template>
     <template id="row-template">
@@ -361,16 +370,16 @@
             </select>
 
             <div class="paths">
-                <select class="first-select"></select>
+                <select class="first-select" aria-label="Starting constelation/refinement"></select>
                 <span class="arrow">→</span>
-                <select class="second-select"></select>
+                <select class="second-select" aria-label="Target constelation/refinement"></select>
             </div>
 
             <button class="btn btn--delete">×</button>
         </div>
     </template>
     <template id="const-column-template">
-        <td><input type="number" class="custom-input" value="0"></td>
+        <td><input type="number" class="custom-input" value="0" aria-label="4-star const level number"></td>
     </template>
 </body>
 

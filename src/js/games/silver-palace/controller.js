@@ -105,13 +105,6 @@ export class SilverPalacePageController {
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
 
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/endfield-calculation-initiated',
-                        title: 'Endfield Calculation Initiated'
-                    });
-                }
-
                 abortController = new AbortController();
                 const signal = abortController.signal;
 
@@ -141,13 +134,6 @@ export class SilverPalacePageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/endfield-calculation-initiated',
-                        title: 'Endfield Calculation Initiated'
-                    });
-                }
 
                 abortController = new AbortController();
                 const signal = abortController.signal;

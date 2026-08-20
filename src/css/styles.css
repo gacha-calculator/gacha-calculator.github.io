@@ -689,7 +689,7 @@ table td:first-child {
     white-space: nowrap;
 }
 
-.btn--hide-buttons {
+.toggle--hide-buttons {
     background-color: #752a25;
 }
 

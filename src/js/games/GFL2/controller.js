@@ -83,13 +83,6 @@ export class GFL2PageController {
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
 
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/gfl2-calculation-initiated',
-                        title: 'GFL2 Calculation Initiated'
-                    });
-                }
-
                 abortController = new AbortController();
                 const signal = abortController.signal;
                 
@@ -116,13 +109,6 @@ export class GFL2PageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/gfl2-calculation-initiated',
-                        title: 'GFL2 Calculation Initiated'
-                    });
-                }
 
                 abortController = new AbortController();
                 const signal = abortController.signal;

@@ -20,6 +20,13 @@ export function adaptFromPaimonMoe(importedData) {
 
     const finalConstellationData = aggregateConstellationCounts(importedData.characters);
 
+    if (window.goatcounter) {
+        window.goatcounter.count({
+            path: '/genshin-import-initiated',
+            title: 'Genshin Import Initiated'
+        });
+    }
+
     return {
         pity: finalPityData,
         constellation: finalConstellationData

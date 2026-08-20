@@ -86,13 +86,6 @@ export class WuwaPageController {
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
 
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/wuwa-calculation-initiated',
-                        title: 'Wuwa Calculation Initiated'
-                    });
-                }
-
                 abortController = new AbortController();
                 const signal = abortController.signal;
                 
@@ -119,14 +112,7 @@ export class WuwaPageController {
                 }
                 const overlay = document.getElementById('chartLoadingOverlay');
                 overlay.style.display = 'flex';
-
-                if (window.goatcounter) {
-                    window.goatcounter.count({
-                        path: '/wuwa-calculation-initiated',
-                        title: 'Wuwa Calculation Initiated'
-                    });
-                }
-
+                
                 abortController = new AbortController();
                 const signal = abortController.signal;
 

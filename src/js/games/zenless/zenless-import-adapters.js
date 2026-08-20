@@ -33,6 +33,13 @@ export function adaptFromRngMoe(importedData, persistence) {
 
     const finalConstellationData = aggregateConstellationCounts(pulls, data.itemAppend, standardData, persistence);
 
+    if (window.goatcounter) {
+        window.goatcounter.count({
+            path: '/ZZZ-import-initiated',
+            title: 'ZZZ Import Initiated'
+        });
+    }
+
     return {
         pity: finalPityData,
         constellation: finalConstellationData
