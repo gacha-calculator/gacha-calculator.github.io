@@ -16,7 +16,6 @@ input::-webkit-inner-spin-button {
     --color-primary: #3a3a6a;
     --text-primary: #f5f5f5;
     --text-header: #FFFFFF;
-    --spacing-md: 16px;
 }
 
 /* ========================
@@ -80,16 +79,12 @@ input[type="number"] {
     -moz-appearance: textfield;
 
     width: 100%;
-    /* Fills available cell width */
     max-width: 70px;
-    /* Slightly less than cell max-width */
     box-sizing: border-box;
-    /* Include padding in width */
     padding: 4px 8px;
 }
 
 .tab-panel-card {
-    /* Let this panel grow and shrink to fill available space */
     flex: 1;
     width: 600px;
     background-color: transparent;
@@ -151,9 +146,7 @@ table td:first-child {
 
 .nav-container {
     margin: 0px auto 0;
-    min-width: 1200px;
-    max-width: 100%;
-    max-width: min(1200px, 100%);
+    width: 1200px;
     position: relative;
     align-items: center;
     opacity: 0;
@@ -165,7 +158,6 @@ table td:first-child {
     margin: 0px auto 0;
     align-items: center;
     min-width: 1200px;
-    max-width: 100%;
     margin-top: 10px;
     padding-bottom: 5px;
     background: rgba(20, 20, 41, 0.9);
@@ -190,13 +182,11 @@ table td:first-child {
 }
 
 .main-content {
-    margin: 250px auto 0;
-    padding: 0 20px;
+    margin: 25vh auto 0;
+    padding: 0 0px;
     position: relative;
     z-index: 2;
-    width: 1200px;
-    max-width: 100%;
-    max-width: min(1200px, 100%);
+    width: max(1200px, 60vw);
     align-items: center;
 }
 
@@ -211,7 +201,6 @@ table td:first-child {
 
 .main-title {
     margin: 0;
-    /* H1s have default margins that can mess up alignment, remove them */
     line-height: 1.2;
 }
 
@@ -220,8 +209,6 @@ table td:first-child {
     position: relative;
     z-index: 2;
     width: 1200px;
-    max-width: 100%;
-    max-width: min(1200px, 100%);
     align-items: center;
 }
 
@@ -282,20 +269,7 @@ table td:first-child {
     -webkit-backdrop-filter: blur(3px);
 }
 
-.main-content {
-    margin: 25vh auto 0;
-    padding: 0 0px;
-    position: relative;
-    z-index: 2;
-    width: 1200px;
-    width: max(1200px, 60vw);
-    max-width: 100%;
-    max-width: min(1200px, 100%);
-    align-items: center;
-}
-
 .content-box {
-    width: fit-content;
     width: 100%;
     background: rgba(20, 20, 41, 0.92);
     border-radius: 8px;
@@ -358,7 +332,8 @@ table td:first-child {
     transform: scale(1.1, 1.1);
 }
 
-.nav-button {
+.nav-button,
+.nav-button--home {
     flex: 1;
     width: 200px;
     height: 50px;
@@ -371,27 +346,11 @@ table td:first-child {
     cursor: pointer;
     transition: background 0.3s ease;
     text-decoration: none;
-    /* Removes the underline */
     color: inherit;
-    /* Makes the link inherit its color from the parent, matching your other text */
 }
 
 .nav-button--home {
-    flex: 1;
     width: 120px;
-    height: 50px;
-    padding: 0 15px 0 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    text-decoration: none;
-    /* Removes the underline */
-    color: inherit;
-    /* Makes the link inherit its color from the parent, matching your other text */
 }
 
 .nav-button:hover {
@@ -448,23 +407,18 @@ table td:first-child {
     opacity: 1;
 }
 
-/* Style for the ACTIVE tab button */
 .tab-link.active {
     opacity: 1;
     font-weight: 600;
     border-bottom: 2px solid var(--color-primary);
-    /* Use your theme's accent color */
 }
 
-/* Container for the content panels */
 .tab-content {
     padding: 0;
 }
 
-/* --- The Core Show/Hide Logic --- */
 .tab-pane {
     display: none;
-    /* By default, all content panels are hidden */
 }
 
 .tab-pane.active {
@@ -542,9 +496,7 @@ table td:first-child {
 .bubble-text {
     display: flex;
     justify-content: center;
-    /* horizontal center */
     align-items: center;
-    /* vertical center */
 
     width: 100%;
     height: 100%;
@@ -555,7 +507,6 @@ table td:first-child {
     z-index: 2;
 }
 
-/* --- The SVG Background: No changes needed here --- */
 .bubble-svg-background {
     position: absolute;
     z-index: 2;
@@ -563,7 +514,7 @@ table td:first-child {
     filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
 }
 
-/* --- The Chibi Character --- */
+/* --- The Chibi --- */
 .tutorial-chibi {
     position: relative;
     z-index: 1;
@@ -647,7 +598,7 @@ table td:first-child {
 
 .btn--calculate {
     background: #2b4fc7;
-    scroll-margin: '20px';
+    scroll-margin: 20px;
     padding: 10px 24px;
     transition: transform 0.2s;
     margin-top: 6px;
@@ -660,7 +611,7 @@ table td:first-child {
 
 .btn--calculate_no_cashback {
     background: #1e507c;
-    scroll-margin: '20px';
+    scroll-margin: 20px;
     padding: 10px 24px;
     transition: transform 0.2s;
     margin-top: 6px;
@@ -673,7 +624,7 @@ table td:first-child {
 
 .btn--calculate_stop {
     background: #8b2f28;
-    scroll-margin: '20px';
+    scroll-margin: 20px;
     padding: 10px 24px;
     transition: transform 0.2s;
     margin-top: 6px;
@@ -935,9 +886,9 @@ table td:first-child {
 .probability-table {
   display: block;
   overflow-x: auto;
-  white-space: nowrap;          /* prevents cell text wrapping */
-  width: 100%;                   /* table fills the wrapper */
-  min-width: 600px;              /* but will never shrink below 600px */
+  white-space: nowrap;
+  width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   background: rgba(0, 0, 0, 0.2);
 }
@@ -1037,7 +988,6 @@ table td:first-child {
 
 .tiny-input {
     width: 30px !important;
-    /* As narrow as possible */
     padding: 2px 4px !important;
     background: var(--bg-tables);
     border: 1px solid var(--color-primary);
@@ -1068,7 +1018,6 @@ table td:first-child {
     padding: 0 4px;
 }
 
-/* Tight inline layout */
 .header-controls {
     display: inline-flex;
     align-items: baseline;
@@ -1080,7 +1029,6 @@ table td:first-child {
     white-space: nowrap;
 }
 
-/* */
 .mode-label {
     cursor: pointer;
     user-select: none;
@@ -1092,7 +1040,6 @@ table td:first-child {
     color: white;
 }
 
-/* Subtle underline alternative */
 .mode-label.active::after {
     content: "";
     position: absolute;
@@ -1148,9 +1095,7 @@ table td:first-child {
 
 .max {
     white-space: nowrap;
-    /* Forces the / and the 2 to stay side-by-side */
     display: inline;
-    /* Ensures it doesn't act like a block */
 }
 
 @keyframes pulse-teal {
@@ -1210,7 +1155,6 @@ table td:first-child {
     0%,
     100% {
         transform: translateX(0);
-        /* Start and end at original position */
     }
 
     10%,
@@ -1219,7 +1163,6 @@ table td:first-child {
     70%,
     90% {
         transform: translateX(-1.5px);
-        /* Move left */
     }
 
     20%,
@@ -1227,7 +1170,6 @@ table td:first-child {
     60%,
     80% {
         transform: translateX(1.5px);
-        /* Move right */
     }
 }
 
@@ -1378,7 +1320,6 @@ table td:first-child {
         overflow-x: auto;
         display: inline-block;
         white-space: nowrap;
-        /* if you want inline children to scroll horizontally */
     }
 
     .dropdown {
