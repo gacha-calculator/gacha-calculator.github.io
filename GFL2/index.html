@@ -25,17 +25,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script data-goatcounter="https://bubartem.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-  <script type="module" crossorigin src="/assets/gfl2-CMqAeQAE.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/recalc-inputs-Not_NUEn.js">
-  <link rel="modulepreload" crossorigin href="/assets/solvers-BoMYTpig.js">
-  <link rel="modulepreload" crossorigin href="/assets/data-validator-FuA9EeG6.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-CghBZ_yA.js">
+  <script type="module" crossorigin src="/assets/gfl2-DDE59LzB.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/recalc-inputs-C-BnpNBF.js">
+  <link rel="modulepreload" crossorigin href="/assets/solvers-QaLijcXn.js">
+  <link rel="modulepreload" crossorigin href="/assets/data-validator-CBI3sCc6.js">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-helpers-DzFOhHrH.js">
   <link rel="modulepreload" crossorigin href="/assets/worker-manager-C4OSyH1w.js">
   <link rel="modulepreload" crossorigin href="/assets/common-helpers-9TVvGZt4.js">
   <link rel="modulepreload" crossorigin href="/assets/make-distribution-arrays-Cl3ImG5G.js">
   <link rel="modulepreload" crossorigin href="/assets/common-pull-logic-CWsuZInA.js">
-  <link rel="modulepreload" crossorigin href="/assets/cashback-DgCDvmam.js">
-  <link rel="stylesheet" crossorigin href="/assets/styles-B5xwPYBV.css">
+  <link rel="modulepreload" crossorigin href="/assets/cashback-Db1y27un.js">
+  <link rel="stylesheet" crossorigin href="/assets/styles-BiWKz7Gn.css">
 </head>
 
 <body>
@@ -304,30 +304,107 @@
                     </div>
                 </div>
             </div>
-
-            <div class="table-header-line">
-                <h2>Probability Distribution and Cashback</h2>
-                <div class="button-container">
-                    <div class="header-controls">
-                        <span class="control-text">for</span>
-                        <div class="input-lock-container">
-                            <input type="number" data-control="probability" class="custom-input" min="0" max="100"
-                                aria-label="Your Target Probability">
-                        </div>
-                        <span class="control-text">%</span>
-                        <span class="control-text mode-label" data-target="probability">probability</span>
-                        <span class="control-text">or</span>
-                        <div class="input-lock-container">
-                            <input type="number" data-control="pulls" class="custom-input" min="1" max="9999"
-                                aria-label="Your Pull Budget">
-                        </div>
-                        <span class="control-text mode-label" data-target="pulls">pulls</span>
+            <section class="target-section" aria-labelledby="target-heading">
+                <div class="target-header">
+                    <div class="mode-toggle" role="tablist" aria-label="Calculator Mode">
+                        <button type="button" role="tab" aria-selected="true" class="mode-tab is-active"
+                            data-target="pulls">
+                            Calculate Chance from Budget
+                        </button>
+                        <button type="button" role="tab" aria-selected="false" class="mode-tab"
+                            data-target="probability">
+                            Calculate Pulls Needed
+                        </button>
                     </div>
-                    <button class="help-btn" data-help-key="target-help"
+
+                    <button type="button" class="help-btn" data-help-key="target-help"
                         aria-label="Help for Target Probability and Pulls">
                         ?
                     </button>
                 </div>
+
+                <div class="mode-panel" data-panel="pulls">
+                    <div class="calculator-grid">
+                        <div class="input-group">
+                            <div class="currency-grid">
+                                <label class="field">
+                                    <span class="field-label">Permissions
+                                        <img src="/images/Item_Targeted_Access_Permission.webp" alt="" class="currency-icon"
+                                            width="24" height="24">
+                                    </span>
+                                    <input type="number" data-control="wishes" class="custom-input" min="0" max="9999"
+                                        placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">+</span>
+                                <label class="field">
+                                    <span class="field-label">
+                                        Collapse Pieces
+                                        <img src="/images/Item_Collapse_Piece.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <input type="number" data-control="currency" class="custom-input" min="0"
+                                        max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">+</span>
+                                <label class="field">
+                                    <span class="field-label">
+                                        Credit Tokens
+                                        <img src="/images/Item_Credit_Token.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <input type="number" data-control="premium_currency" class="custom-input" min="0"
+                                        max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">+</span>
+                                <label class="field">
+                                    <span class="field-label">Dorritos
+                                        <img src="/images/Item_Redundant_Pieces.webp" alt="" class="currency-icon"
+                                            width="24" height="24">
+                                    </span>
+                                    <input type="number" data-control="cashback_currency" class="custom-input" min="0"
+                                        max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">=</span>
+                                <div class="field field-total">
+                                    <span class="field-label">Total Pulls Budget
+                                        <img src="/images/Item_Targeted_Access_Permission.webp" alt="" class="currency-icon"
+                                            width="24" height="24">
+                                    </span>
+                                    <output class="total-output" data-control="pulls">0</oustput>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-card">
+                            <span class="result-label">Chance to acquire everything</span>
+                            <output class="result-value" data-control="pulls-result">0%</output>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mode-panel" data-panel="probability" hidden>
+                    <div class="calculator-grid">
+                        <div class="input-group">
+                            <label class="field">
+                                <span class="group-label">Desired Chance to Acquire Everything</span>
+                                <div class="input-with-unit">
+                                    <input type="number" data-control="probability" class="custom-input" min="0"
+                                        max="100" placeholder="90">
+                                    <span class="unit">%</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="result-card">
+                            <span class="result-label">Pulls required</span>
+                            <output class="result-value" data-control="probability-result">0 Pulls</output>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="table-header-line">
+                <h2>Probability Distribution and Cashback</h2>
             </div>
 
             <div class="table-container">
