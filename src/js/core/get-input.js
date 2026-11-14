@@ -194,10 +194,22 @@ function getRateUps() {
 }
 
 export function getTarget() {
-    const targetType = document.querySelector('.mode-label.active').getAttribute('data-target');
+    const activeTab = document.querySelector('.mode-tab.is-active');
+    const targetType = activeTab?.dataset.target ?? 'pulls';
+
     if (targetType === 'probability') {
-        return { type: targetType, value: parseInt(document.querySelector('[data-control="probability"]').value) / 100 };
-    } else if (targetType === 'pulls') {
-        return { type: targetType, value: parseInt(document.querySelector('[data-control="pulls"]').value) };
+        const raw = document.querySelector('[data-control="probability"]')?.value;
+        return {
+            type: targetType,
+            value: (parseFloat(raw) || 0) / 100
+        };
+    }
+
+    if (targetType === 'pulls') {
+        const raw = document.querySelector('[data-control="pulls"]')?.value;
+        return {
+            type: targetType,
+            value: parseInt(raw, 10) || 0
+        };
     }
 }

@@ -1,10 +1,13 @@
 import { CONSTELLATION_OPTIONS } from "./config.js";
 import { SELECTORS, INITIAL_CONFIG } from "./page-config.js";
+import { gachaConfig } from "./config.js";
 
 export function initializeTables(persistence, gachaConfig, validator) {
     initializePityTable(gachaConfig.pity);
     initializeConstellationTable(gachaConfig);
     initializeRateUpTable();
+    initializeModeTabsSwitch();
+    initializeTotalPullsSummation();
 
     const savedData = persistence.loadTables();
 
@@ -18,6 +21,53 @@ export function initializeTables(persistence, gachaConfig, validator) {
 
     persistence.init();
 };
+
+function initializeTotalPullsSummation() {
+    const targetSection = document.querySelector('.target-section');
+    const wishesInput = targetSection.querySelector('[data-control="wishes"]');
+    const currencyInput = targetSection.querySelector('[data-control="currency"]');
+    const premiumCurrencyInput = targetSection.querySelector('[data-control="premium_currency"]');
+    const cashbackCurrencyInput = targetSection.querySelector('[data-control="cashback_currency"]');
+    const totalPullsOutput = targetSection.querySelector('[data-control="pulls"]');
+
+    function updateTotalPulls() {
+        const wishes = Math.max(0, Math.floor(Number(wishesInput.value) || 0));
+        const currency = Math.max(0, Math.floor(Number(currencyInput.value) || 0));
+        const premiumCurrency = Math.max(0, Math.floor(Number(premiumCurrencyInput.value) || 0));
+        const cashbackCurrency = Math.max(0, Math.floor(Number(cashbackCurrencyInput.value) || 0));
+
+        const totalPulls =
+            wishes +
+            Math.floor((currency + premiumCurrency * gachaConfig.pullCosts.premiumCurrencyInRegular) / gachaConfig.pullCosts.pullCostInCurrency) +
+            Math.floor(cashbackCurrency / gachaConfig.pullCosts.pullCostInCashbackCurrency);
+
+        totalPullsOutput.value = String(totalPulls);
+    }
+
+    [wishesInput, currencyInput, premiumCurrencyInput, cashbackCurrencyInput].forEach((input) => {
+        input.addEventListener('input', updateTotalPulls);
+    });
+
+    updateTotalPulls();
+}
+
+function initializeModeTabsSwitch() {
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.target;
+
+            document.querySelectorAll('.mode-tab').forEach(t => {
+                const isSelected = t === tab;
+                t.classList.toggle('is-active', isSelected);
+                t.setAttribute('aria-selected', isSelected);
+            });
+
+            document.querySelectorAll('.mode-panel').forEach(panel => {
+                panel.hidden = panel.dataset.panel !== target;
+            });
+        });
+    });
+}
 
 function initializePityTable(pityConfig) {
     const pityTemplate = document.getElementById('pity-row-template');

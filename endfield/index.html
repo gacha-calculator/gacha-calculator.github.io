@@ -137,13 +137,15 @@
                 <div class="tab-panel-card">
                     <div class="tab-nav">
                         <div class="button-container">
-                            <button class="tab-link active" data-tab-target="#pity-panel" role="tab" aria-controls="pity-panel" aria-selected="true">Pity</button>
+                            <button class="tab-link active" data-tab-target="#pity-panel" role="tab"
+                                aria-controls="pity-panel" aria-selected="true">Pity</button>
                             <button class="help-btn" data-help-key="pity-help" aria-label="Help for Entering Pity Data">
                                 ?
                             </button>
                         </div>
                         <div class="button-container">
-                            <button class="tab-link" data-tab-target="#constellation-panel" role="tab" aria-controls="constellation-panel">Owned
+                            <button class="tab-link" data-tab-target="#constellation-panel" role="tab"
+                                aria-controls="constellation-panel">Owned
                                 Characters</button>
                             <button class="help-btn" data-help-key="constelation-help"
                                 aria-label="Help for Entering Constellation Data">
@@ -268,30 +270,138 @@
                     </div>
                 </div>
             </div>
-
-            <div class="table-header-line">
-                <h2>Probability Distribution and Cashback</h2>
-                <div class="button-container">
-                    <div class="header-controls">
-                        <span class="control-text">for</span>
-                        <div class="input-lock-container">
-                            <input type="number" data-control="probability" class="custom-input" min="0" max="100"
-                                aria-label="Your Target Probability">
-                        </div>
-                        <span class="control-text">%</span>
-                        <span class="control-text mode-label" data-target="probability">probability</span>
-                        <span class="control-text">or</span>
-                        <div class="input-lock-container">
-                            <input type="number" data-control="pulls" class="custom-input" min="1" max="9999"
-                                aria-label="Your Pull Budget">
-                        </div>
-                        <span class="control-text mode-label" data-target="pulls">pulls</span>
+            <section class="target-section" aria-labelledby="target-heading">
+                <div class="target-header">
+                    <div class="mode-toggle" role="tablist" aria-label="Calculator Mode">
+                        <button type="button" role="tab" aria-selected="true" class="mode-tab is-active"
+                            data-target="pulls">
+                            Calculate Chance from Budget
+                        </button>
+                        <button type="button" role="tab" aria-selected="false" class="mode-tab"
+                            data-target="probability">
+                            Calculate Pulls Needed
+                        </button>
                     </div>
-                    <button class="help-btn" data-help-key="target-help"
+
+                    <button type="button" class="help-btn" data-help-key="target-help"
                         aria-label="Help for Target Probability and Pulls">
                         ?
                     </button>
                 </div>
+
+                <div class="mode-panel" data-panel="pulls">
+                    <div class="calculator-grid">
+                        <div class="input-group">
+                            <div class="currency-grid" data-currency-grid="Character">
+                                <label class="field">
+                                    <span class="field-label">Permits
+                                        <img src="/images/Item_Permit.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <input type="number" data-control="wishes" class="custom-input" min="0" max="9999"
+                                        placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">+</span>
+                                <label class="field">
+                                    <span class="field-label">
+                                        Oroberyls
+                                        <img src="/images/Item_Oroberyl.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <input type="number" data-control="currency" class="custom-input" min="0"
+                                        max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">+</span>
+                                <label class="field">
+                                    <span class="field-label">
+                                        Oranges
+                                        <img src="/images/Item_Origeometry.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <input type="number" data-control="premium_currency" class="custom-input" min="0"
+                                        max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">+</span>
+                                <label class="field">
+                                    <span class="field-label">Quotas
+                                        <img src="/images/Item_Bond_Quota.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <input type="number" data-control="cashback_currency" class="custom-input" min="0"
+                                        max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">=</span>
+                                <div class="field field-total">
+                                    <span class="field-label">Total Pulls Budget
+                                        <img src="/images/Item_Permit.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <output class="total-output" data-control="pulls">0</oustput>
+                                </div>
+                            </div>
+
+                            <div class="currency-grid currency-grid--compact" data-currency-grid="Weapon" hidden>
+                                <label class="field">
+                                    <span class="field-label">
+                                        Arsenal Tickets
+                                        <img src="/images/Item_Arsenal_Ticket.webp" alt="" class="currency-icon"
+                                            width="24" height="24">
+                                    </span>
+                                    <input type="number" data-control="arsenal_ticket" class="custom-input" min="0"
+                                        max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">+</span>
+                                <label class="field">
+                                    <span class="field-label">Oranges
+                                        <img src="/images/Item_Origeometry.webp" alt="" class="currency-icon" width="24"
+                                            height="24">
+                                    </span>
+                                    <input type="number" data-control="premium_currency_weapon" class="custom-input"
+                                        min="0" max="999999" placeholder="0">
+                                </label>
+                                <span class="operator" aria-hidden="true">=</span>
+                                <div class="field field-total">
+                                    <span class="field-label">Total Issues Budget
+                                        <img src="/images/Item_Arsenal_Ticket.webp" alt="" class="currency-icon"
+                                            width="24" height="24">
+                                    </span>
+                                    <output class="total-output" data-control="pulls_weapon">0</oustput>
+                                </div>
+
+                                (1 issue = 10 pulls)
+                            </div>
+                        </div>
+
+                        <div class="result-card">
+                            <span class="result-label">Chance to acquire everything</span>
+                            <output class="result-value" data-control="pulls-result">0%</output>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mode-panel" data-panel="probability" hidden>
+                    <div class="calculator-grid">
+                        <div class="input-group">
+                            <label class="field">
+                                <span class="group-label">Desired Chance to Acquire Everything</span>
+                                <div class="input-with-unit">
+                                    <input type="number" data-control="probability" class="custom-input" min="0"
+                                        max="100" placeholder="90">
+                                    <span class="unit">%</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="result-card">
+                            <span class="result-label">Pulls required</span>
+                            <output class="result-value" data-control="probability-result">0 Pulls</output>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="table-header-line">
+                <h2>Probability Distribution and Cashback</h2>
             </div>
 
             <div class="table-container">

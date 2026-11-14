@@ -23,5 +23,5 @@ export const INITIAL_CONFIG = {
 
 export const DEFAULTS = {
     probability: 70,
-    pulls: 99
+    pulls: 100
 }

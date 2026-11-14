@@ -2,6 +2,8 @@ export function initializeTables(persistence, gachaConfig, validator, INITIAL_CO
     initializePityTable(gachaConfig.pity, INITIAL_CONFIG, SELECTORS);
     initializeConstellationTable(gachaConfig, INITIAL_CONFIG, SELECTORS);
     initializeRateUpTable(CONSTELLATION_OPTIONS);
+    initializeModeTabsSwitch();
+    initializeTotalPullsSummation(gachaConfig);
 
     const savedData = persistence.loadTables();
 
@@ -15,6 +17,53 @@ export function initializeTables(persistence, gachaConfig, validator, INITIAL_CO
 
     persistence.init();
 };
+
+function initializeTotalPullsSummation(gachaConfig) {
+    const targetSection = document.querySelector('.target-section');
+    const wishesInput = targetSection.querySelector('[data-control="wishes"]');
+    const currencyInput = targetSection.querySelector('[data-control="currency"]');
+    const premiumCurrencyInput = targetSection.querySelector('[data-control="premium_currency"]');
+    const cashbackCurrencyInput = targetSection.querySelector('[data-control="cashback_currency"]');
+    const totalPullsOutput = targetSection.querySelector('[data-control="pulls"]');
+
+    function updateTotalPulls() {
+        const wishes = Math.max(0, Math.floor(Number(wishesInput.value) || 0));
+        const currency = Math.max(0, Math.floor(Number(currencyInput.value) || 0));
+        const premiumCurrency = Math.max(0, Math.floor(Number(premiumCurrencyInput.value) || 0));
+        const cashbackCurrency = Math.max(0, Math.floor(Number(cashbackCurrencyInput.value) || 0));
+
+        const totalPulls =
+            wishes +
+            Math.floor((currency + premiumCurrency * gachaConfig.pullCosts.premiumCurrencyInRegular) / gachaConfig.pullCosts.pullCostInCurrency) +
+            Math.floor(cashbackCurrency / gachaConfig.pullCosts.pullCostInCashbackCurrency);
+
+        totalPullsOutput.value = String(totalPulls);
+    }
+
+    [wishesInput, currencyInput, premiumCurrencyInput, cashbackCurrencyInput].forEach((input) => {
+        input.addEventListener('input', updateTotalPulls);
+    });
+
+    updateTotalPulls();
+}
+
+function initializeModeTabsSwitch() {
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.target;
+
+            document.querySelectorAll('.mode-tab').forEach(t => {
+                const isSelected = t === tab;
+                t.classList.toggle('is-active', isSelected);
+                t.setAttribute('aria-selected', isSelected);
+            });
+
+            document.querySelectorAll('.mode-panel').forEach(panel => {
+                panel.hidden = panel.dataset.panel !== target;
+            });
+        });
+    });
+}
 
 export function initializeButtons(persistence) {
     const savedData = persistence.loadButtons();
@@ -200,20 +249,51 @@ function initializeRateUpTable(CONSTELLATION_OPTIONS) {
 export function initializeTarget(DEFAULTS, savedSettings = null) {
     const probabilityInput = document.querySelector('[data-control="probability"]');
     const pullsInput = document.querySelector('[data-control="pulls"]');
+    const resPull = document.querySelector('[data-control="pulls-result"]');
+    const resProb = document.querySelector('[data-control="probability-result"]');
+    const wishes = document.querySelector('[data-control="wishes"]');
+    const currency = document.querySelector('[data-control="currency"]');
+    const premiumCurrency = document.querySelector('[data-control="premium_currency"]');
+    const cashbackCurrency = document.querySelector('[data-control="cashback_currency"]');
+
+    const setValue = (el, value) => {
+        if (el) el.value = value;
+    };
 
     if (savedSettings) {
-        probabilityInput.value = savedSettings.targetProb || DEFAULTS.probability;
-        pullsInput.value = savedSettings.targetPull || DEFAULTS.pulls;
+        setValue(probabilityInput, savedSettings.targetProb ?? DEFAULTS.probability);
+        setValue(pullsInput, savedSettings.targetPull ?? DEFAULTS.pulls);
+        setValue(resPull, String(savedSettings.resultPull ?? DEFAULTS.probability) + '%');
+        setValue(resProb, String(savedSettings.resultProb ?? DEFAULTS.pulls) + ' Pulls');
+        setValue(wishes, savedSettings.wishes ?? '0');
+        setValue(currency, savedSettings.currency ?? '0');
+        setValue(premiumCurrency, savedSettings.premiumCurrency ?? '0');
+        setValue(cashbackCurrency, savedSettings.cashbackCurrency ?? '0');
     } else {
-        probabilityInput.value = DEFAULTS.probability;
-        pullsInput.value = DEFAULTS.pulls;
+        setValue(probabilityInput, DEFAULTS.probability);
+        setValue(pullsInput, DEFAULTS.pulls);
+        setValue(resPull, DEFAULTS.probability);
+        setValue(resProb, DEFAULTS.pulls);
+        setValue(wishes, DEFAULTS.pulls);
+        setValue(currency, '0');
+        setValue(premiumCurrency, '0');
+        setValue(cashbackCurrency, '0');
+    }
+
+    if (savedSettings?.currencyWeapon) { // if Endfield basically...
+        const issuesInput = document.querySelector('[data-control="pulls_weapon"]');
+        const currencyWeapon = document.querySelector('[data-control="arsenal_ticket"]');
+        const premiumCurrencyWeapon = document.querySelector('[data-control="premium_currency_weapon"]');
+        setValue(issuesInput, savedSettings.issuesInput ?? DEFAULTS.pulls);
+        setValue(currencyWeapon, savedSettings.currencyWeapon ?? '0');
+        setValue(premiumCurrencyWeapon, savedSettings.premiumCurrencyWeapon ?? '0');
     }
 
     probabilityInput.addEventListener('input', function () {
         let value = this.value;
 
         if (value.length > 1 && value.startsWith('0')) {
-            this.value = value.replace(/^0+/, '');
+            this.value = value.replace(/^0+/, ''); s
         }
         if (this.value === '') this.value = '0';
 
@@ -226,21 +306,24 @@ export function initializeTarget(DEFAULTS, savedSettings = null) {
         }
     });
 
-    pullsInput.addEventListener('input', function () {
-        let value = this.value;
+    const tabs = document.querySelectorAll('.target-section .mode-tab');
+    const panels = document.querySelectorAll('.target-section .mode-panel');
 
-        if (value.length > 1 && value.startsWith('0')) {
-            this.value = value.replace(/^0+/, '');
-        }
-        if (this.value === '') this.value = '0';
+    function setActiveMode(mode) {
+        tabs.forEach((tab) => {
+            const isActive = tab.dataset.target === mode;
+            tab.classList.toggle('is-active', isActive);
+            tab.setAttribute('aria-selected', String(isActive));
+        });
 
-        let numValue = parseInt(this.value) || 0;
-        if (numValue > 9999) {
-            this.value = '9999';
-        } else if (numValue < 1) {
-            this.value = '1';
-        }
-    });
+        panels.forEach((panel) => {
+            panel.hidden = panel.dataset.panel !== mode;
+        });
+    }
+
+    // On load: default to 'pulls' if persistInput is null/undefined
+    const initialMode = savedSettings?.persistInput === 'probability' ? 'probability' : 'pulls';
+    setActiveMode(initialMode);
 }
 
 function errorAnimation(inputElement) {

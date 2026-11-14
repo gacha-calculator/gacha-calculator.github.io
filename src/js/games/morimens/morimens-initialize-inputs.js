@@ -1,4 +1,5 @@
 import { SELECTORS, INITIAL_CONFIG } from "./page-config.js";
+import { gachaConfig } from "./config.js";
 
 export function updateProbabilityTable(distribution, names) {
     const pull = parseInt(document.querySelector('[data-control="pulls"]').value);
@@ -34,6 +35,8 @@ export function updateProbabilityTable(distribution, names) {
 
 export function initializeTables(persistence, gachaConfig) {
     initializePityTable(gachaConfig.pity);
+    initializeModeTabsSwitch();
+    initializeTotalPullsSummation();
 
     const savedData = persistence.loadTables();
 
@@ -44,6 +47,65 @@ export function initializeTables(persistence, gachaConfig) {
     window.addEventListener('beforeunload', () => morimensSaveTables());
     morimensSaveTables(persistence);
 };
+
+function initializeTotalPullsSummation() {
+    const targetSection = document.querySelector('.target-section');
+    if (!targetSection) return;
+
+    const totalPullsOutput = targetSection.querySelector('[data-control="pulls"]');
+    if (!totalPullsOutput) return;
+
+    const wishesInput = targetSection.querySelector('[data-control="wishes"]');
+    const currencyInput = targetSection.querySelector('[data-control="currency"]');
+    const premiumCurrencyInput = targetSection.querySelector('[data-control="premium_currency"]');
+
+    const availableInputs = [
+        wishesInput,
+        currencyInput,
+        premiumCurrencyInput
+    ].filter(Boolean);
+
+    if (availableInputs.length === 0) return;
+
+    const readNonNegInt = (input) =>
+        Math.max(0, Math.floor(Number(input?.value) || 0));
+
+    function updateTotalPulls() {
+        const wishes = readNonNegInt(wishesInput);
+        const currency = readNonNegInt(currencyInput);
+        const premiumCurrency = readNonNegInt(premiumCurrencyInput);
+
+        const totalPulls =
+            wishes +
+            Math.floor((currency + premiumCurrency * gachaConfig.pullCosts.premiumCurrencyInRegular) / gachaConfig.pullCosts.pullCostInCurrency);
+
+        totalPullsOutput.value = String(totalPulls);
+    }
+
+    availableInputs.forEach((input) => {
+        input.addEventListener('input', updateTotalPulls);
+    });
+
+    updateTotalPulls();
+}
+
+function initializeModeTabsSwitch() {
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.target;
+
+            document.querySelectorAll('.mode-tab').forEach(t => {
+                const isSelected = t === tab;
+                t.classList.toggle('is-active', isSelected);
+                t.setAttribute('aria-selected', isSelected);
+            });
+
+            document.querySelectorAll('.mode-panel').forEach(panel => {
+                panel.hidden = panel.dataset.panel !== target;
+            });
+        });
+    });
+}
 
 function setupTableListeners(persistence) {
     const elementsToWatch = [

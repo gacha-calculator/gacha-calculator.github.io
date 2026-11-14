@@ -276,14 +276,16 @@ export class EndfieldPageController {
         document.querySelector('.banner-name').textContent = type;
         document.querySelector('[data-banner]').dataset.banner = type;
 
+        document.querySelectorAll('[data-currency-grid]').forEach((grid) => {
+            grid.hidden = grid.dataset.currencyGrid !== type;
+        });
+
         const savedTables = this.persistence.loadTables(type);
         let emptyData;
         if (type === 'Character') {
             emptyData = [{ banner: 'Character', pity5: '0', pity4: '0' }];
-            document.querySelector('[data-target="pulls"]').textContent = 'pulls';
         } else {
             emptyData = [{ banner: 'Weapon', pity5: '0', pity4: '0' }];
-            document.querySelector('[data-target="pulls"]').textContent = 'issues(1 issue = 10 pulls)';
         }
         if (savedTables) {
             restorePityTable(savedTables.pity);
@@ -300,6 +302,10 @@ export class EndfieldPageController {
             storageKey = type.trim().toLowerCase().replace(/\s+/g, '_');
         }
         const savedInput = this.persistence.loadCalculation(storageKey);
+
+        document.querySelectorAll('[data-currency-grid]').forEach((grid) => {
+            grid.hidden = grid.dataset.currencyGrid !== type;
+        });
         let isCashback;
         if (type === 'Character') {
             if (this.persistence.loadIsCashback()) {

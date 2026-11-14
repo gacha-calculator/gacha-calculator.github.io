@@ -1,10 +1,24 @@
-export function recalcInputs(distribution) {
-    const persistentState = document.querySelector('.mode-label.active').getAttribute('data-target');
+export function recalcInputs(distribution) { // legacy name, actually calcs output now, not recalc
+    const activeTab = document.querySelector('.mode-tab.is-active');
+    const persistentState = activeTab?.dataset.target ?? 'pulls';
 
     if (persistentState === 'probability') {
-        document.querySelector('.input-lock-container input[data-control="pulls"]').value = findTargetPull(distribution, parseInt(document.querySelector('[data-control="probability"]').value));
+        const probInput = parseFloat(document.querySelector('[data-control="probability"]')?.value) || 0;
+        const result = findTargetPull(distribution, probInput);
+        const output = document.querySelector('[data-control="probability-result"]');
+
+        if (output) {
+            output.textContent = `${result} Pulls`;
+        }
     } else {
-        document.querySelector('.input-lock-container input[data-control="probability"]').value = findTargetProb(distribution, parseInt(document.querySelector('[data-control="pulls"]').value));
+        const pullsEl = document.querySelector('.currency-grid:not([hidden]) [data-control^="pulls"]');
+        const pullsInput = parseInt(pullsEl?.value, 10) || 0;
+        const result = findTargetProb(distribution, pullsInput);
+        const output = document.querySelector('[data-control="pulls-result"]');
+
+        if (output) {
+            output.textContent = `${result}%`;
+        }
     }
 }
 
@@ -16,7 +30,7 @@ function findTargetPull(distribution, prob) {
     let pullNotFound = true;
     let y = 0;
     let pull = 0;
-    
+
     while (pullNotFound) {
         if (distribution[lastElement][y] > (prob / 100)) {
             pull = y;

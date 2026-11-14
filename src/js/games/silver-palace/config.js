@@ -25,6 +25,11 @@ export const gachaConfig = {
         pitySSRWep: 80,
         pitySRChar: ODDS_SR.length
     },
+    pullCosts: {
+        pullCostInCashbackCurrency: 20,
+        premiumCurrencyInRegular: 1,
+        pullCostInCurrency: 160
+    },
     default: 0
 };
 

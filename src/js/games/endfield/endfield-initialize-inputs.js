@@ -1,8 +1,11 @@
 import { SELECTORS, INITIAL_CONFIG } from "./page-config.js";
+import { gachaConfig } from "./config.js";
 
 export function initializeTables(persistence, gachaConfig, validator, pageType) {
     initializePityTable(gachaConfig.pity, pageType);
     initializeConstellationTable(gachaConfig);
+    initializeModeTabsSwitch();
+    initializeTotalPullsSummation(pageType);
 
     const savedData = persistence.loadTables(pageType);
 
@@ -15,6 +18,73 @@ export function initializeTables(persistence, gachaConfig, validator, pageType) 
 
     persistence.init(pageType);
 };
+
+function initializeTotalPullsSummation() {
+    const targetSection = document.querySelector('.target-section');
+    const wishesInput = targetSection.querySelector('[data-control="wishes"]');
+    const currencyInput = targetSection.querySelector('[data-control="currency"]');
+    const premiumCurrencyInput = targetSection.querySelector('[data-control="premium_currency"]');
+    const cashbackCurrencyInput = targetSection.querySelector('[data-control="cashback_currency"]');
+    const totalPullsOutput = targetSection.querySelector('[data-control="pulls"]');
+
+    function updateTotalPulls() {
+        const wishes = Math.max(0, Math.floor(Number(wishesInput.value) || 0));
+        const currency = Math.max(0, Math.floor(Number(currencyInput.value) || 0));
+        const premiumCurrency = Math.max(0, Math.floor(Number(premiumCurrencyInput.value) || 0));
+        const cashbackCurrency = Math.max(0, Math.floor(Number(cashbackCurrencyInput.value) || 0));
+
+        const totalPulls =
+            wishes +
+            Math.floor((currency + premiumCurrency * gachaConfig.pullCosts.premiumCurrencyInRegular) / gachaConfig.pullCosts.pullCostInCurrency) +
+            Math.floor(cashbackCurrency / gachaConfig.pullCosts.pullCostInCashbackCurrency);
+
+        totalPullsOutput.value = String(totalPulls);
+    }
+
+    [wishesInput, currencyInput, premiumCurrencyInput, cashbackCurrencyInput].forEach((input) => {
+        input.addEventListener('input', updateTotalPulls);
+    });
+
+    updateTotalPulls();
+
+    const arsenalTicketInput = targetSection.querySelector('[data-control="arsenal_ticket"]');
+    const premiumCurrencyWeaponInput = targetSection.querySelector('[data-control="premium_currency_weapon"]');
+    const totalPullsWeaponOutput = targetSection.querySelector('[data-control="pulls_weapon"]');
+
+    function updateTotalPullsWeapon() {
+        const currency = Math.max(0, Math.floor(Number(arsenalTicketInput.value) || 0));
+        const premiumCurrency = Math.max(0, Math.floor(Number(premiumCurrencyWeaponInput.value) || 0));
+
+        const totalPullsWeapon =
+            Math.floor((currency + premiumCurrency * gachaConfig.pullCosts.weaponPremiumCurrencyInRegular) / gachaConfig.pullCosts.pullCostInWeaponCurrency);
+
+        totalPullsWeaponOutput.value = String(totalPullsWeapon);
+    }
+
+    [arsenalTicketInput, premiumCurrencyWeaponInput].forEach((input) => {
+        input.addEventListener('input', updateTotalPullsWeapon);
+    });
+
+    updateTotalPullsWeapon();
+}
+
+function initializeModeTabsSwitch() {
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.target;
+
+            document.querySelectorAll('.mode-tab').forEach(t => {
+                const isSelected = t === tab;
+                t.classList.toggle('is-active', isSelected);
+                t.setAttribute('aria-selected', isSelected);
+            });
+
+            document.querySelectorAll('.mode-panel').forEach(panel => {
+                panel.hidden = panel.dataset.panel !== target;
+            });
+        });
+    });
+}
 
 function initializePityTable(pityConfig, bannerType = 'Character') {
     const pityTemplate = document.getElementById('pity-row-template');
