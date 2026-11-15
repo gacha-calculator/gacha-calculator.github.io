@@ -109,8 +109,10 @@ export const BANNER_HISTORY = [ // taking maint end time with -2 hours just to b
     { type: 'phase2', startDate: '2026-07-31'               , rateUpChars: new Set(['Lumi', 'Baizhi', 'Mortefi']),      rateUpWeps: new Set(['Relativistic Jet', 'Endless Collapse', 'Variation'])         },
     { type: 'phase1', startDate: '2026-08-20T01:00:00+00:00', rateUpChars: new Set(['Baizhi', 'Yangyang', 'Sanhua']),   rateUpWeps: new Set(['Fusion Accretion', 'Commando of Conviction', 'Lunar Cutter'])},
     { type: 'phase2', startDate: '2026-09-11'               , rateUpChars: new Set(['Yuanwu', 'Aatlo', 'Mortefi']),     rateUpWeps: new Set(['Waning Redshift', 'Novaburst', 'Discord'])                   },
-    { type: 'phase1', startDate: '2026-09-30T01:00:00+00:00', rateUpChars: new Set(['Buling', 'Youhu', 'Taoqi']),   rateUpWeps: new Set(['Fusion Accretion', 'Commando of Conviction', 'Dauntless Evernight'])},
-    { type: 'phase2', startDate: '2026-10-22'               , rateUpChars: new Set(['Lumi', 'Chixia', 'Danjin']),     rateUpWeps: new Set(['Relativistic Jet', 'Overture', 'Amity Accord'])                   },
+    { type: 'phase1', startDate: '2026-09-30T01:00:00+00:00', rateUpChars: new Set(['Buling', 'Youhu', 'Taoqi']),       rateUpWeps: new Set(['Fusion Accretion', 'Commando of Conviction', 'Dauntless Evernight'])},
+    { type: 'phase2', startDate: '2026-10-23'               , rateUpChars: new Set(['Lumi', 'Chixia', 'Danjin']),       rateUpWeps: new Set(['Relativistic Jet', 'Overture', 'Amity Accord'])              },
+    { type: 'phase1', startDate: '2026-11-12T01:00:00+00:00', rateUpChars: new Set(['Youhu', 'Yangyang', 'Aatlo']),     rateUpWeps: new Set(['Celestial Spiral', 'Comet Flare', 'Variation'])              },
+    { type: 'phase2', startDate: '2026-12-04'               , rateUpChars: new Set(['Baizhi', 'Yuanwu', 'Danjin']),     rateUpWeps: new Set(['Hollow Mirage', 'Variation', 'Commando of Conviction'])      },
 ];
 
 export const CHARS_5_STAR_STANDARD = new Set([

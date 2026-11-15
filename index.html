@@ -29,6 +29,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        this.stockedBtn = document.getElementById('stocked-btn');
         this.expandBtn = document.getElementById('expand-button');
         this.expandedMenu = document.getElementById('expandedMenu');
         let draggedItem = null;
@@ -37,6 +38,17 @@
             this.expandBtn.addEventListener('click', () => {
                 this.expandBtn.classList.toggle('dropdown--open');
                 this.expandedMenu.classList.toggle('active');
+            });
+        }
+
+        if (this.stockedBtn) {
+            this.stockedBtn.addEventListener('click', () => {
+                if (window.goatcounter) {
+                    window.goatcounter.count({
+                        path: '/Stocked-given-primos-Yippiee',
+                        title: 'Stocked given primos Yippiee'
+                    });
+                }
             });
         }
 
